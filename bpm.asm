@@ -43,10 +43,10 @@ joypad2         equ $4017
 
 ; $00xx used by bank 3 except where noted
 ptr1            equ $00  ; 2 bytes
-ram1            equ $02
+joypad1status   equ $02
 ram2            equ $03
 ram3            equ $04
-ram4            equ $05
+joypad2status   equ $05
 ram5            equ $06
 ram6            equ $07
 ptr2            equ $08  ; 2 bytes
@@ -71,17 +71,10 @@ ram24           equ $a0  ; used by bank 2
 ram25           equ $a1  ; used by bank 2
 ptr4            equ $a2  ; 2 bytes; used by bank 2
 ptr5            equ $a4  ; 2 bytes; used by bank 2
-ram30           equ $a6
-ram31           equ $a7
+prg_bank        equ $a6  ; current PRG bank at CPU $8000-$bfff (0-3)
+do_nmi          equ $a7  ; 0 = no, 1 = yes
 arr2            equ $a8
-arr3            equ $b8
-ram32           equ $b9
-ram33           equ $ba
-ram34           equ $bb
-ram35           equ $bc
-ram36           equ $bd
-ram37           equ $be
-ram38           equ $bf
+arr3            equ $b8  ; 8 bytes
 ram39           equ $c0
 ram40           equ $c1
 ram41           equ $c2
@@ -169,6 +162,11 @@ endm
 macro sub _src
                 sec
                 sbc _src
+endm
+
+macro copy _src, _dst
+                lda _src
+                sta _dst
 endm
 
 ; --- Bank 0 ------------------------------------------------------------------
@@ -1083,7 +1081,9 @@ endm
 
                 base $8000
 
-sub1            stx arr37+9             ; $8000
+sub1            ; audio stuff; called by: init
+                ;
+                stx arr37+9             ; $8000
                 sty arr37+10
                 stx ptr4+0
                 sty ptr4+1
@@ -1092,7 +1092,8 @@ sub1            stx arr37+9             ; $8000
                 lda #$61
 +               sta arr37+8
                 jsr sub2
-                ldy #$01
+                ;
+                ldy #1
                 lda (ptr4),y
                 sta arr37+11
                 iny
@@ -1104,25 +1105,25 @@ sub1            stx arr37+9             ; $8000
                 iny
                 lda (ptr4),y
                 sta arr37+14
+                ;
                 lda #$80
                 sta arr37+16
                 sta ram60
-                lda #$0f
-                sta snd_chn
-                lda #$80
-                sta tri_linear
-                lda #$00
-                sta noise_hi
-                lda #$30
+                copy #%00001111, snd_chn
+                copy #%10000000, tri_linear
+                copy #%00000000, noise_hi
+                lda #%00110000
                 sta sq1_vol
                 sta sq2_vol
                 sta noise_vol
-                lda #$08
+                lda #%00001000
                 sta sq1_sweep
                 sta sq2_sweep
                 jmp sub2
 
-sub2            lda #$00                ; $805b
+sub2            ; array stuff; called by: sub1, sub3
+                ;
+                lda #$00                ; $805b
                 sta arr28+4
                 sta arr37+15
                 ldx #$00
@@ -1178,7 +1179,9 @@ sub2            lda #$00                ; $805b
                 bne -
                 jmp sub10
 
-sub3            ldx arr37+9             ; $80dd
+sub3            ; array stuff; called by: init
+                ;
+                ldx arr37+9             ; $80dd
                 stx ptr4+0
                 ldx arr37+10
                 stx ptr4+1
@@ -1252,7 +1255,11 @@ sub3            ldx arr37+9             ; $80dd
 ++              sta arr28+4
                 rts
 
-sub4            clc                     ; $8177
+; -----------------------------------------------------------------------------
+
+sub4            ; called by: sub7
+                ;
+                clc                     ; $8177
                 lda arr21,y
                 adc arr15,y
                 sta ptr5+0
@@ -1287,7 +1294,9 @@ sub4            clc                     ; $8177
                 sta ptr5+1
                 rts
 
-sub5            jsr sub9                ; $81ba
+sub5            ; called by: sub6
+                ;
+                jsr sub9                ; $81ba
                 bcc +++
                 txa
                 tay
@@ -1306,7 +1315,9 @@ sub5            jsr sub9                ; $81ba
 ++              jsr sub8
 +++             rts
 
-sub6            lda arr37+7             ; $81e3
+sub6            ; called by: sub7
+                ;
+                lda arr37+7             ; $81e3
                 beq +
                 lda arr35,x
                 bmi ++
@@ -1329,7 +1340,9 @@ sub6            lda arr37+7             ; $81e3
                 sta arr27,x             ; (unaccessed)
 +               rts                     ; $821a
 
-sub7            lda ptr4+0              ; $821b
+sub7            ; called by: nmi
+                ;
+                lda ptr4+0              ; $821b
                 pha
                 lda ptr4+1
                 pha
@@ -1379,6 +1392,7 @@ sub7            lda ptr4+0              ; $821b
 +++             inx
                 cpx #$0b
                 bne --
+                ;
                 ldx #$00
                 jmp cod2
 
@@ -1640,7 +1654,9 @@ cod11           ldx arr10+10            ; $845a
                 sta ptr4+0
                 rts
 
-sub8            sty ram24               ; $84e0
+sub8            ; called by: sub5
+                ;
+                sty ram24               ; $84e0
                 asl a
                 tay
                 lda arr37+12
@@ -1718,7 +1734,9 @@ sub8            sty ram24               ; $84e0
 +               ldx ram24
                 rts
 
-sub9            lda arr29,x             ; $8583
+sub9            ; called by: sub5
+                ;
+                lda arr29,x             ; $8583
                 beq +
                 dec arr29,x
                 clc
@@ -2057,13 +2075,15 @@ dat2            hex 27 86 86            ; $8835 (unaccessed)
                 hex 85 86 86            ; $883d
                 hex 86 88 88 88         ; $8840 (unaccessed)
 
-sub10           lda #$0f                ; $8844
+sub10           ; called by: sub2, sub5, unaccessed chunk
+                ;
+                lda #$0f                ; $8844
                 sta snd_chn
                 rts
 
                 ldx #$01                ; $884a (unaccessed)
                 stx arr37+15            ; (unaccessed)
-                ;
+
 cod18           asl a                   ; $884f
                 asl a
                 add arr37+13
@@ -2089,7 +2109,9 @@ cod18           asl a                   ; $884f
                 sta snd_chn
                 rts
 
-sub11           ldx arr37+15            ; $8882
+sub11           ; called by: sub5
+                ;
+                ldx arr37+15            ; $8882
                 beq cod18
 
                 ; unaccessed chunk
@@ -2124,7 +2146,9 @@ sub11           ldx arr37+15            ; $8882
                 bne -
                 rts
 
-sub12           lda #$00                ; $88be
+sub12           ; called by: sub11, some sub after sub12
+                ;
+                lda #$00                ; $88be
                 sta arr40,x
                 sta arr38,x
                 sta arr41,x
@@ -2149,7 +2173,9 @@ sub12           lda #$00                ; $88be
                 sta arr40,x
                 rts
 
-sub13           lda arr38,x             ; $88f3
+sub13           ; called by: sub7
+                ;
+                lda arr38,x             ; $88f3
                 beq +
                 dec arr38,x             ; $88f8 (unaccessed)
                 bne cod19               ; (unaccessed)
@@ -2237,7 +2263,9 @@ cod19           lda ram61
                 sta ram71
 +               rts
 
-sub14           inc ptr4+1              ; $89bd
+sub14           ; called by: unaccessed chunk after sub13
+                ;
+                inc ptr4+1              ; $89bd
                 inc arr40,x
                 rts
 
@@ -3367,60 +3395,57 @@ nmi             inc ptr1+0              ; $c598
                 pha
                 txa
                 pha
-                lda ram31
+                ;
+                lda do_nmi              ; skip all if flag clear
                 beq +++
-                lda ram30
+                ;
+                lda prg_bank            ; store current PRG bank
                 pha
                 lda ram11
                 bpl ++
-                lda #$18
-                sta ppu_mask
+                ;
+                copy #%00011000, ppu_mask
                 lda ram12
                 ora #%00000100
                 sta ppu_ctrl
                 ldy ram19
                 cpy #$20
                 bcs +
-                lda #$20
-                sta ppu_addr
+                ;
+                copy #$20, ppu_addr
                 sty ppu_addr
                 ldy #$1d
                 lda ram20
 -               sta ppu_data
                 dey
                 bpl -
+                ;
 +               ldy ram21
                 cpy #$20
                 bcs +
-                lda #$20
-                sta ppu_addr
-                lda ram21
-                sta ppu_addr
+                ;
+                copy #$20, ppu_addr
+                copy ram21, ppu_addr
                 ldy #0
 -               lda arr1,y
                 sta ppu_data
                 iny
                 cpy #$1e
                 bne -
+                ;
 +               jsr sub31
+                copy #$00, oam_addr          ; do OAM DMA
+                copy #>sprite_data, oam_dma
+                copy ram12, ppu_ctrl
+                copy ram9,  ppu_scroll
+                copy ram10, ppu_scroll
                 ;
-                lda #$00                ; do OAM DMA
-                sta oam_addr
-                lda #>sprite_data
-                sta oam_dma
-                ;
-                lda ram12
-                sta ppu_ctrl
-                lda ram9
-                sta ppu_scroll
-                lda ram10
-                sta ppu_scroll
-++              lda #$02
-                jsr sub25
+++              lda #$02                ; run a sub in bank 2
+                jsr bankswitch
                 jsr sub7
-                pla
-                sta ram30
-                jsr sub25
+                pla                     ; restore original PRG bank
+                sta prg_bank
+                jsr bankswitch
                 ;
 +++             pla                     ; pull X, Y, A
                 tax
@@ -3437,31 +3462,38 @@ irq             rti                     ; $c61b (unaccessed)
                 hex 70 80 90 a0 b0 c0 d0 e0
                 hex f0
 
-sub15           lda ram1                ; $c635
+; -----------------------------------------------------------------------------
+
+read_joypads    ; called by: init
+                ;
+                lda joypad1status       ; $c635
                 sta ram2
-                lda ram4
+                lda joypad2status
                 sta ram5
                 lda #$01
-                sta ram1
+                sta joypad1status
                 sta ptr3+0
-                sta ram4
+                sta joypad2status
                 sta ptr3+1
                 sta joypad1
                 lsr a
                 sta joypad1
+                ;
 -               lda joypad1
                 and #%00000011
                 cmp #$01
-                rol ram1
+                rol joypad1status
                 lda joypad2
                 and #%00000011
                 cmp #$01
-                rol ram4
+                rol joypad2status
                 bcc -
+                ;
                 lda #$01
                 sta joypad1
                 lsr a
                 sta joypad1
+                ;
 -               lda joypad1
                 and #%00000011
                 cmp #$01
@@ -3471,85 +3503,98 @@ sub15           lda ram1                ; $c635
                 cmp #$01
                 rol ptr3+1
                 bcc -
+                ;
                 lda ptr3+0
-                cmp ram1
+                cmp joypad1status
                 beq +
                 lda ram2                ; $c685 (unaccessed)
-                sta ram1                ; (unaccessed)
+                sta joypad1status       ; (unaccessed)
 +               lda ptr3+1
-                cmp ram4
+                cmp joypad2status
                 beq +
                 lda ram5                ; $c68f (unaccessed)
-                sta ram4                ; (unaccessed)
-+               lda ram1
+                sta joypad2status       ; (unaccessed)
+                ;
++               lda joypad1status
                 and #%00000011
-                cmp #$03
+                cmp #%00000011
                 bne +
-                eor ram1                ; $c69b (unaccessed)
-                sta ram1                ; (unaccessed)
-+               lda ram1
+                eor joypad1status       ; $c69b (unaccessed)
+                sta joypad1status       ; (unaccessed)
+                ;
++               lda joypad1status
                 and #%00001100
-                cmp #$0c
+                cmp #%00001100
                 bne +
-                eor ram1                ; $c6a7 (unaccessed)
-                sta ram1                ; (unaccessed)
-+               lda ram4
+                eor joypad1status       ; $c6a7 (unaccessed)
+                sta joypad1status       ; (unaccessed)
+                ;
++               lda joypad2status
                 and #%00000011
-                cmp #$03
+                cmp #%00000011
                 bne +
-                eor ram4                ; $c6b3 (unaccessed)
-                sta ram4                ; (unaccessed)
-+               lda ram4
+                eor joypad2status       ; $c6b3 (unaccessed)
+                sta joypad2status       ; (unaccessed)
+                ;
++               lda joypad2status
                 and #%00001100
-                cmp #$0c
+                cmp #%00001100
                 bne +
-                eor ram4                ; $c6bf (unaccessed)
-                sta ram4                ; (unaccessed)
-+               lda ram1
+                eor joypad2status       ; $c6bf (unaccessed)
+                sta joypad2status       ; (unaccessed)
+                ;
++               lda joypad1status
                 ora ram2
                 eor ram2
                 sta ram3
-                lda ram4
+                ;
+                lda joypad2status
                 ora ram5
                 eor ram5
                 sta ram6
                 rts
 
-reset           sei                     ; $c6d4
+init            ; initialization and main loop
+                ;
+                sei                     ; $c6d4
                 ldx #$00
                 stx ppu_ctrl
                 stx ppu_mask
                 cld
-                lda #$40
-                sta joypad2
+                copy #$40, joypad2
                 stx dmc_freq
                 stx snd_chn
+                ;
                 bit ppu_status
 -               bit ppu_status
                 bpl -
+                ;
                 txa
                 ldy #$07
                 sty ptr1+1
                 tay
                 sta ptr1+0
+                ;
 -               sta (ptr1),y
                 iny
                 bne -
                 dec ptr1+1
                 bpl -
+                ;
                 sta ptr1+1
                 ldx #$f0
                 txs
+                ;
 -               bit ppu_status
                 bpl -
+                ;
                 lda #$21
                 sta ram19
                 sta ram21
-                lda #$cf
-                sta ram18
+                copy #$cf, ram18
                 lda #$00
                 sta ram11
-                sta ram31
+                sta do_nmi
                 ldy #$88
                 sty ram12
                 sty ppu_ctrl
@@ -3559,13 +3604,12 @@ reset           sei                     ; $c6d4
                 sta ptr3+0
                 sta ram49
                 lda #$02
-                jsr sub25
+                jsr bankswitch
                 ldx #$80
                 ldy #$c2
                 lda ptr3+0
                 jsr sub1
-                lda #$01
-                sta ram31
+                copy #$01, do_nmi
                 lda #$00
                 sta ram22
                 sta ram11
@@ -3574,90 +3618,76 @@ reset           sei                     ; $c6d4
                 sta ram10
                 jsr sub3
                 jsr sub16
-                lda #$20
-                sta ptr3+0
-                lda #$00
-                sta ptr3+1
-                lda #$ad
-                sta ptr2+0
-                lda #$cd
-                sta ptr2+1
+                copy #$20, ptr3+0
+                copy #$00, ptr3+1
+                copy #$ad, ptr2+0
+                copy #$cd, ptr2+1
                 ldy ram13
                 lda dat15,y
-                jsr sub25
+                jsr bankswitch
                 jsr sub17
                 jsr sub29
-                lda #$3f
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
-                lda #$bd
-                sta ptr2+0
-                lda #$d1
-                sta ptr2+1
+                ;
+                copy #$3f, ppu_addr
+                copy #$00, ppu_addr
+                ;
+                copy #<dat21m, ptr2+0
+                copy #>dat21m, ptr2+1
+                ;
                 ldy #0
 -               lda (ptr2),y
                 sta arr2,y
                 iny
                 cpy #$10
                 bcc -
-                lda #$3f
-                sta ppu_addr
-                lda #$11
-                sta ppu_addr
-                lda #$00
-                sta ppu_data
-                lda #$10
-                sta ppu_data
-                lda #$20
-                sta ppu_data
-                lda #$10
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                ;
+                copy #$3f, ppu_addr
+                copy #$11, ppu_addr
+                copy #$00, ppu_data
+                copy #$10, ppu_data
+                copy #$20, ppu_data
+                copy #$10, ppu_addr
+                copy #$00, ppu_addr
                 ldy #$00
                 sty ram11
+                ;
 -               lda dat22,y
                 sta ppu_data
                 iny
                 cpy #$70
                 bcc -
-                lda #$28
-                sta ptr3+0
-                lda #$00
-                sta ptr3+1
-                lda #$ad
-                sta ptr2+0
-                lda #$c9
-                sta ptr2+1
+                ;
+                copy #<$0028,  ptr3+0
+                copy #>$0028,  ptr3+1
+                copy #<dat21b, ptr2+0
+                copy #>dat21b, ptr2+1
                 jsr sub17
                 lda ram12
                 and #%11111100
                 ora #%00000010
                 sta ram12
                 sta ppu_ctrl
+                ;
                 lda #$00
                 sta ppu_scroll
                 sta ppu_scroll
-                lda #$a5
-                sta ram15
-                jsr sub18
-                lda #$ff
-                sta ram11
+                ;
+                copy #$a5, ram15
+                jsr hide_sprites
+                copy #$ff, ram11
+                ;
 -               jsr sub29
                 jsr sub22
-                lda #$00
-                sta ram11
+                copy #$00, ram11
                 jsr sub19
-                lda #$ff
-                sta ram11
-                jsr sub15
+                copy #$ff, ram11
+                jsr read_joypads
                 lda ram3
                 and #%10010000
                 beq -
+                ;
 -               jsr sub29
-                lda #$00
-                sta ram11
+                copy #$00, ram11
                 lda ram10
                 add #$04
                 cmp #$f0
@@ -3666,21 +3696,20 @@ reset           sei                     ; $c6d4
                 jsr sub19
                 lda #$ff
                 sta ram11
-                bne -
-+               jsr sub18
+                bne -                   ; unconditional
+                ;
++               jsr hide_sprites
                 jsr sub21
-                lda #$00
-                sta ram10
+                copy #$00, ram10
                 lda ram12
                 and #%11111100
                 sta ram12
+                ;
 -               jsr sub29
                 jsr sub22
-                lda #$00
-                sta ram22
-                jsr sub15
-                lda #$00
-                sta ram11
+                copy #$00, ram22
+                jsr read_joypads
+                copy #$00, ram11
                 jsr sub20
                 jsr sub26
                 lda ram3
@@ -3691,12 +3720,12 @@ reset           sei                     ; $c6d4
                 jsr sub23
                 jmp ++
 +               jsr sub24
-++              lda #$ff
-                sta ram11
+++              copy #$ff, ram11
                 jmp -
 
-sub16           lda #$00                ; $c867
-                sta ppu_mask
+sub16           ; called by: init, sub23, sub24
+                ;
+                copy #%00000000, ppu_mask  ; $c867
                 jsr sub29
                 ldy ram13
                 lda dat13,y
@@ -3704,71 +3733,71 @@ sub16           lda #$00                ; $c867
                 tya
                 asl a
                 tay
+                ;
                 lda dat20,y
                 sta ptr2+0
-                lda dat21,y
+                lda dat20+1,y
                 sta ptr2+1
+                ;
                 ldy #0
 -               lda (ptr2),y
                 sta arr2,y
                 iny
                 cpy #$10
                 bcc -
-                lda #$00
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                ;
+                copy #$00, ppu_addr
+                copy #$00, ppu_addr
                 ldy ram13
                 lda dat14,y
-                jsr sub25
+                jsr bankswitch
                 lda ram13
                 asl a
                 tax
                 lda dat16,x
                 sta ram48
-                lda dat17,x
+                lda dat16+1,x
                 sta ram47
                 lda ram47
                 ldy ram48
                 ldx #$40
                 jsr sub33
-                lda #$20
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                copy #$20, ppu_addr
+                copy #$00, ppu_addr
                 ldy #$00
                 ldx #$04
                 lda ram20
+                ;
 -               sta ppu_data
                 dey
                 bne -
                 dex
                 bne -
+                ;
                 ldy ram13
                 lda dat15,y
-                jsr sub25
-                lda #$23
-                sta ppu_addr
-                lda #$c0
-                sta ppu_addr
+                jsr bankswitch
+                copy #$23, ppu_addr
+                copy #$c0, ppu_addr
                 lda ram13
                 asl a
                 tay
                 lda dat18,y
-                add #$c0
+                add #<$03c0             ; $3c0 = 960 (size of NT)
                 sta ptr2+0
-                lda dat19,y
-                adc #$03
+                lda dat18+1,y
+                adc #>$03c0
                 sta ptr2+1
+                ;
                 ldy #0
 -               lda (ptr2),y
                 sta ppu_data
                 iny
                 cpy #$40
                 bcc -
-                lda ram12
-                sta ppu_ctrl
-                lda #$00
+                ;
+                copy ram12, ppu_ctrl
+                lda #0
                 sta ppu_scroll
                 sta ppu_scroll
                 rts
@@ -3779,28 +3808,58 @@ dat14           hex 02 02 02 02 02 02 02 02  ; $c91e
                 hex 02 02 02 02 02 01
 dat15           hex 01 01 01 01 01 01 01 01  ; $c92c
                 hex 01 01 01 01 01 01
-dat16           hex 72                       ; $c93a
-dat17           hex 8c db 92 72 b4 53 a5 25  ; $c93b
-                hex a9 e0 ac 12 b8 c7 96 43
-                hex 9e da bb aa b0 df a1 78
-                hex 9a 00 80
-dat18           hex ad                       ; $c956
-dat19           hex cd f4 b3 f4 a7 f4 87 f4  ; $c957
-                hex 8b f4 8f f4 ab f4 93 f4
-                hex 9b f4 af f4 a3 f4 9f f4
-                hex 97 f4 83
-dat20           hex bd                       ; $c972
-dat21           hex d1 dd d1 4d d2 0d d2 1d  ; $c973
-                hex d2 2d d2 5d d2 ad d1 ed
-                hex d1 6d d2 3d d2 fd d1 cd
-                hex d1 7d d2
 
-sub17           bit ppu_status          ; $c98e
-                lda ptr3+0
-                sta ppu_addr
-                lda ptr3+1
-                sta ppu_addr
-                ldx #$03
+dat16           dw $8c72                ; $c93a
+                dw $92db
+                dw $b472
+                dw $a553
+                dw $a925
+                dw $ace0
+                dw $b812
+                dw $96c7
+                dw $9e43
+                dw $bbda
+                dw $b0aa
+                dw $a1df
+                dw $9a78
+                dw $8000
+
+dat18           dw dat21f               ; $c956
+                dw $b3f4
+                dw $a7f4
+                dw $87f4
+                dw $8bf4
+                dw $8ff4
+                dw $abf4
+                dw $93f4
+                dw $9bf4
+                dw $aff4
+                dw $a3f4
+                dw $9ff4
+                dw $97f4
+                dw $83f4
+
+dat20           dw dat21m               ; $c972
+                dw dat21o
+                dw dat21v
+                dw dat21r
+                dw dat21s
+                dw dat21t
+                dw dat21w
+                dw dat21l
+                dw dat21p
+                dw dat21x
+                dw dat21u
+                dw dat21q
+                dw dat21n
+                dw dat21y
+
+sub17           ; called by: init
+                ;
+                bit ppu_status          ; $c98e
+                copy ptr3+0, ppu_addr
+                copy ptr3+1, ppu_addr
+                ldx #3
                 ldy #0
 -               lda (ptr2),y
                 sta ppu_data
@@ -3811,149 +3870,150 @@ sub17           bit ppu_status          ; $c98e
                 bpl -
                 rts
 
-                hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52  ; $c9ad
+dat21b          hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52  ; $c9ad
                 hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52
                 hex 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57
                 hex 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57
                 hex 57 57 57 57 57 56 a9 a9 a9 a9 a9 a9 a9 a9 a9 a9
-                hex a9 a9 a9 a9 a9 a9 a9 a9
-                hex a9 a9 53 57 57 57 57 57 55 55 55 55 55 54 b7 b7  ; $ca05
-                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
-                hex b7 b7 6d 55 55 55 55 55 46 46 46 46 46 54 b7 b7
-                hex b7 b6 74 99 98 b7 b6 74 99 98 b7 b6 74 99 98 b7
-                hex b7 b7 6d 46 46 46 46 46 6a 6a 6a 6a 6a 54 b7 b7
-                hex aa b4 b7 b7 97 b5 b4 b7 b7 97 b5 b4 b7 b7 97 96
-                hex b7 b7 6d 6a 6a 6a 6a 6a 6a 6a 6a 6a 6a 54 b7 b7
-                hex 91 b7 ac ab b7 95 b7 92 8c b7 95 b7 ae ad b7 8e
-                hex b7 b7 6d 6a 6a 6a 6a 6a 69 69 69 69 69 54 b7 b7
-                hex 90 93 b7 b7 8f 94 93 b7 b7 8f 94 93 b7 b7 8f 8d
-                hex b7 b7 6d 69 69 69 69 69 6c 6c 6c 6c 6c 54 b7 b7
-                hex b7 51 50 72 71 b7 51 50 72 71 b7 51 50 72 71 b7
-                hex b7 b7 6d 6c 6c 6c 6c 6c 6b 6b 6b 6b 6b 54 b7 b7
-                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
-                hex b7 b7 6d 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 48 8a 8a
-                hex 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a
-                hex 8a 8a 4c 6b 6b 6b 6b 6b 4a 4a 4a 4a 4a 47 1e 1d  ; $cb05
-                hex 79 78 7b 7a 7d 7c 7f 7e 81 80 83 82 85 84 87 86
-                hex 1f 1e 4b 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a
+                hex a9 a9 a9 a9 a9 a9 a9 a9 a9 a9 53 57 57 57 57 57
+                hex 55 55 55 55 55 54 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
+                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 6d 55 55 55 55 55
+                hex 46 46 46 46 46 54 b7 b7 b7 b6 74 99 98 b7 b6 74
+                hex 99 98 b7 b6 74 99 98 b7 b7 b7 6d 46 46 46 46 46
+                hex 6a 6a 6a 6a 6a 54 b7 b7 aa b4 b7 b7 97 b5 b4 b7
+                hex b7 97 b5 b4 b7 b7 97 96 b7 b7 6d 6a 6a 6a 6a 6a
+                hex 6a 6a 6a 6a 6a 54 b7 b7 91 b7 ac ab b7 95 b7 92
+                hex 8c b7 95 b7 ae ad b7 8e b7 b7 6d 6a 6a 6a 6a 6a
+                hex 69 69 69 69 69 54 b7 b7 90 93 b7 b7 8f 94 93 b7
+                hex b7 8f 94 93 b7 b7 8f 8d b7 b7 6d 69 69 69 69 69
+                hex 6c 6c 6c 6c 6c 54 b7 b7 b7 51 50 72 71 b7 51 50  ; $caad
+                hex 72 71 b7 51 50 72 71 b7 b7 b7 6d 6c 6c 6c 6c 6c
+                hex 6b 6b 6b 6b 6b 54 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
+                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 6d 6b 6b 6b 6b 6b
+                hex 6b 6b 6b 6b 6b 48 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a
+                hex 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 4c 6b 6b 6b 6b 6b
+                hex 4a 4a 4a 4a 4a 47 1e 1d 79 78 7b 7a 7d 7c 7f 7e
+                hex 81 80 83 82 85 84 87 86 1f 1e 4b 4a 4a 4a 4a 4a
                 hex 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a
-                hex 4a 4a 4a 4a 4a 4a 4a 4a 49 49 49 49 49 49 49 49
+                hex 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a
                 hex 49 49 49 49 49 49 49 49 49 49 49 49 49 49 49 49
-                hex 49 49 49 49 49 49 49 49 cf cf cf cf cf cf cf cf
+                hex 49 49 49 49 49 49 49 49 49 49 49 49 49 49 49 49
                 hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
                 hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
                 hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
-                hex cf cf cf cf cf cf cf cf d1 d1 d1 d1 d1 d1 d1 d1
+                hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
+                hex d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1  ; $cbad
                 hex d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1
-                hex d1 d1 d1 d1 d1 d1 d1 d1 d0 d0 d0 d0 d0 d0 d0 d0
                 hex d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0
-                hex d0 d0 d0 d0 d0 d0 d0 d0 17 17 17 17 17 17 17 17
-                hex 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 14
-                hex 18 17 17 17 17 17 17 17 12 12 12 12 12 12 12 12  ; $cc05
-                hex 12 12 12 12 12 12 12 12 12 12 12 12 12 12 13 19
-                hex 16 15 12 12 12 12 12 12 31 31 31 31 31 31 31 31
-                hex 31 31 31 31 31 31 31 31 31 31 31 31 31 21 19 22
-                hex 00 16 32 31 31 31 31 31 2f 2f 2f 2f 2f 2f 2f 2f
-                hex 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2e 2d 20 23 22 25
-                hex 01 00 30 2f 2f 2f 2f 2f 8a 8a 8a 8a 8a 8a 8a 8a
-                hex 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a d5 d4 23 22 25 24
-                hex 02 01 8b 8a 8a 8a 8a 8a 88 88 88 88 88 88 88 88
-                hex 88 88 88 88 88 88 88 88 88 88 d3 d2 22 25 24 cd
-                hex cd 02 89 88 88 88 88 88 cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd c6 c5 25 24 cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cb c4 c3 cd 9a bd
-                hex cd c4 cc c3 c4 ce be bf ba cb cd c6 24 cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd a4 ce bb cc cd 9a
-                hex bd cd ba cb c0 4d a8 bf cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd a8 4d c0 bf a4 cd  ; $cd05
-                hex 9a bd cd b9 cc c4 c0 4d be cc cd cd be cc c0 bb
-                hex cc c7 4f 4e 4f 4f cd cd cd cd cd cd cd cd cd cd
+                hex d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0
+                hex 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17
+                hex 17 17 17 17 17 17 17 14 18 17 17 17 17 17 17 17
+                hex 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+                hex 12 12 12 12 12 12 13 19 16 15 12 12 12 12 12 12
+                hex 31 31 31 31 31 31 31 31 31 31 31 31 31 31 31 31
+                hex 31 31 31 31 31 21 19 22 00 16 32 31 31 31 31 31
+                hex 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f
+                hex 2f 2f 2e 2d 20 23 22 25 01 00 30 2f 2f 2f 2f 2f
+                hex 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a
+                hex 8a 8a d5 d4 23 22 25 24 02 01 8b 8a 8a 8a 8a 8a
+                hex 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88
+                hex 88 88 d3 d2 22 25 24 cd cd 02 89 88 88 88 88 88
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ; $ccad
+                hex cd cd c6 c5 25 24 cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cb c4 c3 cd 9a bd cd c4 cc c3 c4 ce be bf
+                hex ba cb cd c6 24 cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd a4 ce bb cc cd 9a bd cd ba cb c0 4d a8 bf
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd a8 4d c0 bf a4 cd 9a bd cd b9 cc c4 c0 4d
+                hex be cc cd cd be cc c0 bb cc c7 4f 4e 4f 4f cd cd
                 hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
                 hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
                 hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd 00 00 00 00 00 00 00 00
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 50 10 00
-                hex 00 00 00 00 00 00 00 00 cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd bb ce be ba cc bd cd ba ce be 9f cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ; $ce05
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd 3d 3c
-                hex 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68
-                hex d9 d8 cd cd cd cd cd cd cd cd cd cd cd cd 45 3b
-                hex 59 58 5b 5a 5d 5c 5f 5e 61 60 63 62 65 64 67 66
-                hex d7 d6 cd cd cd cd cd cd cd cd cd cd cd cd 45 3e
-                hex dd dc e1 e0 e5 e4 e9 e8 b0 af 27 26 28 2b 04 03
-                hex 3a 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 44
-                hex db da df de e3 e2 e7 e6 b7 b7 b7 2c 2b 2a 05 04
-                hex 33 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 40
-                hex ed ec f1 f0 f5 f4 b3 b2 0f b7 2c 2b 2a 29 06 05
-                hex 35 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 3f
-                hex eb ea ef ee f3 f2 b1 b7 0e 0d 2b 2a 29 77 10 06
-                hex 34 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 42
-                hex f7 f7 f7 f7 f7 f7 f7 f7 09 08 2a 29 77 76 11 10
-                hex 37 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 41  ; $cf05
-                hex f6 f6 f6 f6 f6 f6 f6 f6 0b 07 29 77 76 b7 b7 11
-                hex 36 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 44
-                hex b7 b7 b7 b7 b7 b7 b7 b7 0c 0b 77 76 b7 b7 b7 b7
-                hex 3a 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 43
-                hex 9b 9d 9d 9d 9d 9d 9d 9d 9d 0a 75 9d 9d 9d 9d 9c
-                hex 38 39 cd cd cd cd cd cd cd cd cd cd cd cd fb fa
-                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
-                hex ff fe cd cd cd cd cd cd cd cd cd cd cd cd f9 f8
-                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
-                hex fd fc cd cd cd cd cd cd cd cd cd cd cd cd cd c8
-                hex 6e 70 70 70 70 70 70 70 70 70 70 70 70 70 70 6f
-                hex c9 cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd bb c2 ce c2 c4
-                hex c2 c1 cd a2 4d a0 bd cd a5 9e 1b 1c a5 73 a6 a3
-                hex cd cd cd cd cd cd cd cd cd cd cd c0 b9 cc a4 c0  ; $d005
-                hex c1 cd a5 a1 ba 9a cd b9 c4 9f cd 1a cd cd a6 ba
-                hex 9a cd a4 bc c4 cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cb cd b9 ce c4
-                hex c3 cd ce a7 cd be bf be c3 cc be bb ce ca c0 cd
-                hex bc bf c3 cd cd cd cd cd cd cd cd cb c4 a4 cb bb
-                hex cc cd 9f cb a8 cc cd a7 c4 ce a8 cd a5 73 a6 a5
-                hex c2 cd cd cd cd cd cd cd cd cd cd c3 bc cc cd c3
-                hex c4 cb be c0 bf c3 bf ce be cd a7 c4 ce a8 cd a4
-                hex cb 9a cd cd cd cd cd cd cd cd cd c3 ce cd a4 ce
-                hex be c0 ce a0 cc cd b8 cb c0 cd a0 cb c4 9f cc a0
-                hex bd cd cd cd cd cd cd cd cd cd cd c0 cc cb a8 a0
-                hex cc c0 c0 1c cd a8 cb ba bf be 9f cd bf c3 cd c3
-                hex bc cc cd cd cd cd cd cd cd cd cd 9a cc c0 c3 cd
-                hex cb c4 a4 cb bb cc cd b9 ce c4 c3 cd cb c3 cd c3
-                hex bc cc cd cd cd cd cd cd cd cd cd c3 bf a8 cc c2  ; $d105
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
-                hex cd cd cd cd cd cd cd cd 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00
-                hex 00 00 50 50 50 50 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00 0f 30 03 23 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 16 26 20 0f 20 16 26
-                hex 0f 20 26 16 0f 16 20 26 0f 30 06 16 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 10 22 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 12 22 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 2c 3c 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 2d 00 0f 0f 0f 0f  ; $d205
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 0b 1b 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 17 27 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 28 38 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 1a 2a 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 27 37 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 04 14 0f 0f 0f 0f
-                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 0c 1c 20 0f 0c 1c 26
-                hex 0f 20 26 0f 0f 0f 0f 0f
+                hex 00 00 00 00 00 50 10 00 00 00 00 00 00 00 00 00
+
+dat21f          hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ; $cdad
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd bb ce be ba cc bd
+                hex cd ba ce be 9f cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 3d 3c 68 68 68 68 68 68 68 68
+                hex 68 68 68 68 68 68 68 68 d9 d8 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 3b 59 58 5b 5a 5d 5c 5f 5e
+                hex 61 60 63 62 65 64 67 66 d7 d6 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 3e dd dc e1 e0 e5 e4 e9 e8
+                hex b0 af 27 26 28 2b 04 03 3a 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 44 db da df de e3 e2 e7 e6
+                hex b7 b7 b7 2c 2b 2a 05 04 33 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 40 ed ec f1 f0 f5 f4 b3 b2  ; $cead
+                hex 0f b7 2c 2b 2a 29 06 05 35 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 3f eb ea ef ee f3 f2 b1 b7
+                hex 0e 0d 2b 2a 29 77 10 06 34 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 42 f7 f7 f7 f7 f7 f7 f7 f7
+                hex 09 08 2a 29 77 76 11 10 37 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 41 f6 f6 f6 f6 f6 f6 f6 f6
+                hex 0b 07 29 77 76 b7 b7 11 36 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 44 b7 b7 b7 b7 b7 b7 b7 b7
+                hex 0c 0b 77 76 b7 b7 b7 b7 3a 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd 45 43 9b 9d 9d 9d 9d 9d 9d 9d
+                hex 9d 0a 75 9d 9d 9d 9d 9c 38 39 cd cd cd cd cd cd
+                hex cd cd cd cd cd cd fb fa b7 b7 b7 b7 b7 b7 b7 b7
+                hex b7 b7 b7 b7 b7 b7 b7 b7 ff fe cd cd cd cd cd cd
+                hex cd cd cd cd cd cd f9 f8 b7 b7 b7 b7 b7 b7 b7 b7
+                hex b7 b7 b7 b7 b7 b7 b7 b7 fd fc cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd c8 6e 70 70 70 70 70 70 70  ; $cfad
+                hex 70 70 70 70 70 70 70 6f c9 cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd bb c2 ce c2 c4 c2 c1 cd a2 4d a0 bd cd
+                hex a5 9e 1b 1c a5 73 a6 a3 cd cd cd cd cd cd cd cd
+                hex cd cd cd c0 b9 cc a4 c0 c1 cd a5 a1 ba 9a cd b9
+                hex c4 9f cd 1a cd cd a6 ba 9a cd a4 bc c4 cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cb cd b9 ce c4 c3 cd ce a7 cd be bf be
+                hex c3 cc be bb ce ca c0 cd bc bf c3 cd cd cd cd cd
+                hex cd cd cd cb c4 a4 cb bb cc cd 9f cb a8 cc cd a7
+                hex c4 ce a8 cd a5 73 a6 a5 c2 cd cd cd cd cd cd cd
+                hex cd cd cd c3 bc cc cd c3 c4 cb be c0 bf c3 bf ce
+                hex be cd a7 c4 ce a8 cd a4 cb 9a cd cd cd cd cd cd
+                hex cd cd cd c3 ce cd a4 ce be c0 ce a0 cc cd b8 cb  ; $d0ad
+                hex c0 cd a0 cb c4 9f cc a0 bd cd cd cd cd cd cd cd
+                hex cd cd cd c0 cc cb a8 a0 cc c0 c0 1c cd a8 cb ba
+                hex bf be 9f cd bf c3 cd c3 bc cc cd cd cd cd cd cd
+                hex cd cd cd 9a cc c0 c3 cd cb c4 a4 cb bb cc cd b9
+                hex ce c4 c3 cd cb c3 cd c3 bc cc cd cd cd cd cd cd
+                hex cd cd cd c3 bf a8 cc c2 cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 08 00 00 00 00 00 00 50 50 50 50 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+dat21l          hex 0f 30 03 23 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d1ad
+dat21m          hex 0f 16 26 20 0f 20 16 26 0f 20 26 16 0f 16 20 26  ; $d1bd
+dat21n          hex 0f 30 06 16 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d1cd
+dat21o          hex 0f 30 10 22 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d1dd
+dat21p          hex 0f 30 12 22 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d1ed
+dat21q          hex 0f 30 2c 3c 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d1fd
+dat21r          hex 0f 30 2d 00 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d20d
+dat21s          hex 0f 30 0b 1b 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d21d
+dat21t          hex 0f 30 17 27 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d22d
+dat21u          hex 0f 30 28 38 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d23d
+dat21v          hex 0f 30 1a 2a 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d24d
+dat21w          hex 0f 30 27 37 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d25d
+dat21x          hex 0f 30 04 14 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f 0f  ; $d26d
+dat21y          hex 0f 0c 1c 20 0f 0c 1c 26 0f 20 26 0f 0f 0f 0f 0f  ; $d27d
 
 dat22           hex 00 00 00 18 18 00 00 00  ; $d28d
                 hex 00 00 00 18 18 00 00 00
@@ -3970,7 +4030,11 @@ dat22           hex 00 00 00 18 18 00 00 00  ; $d28d
                 hex cc aa 00 00 00 00 00 00
                 hex cc aa 00 00 00 00 00 00
 
-sub18           ldy #0                  ; $d2fd
+; -----------------------------------------------------------------------------
+
+hide_sprites    ; hide all sprites; called by: init
+                ;
+                ldy #0                  ; $d2fd
                 lda #$ff
 -               sta sprite_data,y
                 iny
@@ -3980,7 +4044,9 @@ sub18           ldy #0                  ; $d2fd
                 bne -
                 rts
 
-sub19           lda ram14               ; $d30b
+sub19           ; sprite stuff; called by: init
+                ;
+                lda ram14               ; $d30b
                 add #$01
                 cmp #$86
                 bcc ++
@@ -4025,7 +4091,9 @@ sub19           lda ram14               ; $d30b
                 sta sprite_data+2
                 rts
 
-sub20           lda ram22               ; $d36a
+sub20           ; called by: init, sub23, sub24
+                ;
+                lda ram22               ; $d36a
                 beq +
                 lda ram16
                 cmp #$06
@@ -4076,7 +4144,9 @@ sub20           lda ram22               ; $d36a
                 sta sprite_data+0
                 rts
 
-sub21           lda #$00                ; $d3db
+sub21           ; called by: init, sub20
+                ;
+                lda #$00                ; $d3db
                 sta ram17
                 sta ram16
                 jsr sub22
@@ -4095,14 +4165,18 @@ sub21           lda #$00                ; $d3db
 
 dat23           hex 00 01 02 03 04 05 01  ; $d3fe
 
-sub22           lda ram18               ; $d405
+sub22           ; called by: init, sub20, sub21
+                ;
+                lda ram18               ; $d405
                 asl a
                 bcc +
                 eor #%11001111
 +               sta ram18
                 rts
 
-sub23           lda #$01                ; $d40f
+sub23           ; called by: init
+                ;
+                lda #$01                ; $d40f
                 sta ram22
                 lda #$00
                 sta ram9
@@ -4156,7 +4230,7 @@ sub23           lda #$01                ; $d40f
                 tax
                 lda dat18,x
                 sta ptr3+0
-                lda dat19,x
+                lda dat18+1,x
                 sta ptr3+1
                 ldx #$00
 -               lda (ptr3),y
@@ -4179,15 +4253,15 @@ sub23           lda #$01                ; $d40f
                 sta ram22
                 rts
 
-sub24           lda #$01                ; $d4ab
-                sta ram22
-                lda #$00
-                sta ram9
+sub24           ; called by: init
+                ;
+                copy #$01, ram22        ; $d4ab
+                copy #$00, ram9
+                ;
 -               jsr sub29
-                lda #$00
-                sta ram11
+                copy #$00, ram11
                 lda ram9
-                sub #$08
+                sub #8
                 sta ram9
                 beq +
                 lsr a
@@ -4199,6 +4273,7 @@ sub24           lda #$01                ; $d4ab
                 lda #$ff
                 sta ram11
                 jmp -
+                ;
 +               lda #$00
                 sta ram9
                 ldy ram13
@@ -4207,12 +4282,12 @@ sub24           lda #$01                ; $d4ab
                 ldy #$0d
 +               sty ram13
                 jsr sub16
-                lda #$00
-                sta ram9
+                copy #$00, ram9
                 lda #$ff
                 sta ram11
                 sta ram21
                 sta ram19
+                ;
 --              jsr sub29
                 lda #$00
                 sta ram11
@@ -4230,9 +4305,10 @@ sub24           lda #$01                ; $d4ab
                 tax
                 lda dat18,x
                 sta ptr3+0
-                lda dat19,x
+                lda dat18+1,x
                 sta ptr3+1
-                ldx #$00
+                ;
+                ldx #0
 -               lda (ptr3),y
                 sta arr1,x
                 lda ptr3+0
@@ -4244,41 +4320,50 @@ sub24           lda #$01                ; $d4ab
                 inx
                 cpx #$1e
                 bcc -
+                ;
                 jsr sub27
                 lda #$ff
                 sta ram11
                 jmp --
+                ;
 +               jsr sub26
                 lda #$00
                 sta ram22
                 rts
 
-sub25           tay                     ; $d53f
-                sta ram30
-                sta dat24,y
+bankswitch      ; map PRG bank specified by A (0-3) to CPU $8000-$bfff
+                ; called by: nmi, init, sub16
+                ;
+                tay                     ; $d53f
+                sta prg_bank
+                sta id_table,y
                 rts
 
-dat24           hex 00 01 02 03         ; $d546 (unaccessed)
+id_table        hex 00 01 02 03         ; $d546
 
-sub26           lda ram13               ; $d54a
+sub26           ; called by: init, sub23, sub24, sub27, sub28
+                ;
+                lda ram13               ; $d54a
                 cmp #$0d
                 bne +
-                lda #$2d
-                sta sprite_data+4+0
-                lda #$06
-                sta sprite_data+4+1
-                lda #$00
-                sta sprite_data+4+2
+                copy #$2d,       sprite_data+4+0
+                copy #$06,       sprite_data+4+1
+                copy #%00000000, sprite_data+4+2
                 lda #$51
                 sub ram9
                 sta sprite_data+4+3
                 rts
 
-sub27           lda ram9                ; $d568
+sub27           ; called by: sub23, sub24
+                ;
+                lda ram9                ; $d568
                 cmp #$58
                 bcs +
                 jmp sub26
-sub28           lda ram9
+
+sub28           ; called by: sub23, sub24
+                ;
+                lda ram9
                 cmp #$50
                 bcc +
                 jmp sub26
@@ -4286,12 +4371,16 @@ sub28           lda ram9
                 sta sprite_data+4+0
                 rts
 
-sub29           lda ptr1+0              ; $d580
+sub29           ; called by: init, sub16, sub23, sub24
+                ;
+                lda ptr1+0              ; $d580
 -               cmp ptr1+0
                 beq -
                 rts
 
-sub30           lda ram17               ; $d587
+sub30           ; called by: sub19
+                ;
+                lda ram17               ; $d587
                 add #$01
                 cmp #$0a
                 bcc ++
@@ -4305,7 +4394,9 @@ sub30           lda ram17               ; $d587
 ++              sta ram17
                 rts
 
-sub31           lda ram19               ; $d5a2
+sub31           ; called by: nmi
+                ;
+                lda ram19               ; $d5a2
                 cmp #$20
                 bcc +
                 lda ram21
@@ -4314,19 +4405,20 @@ sub31           lda ram19               ; $d5a2
                 lda ram12
                 and #%11111011
                 sta ppu_ctrl
-                lda #$3f
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                copy #$3f, ppu_addr
+                copy #$00, ppu_addr
+                ;
                 ldy #0
 -               lda arr2,y
                 sta ppu_data
                 iny
-                cpy #$10
+                cpy #16
                 bcc -
 +               rts
 
-sub32           ldy #0                  ; $d5cd
+sub32           ; called by: sub33
+                ;
+                ldy #0                  ; $d5cd
                 txa
                 add #$40
                 bcs +
@@ -4447,35 +4539,40 @@ cod25           ldx #$08                ; $d693
                 sta arr3,x
                 bne -
                 sty ram39
-                ldy #$08
+                ;
+                ldy #8
                 ldx ram41
--               asl arr3
+-               asl arr3+0
                 ror a
-                asl ram32
+                asl arr3+1
                 ror a
-                asl ram33
+                asl arr3+2
                 ror a
-                asl ram34
+                asl arr3+3
                 ror a
-                asl ram35
+                asl arr3+4
                 ror a
-                asl ram36
+                asl arr3+5
                 ror a
-                asl ram37
+                asl arr3+6
                 ror a
-                asl ram38
+                asl arr3+7
                 ror a
                 dex
                 sta arr4,x
                 dey
                 bne -
-                beq cod22
+                ;
+                beq cod22               ; unconditional
 
 dat25           hex 00 55 aa ff         ; $d6c8
 
-sub33           sty ptr6+0              ; $d6cc
+sub33           ; called by: sub16
+                ;
+                sty ptr6+0              ; $d6cc
                 sta ptr6+1
                 stx ram46
+                ;
 --              ldx #$40
                 jsr sub32
                 cpx #$80
@@ -4487,11 +4584,14 @@ sub33           sty ptr6+0              ; $d6cc
                 bpl -
                 ldx ram46
                 bne --
+                ;
 +               rts
 
                 pad $ffd0, $00
 
-sub34           ldx #$00                ; $ffd0
+sub34           ; called by: init
+                ;
+                ldx #$00                ; $ffd0
                 ldy #$00
                 lda ptr1+0
 -               cmp ptr1+0
@@ -4512,4 +4612,4 @@ sub34           ldx #$00                ; $ffd0
 dat26           hex ff                  ; $ffef
 
                 pad $fffa, $00
-                dw nmi, reset, irq      ; IRQ unaccessed
+                dw nmi, init, irq       ; IRQ unaccessed
