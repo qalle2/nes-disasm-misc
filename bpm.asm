@@ -1,3 +1,4 @@
+
 ; An unofficial disassembly of the PRG ROM of "BPM - Nintendo's Beginnings"
 ; (BPM-1.1.nes) by retroadamshow,
 ; https://retroadamshow.itch.io/bpm-nintendos-beginnings
@@ -1760,6 +1761,7 @@ cod12           lda (ptr4),y                ; $859d
                 sta ptr5+1                    ; c5d0: 85 a5
                 ldx ram23                    ; c5d2: a6 9f
                 jmp (ptr5)                  ; c5d4: 6c a4 00
+
                 stx ram23                    ; c5d7: 86 9f
                 lda dat8,x                  ; c5d9: bd 5f 8b
                 tax                          ; c5dc: aa
@@ -1770,10 +1772,12 @@ cod12           lda (ptr4),y                ; $859d
 +               sta arr21,x                  ; c5e5: 9d 49 02
                 ldx ram23                    ; c5e8: a6 9f
                 jmp cod12                   ; c5ea: 4c 9d 85
+
                 lda #$7f                     ; c5ed: a9 7f
                 and arr34,x                  ; c5ef: 3d 85 02
                 sta arr34,x                  ; c5f2: 9d 85 02
                 jmp cod12                   ; c5f5: 4c 9d 85
+
                 lda #$80                     ; c5f8: a9 80
                 ora arr34,x                  ; c5fa: 1d 85 02
                 sta arr34,x                  ; c5fd: 9d 85 02
@@ -1855,6 +1859,7 @@ cod12           lda (ptr4),y                ; $859d
                 bne +                        ; c69e: d0 02
                 inc ptr4+1                    ; c6a0: e6 a3    (unaccessed)
 +               jmp cod12                   ; c6a2: 4c 9d 85
+
                 lda (ptr4),y                ; c6a5: b1 a2
                 sta arr35,x                  ; c6a7: 9d 8a 02
                 inc ptr4+0                    ; c6aa: e6 a2
@@ -1872,6 +1877,7 @@ cod12           lda (ptr4),y                ; $859d
                 bne +                        ; c6be: d0 02
                 inc ptr4+1                    ; c6c0: e6 a3
 +               jmp cod12                   ; c6c2: 4c 9d 85
+                ;
                 lda #$80                     ; c6c5: a9 80
                 ora ram25                    ; c6c7: 05 a1
                 sta ram25                    ; c6c9: 85 a1
@@ -1898,6 +1904,7 @@ cod12           lda (ptr4),y                ; $859d
                 rol a                        ; c6f4: 2a
                 sta arr24+3                    ; c6f5: 8d 57 02
                 jmp +                        ; c6f8: 4c 3f 87
+                ;
                 cpx #$03                     ; c6fb: e0 03
                 beq -                    ; c6fd: f0 cf
                 stx ram23                    ; c6ff: 86 9f
@@ -2057,6 +2064,7 @@ dat2            hex 27 86 86                 ; $8835 (unaccessed)
 sub10           lda #$0f                     ; $8844
                 sta snd_chn                  ; c846: 8d 15 40
                 rts                          ; c849: 60
+
                 ldx #$01                     ; c84a: a2 01    (unaccessed)
                 stx arr37+15                    ; c84c: 8e a3 02 (unaccessed)
 cod18           asl a                        ; c84f: 0a
@@ -2097,6 +2105,7 @@ sub11           ldx arr37+15                    ; $8882
 +               sta arr37+15                    ; c890: 8d a3 02
                 txa                          ; c893: 8a
                 jmp cod18                   ; c894: 4c 4f 88
+                ;
                 stx ptr4+0                    ; c897: 86 a2
                 sty ptr4+1                    ; c899: 84 a3
                 ldy #0                     ; c89b: a0 00
@@ -2128,6 +2137,7 @@ sub12           lda #$00                     ; $88be
                 sta arr45,x                  ; c8d1: 9d ba 02
                 sta arr51,x                  ; c8d4: 9d c0 02
                 rts                          ; c8d7: 60
+
                 asl a                        ; c8d8: 0a
                 tay                          ; c8d9: a8
                 jsr sub12                    ; c8da: 20 be 88
@@ -4582,6 +4592,7 @@ reset           sei                          ; c6d4: 78
 ++              lda #$ff                     ; c860: a9 ff
                 sta ram11                    ; c862: 85 59
                 jmp -                     ; c864: 4c 36 c8
+
 sub16           lda #$00                     ; $c867
                 sta ppu_mask                 ; c869: 8d 01 20
                 jsr sub29                    ; c86c: 20 80 d5
