@@ -1,4 +1,3 @@
-
 ; An unofficial disassembly of the PRG ROM of "BPM - Nintendo's Beginnings"
 ; (BPM-1.1.nes) by retroadamshow,
 ; https://retroadamshow.itch.io/bpm-nintendos-beginnings
@@ -1084,9 +1083,7 @@ endm
 
                 base $8000
 
-                ; note: all addresses in this bank should be $8000-$bfff
-
-sub1            stx arr37+9                    ; $8000
+sub1            stx arr37+9             ; $8000
                 sty arr37+10
                 stx ptr4+0
                 sty ptr4+1
@@ -1125,7 +1122,7 @@ sub1            stx arr37+9                    ; $8000
                 sta sq2_sweep
                 jmp sub2
 
-sub2            lda #$00                     ; $805b
+sub2            lda #$00                ; $805b
                 sta arr28+4
                 sta arr37+15
                 ldx #$00
@@ -1181,14 +1178,14 @@ sub2            lda #$00                     ; $805b
                 bne -
                 jmp sub10
 
-sub3            ldx arr37+9                    ; $80dd
+sub3            ldx arr37+9             ; $80dd
                 stx ptr4+0
                 ldx arr37+10
                 stx ptr4+1
                 ldy #0
                 cmp (ptr4),y
                 bcc +
-                rts                          ; $80ed (unaccessed)
+                rts                     ; $80ed (unaccessed)
 +               asl a
                 sta ptr4+0
                 asl a
@@ -1239,7 +1236,7 @@ sub3            ldx arr37+9                    ; $80dd
                 rts
 
                 ; unaccessed chunk
-                tax                          ; $8153
+                tax                     ; $8153
                 beq +
                 jsr sub10
                 lda #$00
@@ -1255,7 +1252,7 @@ sub3            ldx arr37+9                    ; $80dd
 ++              sta arr28+4
                 rts
 
-sub4            clc                          ; $8177
+sub4            clc                     ; $8177
                 lda arr21,y
                 adc arr15,y
                 sta ptr5+0
@@ -1269,7 +1266,7 @@ sub4            clc                          ; $8177
                 beq +
 
                 ; unaccessed chunk
-                lda arr24,y                  ; $8193
+                lda arr24,y             ; $8193
                 cmp #$80
                 ror a
                 sta ram23
@@ -1281,7 +1278,7 @@ sub4            clc                          ; $8177
                 adc ptr5+1
                 sta ptr5+1
 
-+               clc                          ; $81aa
++               clc                     ; $81aa
                 lda dat3,x
                 adc ptr5+0
                 sta ptr5+0
@@ -1290,7 +1287,7 @@ sub4            clc                          ; $8177
                 sta ptr5+1
                 rts
 
-sub5            jsr sub9                     ; $81ba
+sub5            jsr sub9                ; $81ba
                 bcc +++
                 txa
                 tay
@@ -1300,24 +1297,24 @@ sub5            jsr sub9                     ; $81ba
                 bcc ++
                 lda arr27+4
                 bne +
-                jsr sub10                    ; $81d0 (unaccessed)
-                ldx #$04                     ; (unaccessed)
-                bne +++                      ; (unaccessed)
-+               jsr sub11                    ; $81d7
+                jsr sub10               ; $81d0 (unaccessed)
+                ldx #$04                ; (unaccessed)
+                bne +++                 ; (unaccessed)
++               jsr sub11               ; $81d7
                 ldx #$04
                 jmp +++
 ++              jsr sub8
 +++             rts
 
-sub6            lda arr37+7                    ; $81e3
+sub6            lda arr37+7             ; $81e3
                 beq +
                 lda arr35,x
                 bmi ++
-                lda #$ff                     ; $81ed (unaccessed)
-                sta arr35,x                  ; (unaccessed)
-                jsr sub5                     ; (unaccessed)
-                jmp ++                       ; (unaccessed)
-+               lda arr35,x                  ; $81f8
+                lda #$ff                ; $81ed (unaccessed)
+                sta arr35,x             ; (unaccessed)
+                jsr sub5                ; (unaccessed)
+                jmp ++                  ; (unaccessed)
++               lda arr35,x             ; $81f8
                 bmi +++
                 sub #$01
                 sta arr35,x
@@ -1325,21 +1322,21 @@ sub6            lda arr37+7                    ; $81e3
 ++              jsr sub5
 +++             lda arr36,x
                 bmi +
-                sub #$01                     ; $820d (unaccessed)
-                sta arr36,x                  ; (unaccessed)
-                bpl +                        ; (unaccessed)
-                lda #$00                     ; (unaccessed)
-                sta arr27,x                  ; (unaccessed)
-+               rts                          ; $821a
+                sub #$01                ; $820d (unaccessed)
+                sta arr36,x             ; (unaccessed)
+                bpl +                   ; (unaccessed)
+                lda #$00                ; (unaccessed)
+                sta arr27,x             ; (unaccessed)
++               rts                     ; $821a
 
-sub7            lda ptr4+0                   ; $821b
+sub7            lda ptr4+0              ; $821b
                 pha
                 lda ptr4+1
                 pha
                 lda arr28+4
                 bmi +
                 bne ++
-+               jmp cod10                   ; $8228 (unaccessed)
++               jmp cod10               ; $8228 (unaccessed)
 ++              lda arr37+6
                 cmp arr28+4
                 ldx #$00
@@ -1386,7 +1383,7 @@ sub7            lda ptr4+0                   ; $821b
                 jmp cod2
 
                 ; unaccessed chunk
-cod1            lda arr17,x                  ; $828e
+cod1            lda arr17,x             ; $828e
                 sub #$01
                 sta arr17,x
                 and #%01111111
@@ -1411,7 +1408,7 @@ cod1            lda arr17,x                  ; $828e
                 sta arr16,x
                 jmp cod7
 
-cod2            lda arr17,x                  ; $82c7
+cod2            lda arr17,x             ; $82c7
                 cmp #$81
                 bcs cod1
                 and #%01111111
@@ -1442,7 +1439,7 @@ cod4            lda (ptr4),y
                 jmp cod6
 
                 ; unaccessed chunk
-+++             sta ram24                    ; $830a
++++             sta ram24               ; $830a
                 clc
                 adc arr15,x
                 sta arr15,x
@@ -1455,796 +1452,797 @@ cod4            lda (ptr4),y
                 iny
                 jmp cod6
 
-cod5            bne +                        ; c325: d0 07
-                iny                          ; c327: c8
-                lda (ptr4),y                ; c328: b1 a2
-                tay                          ; c32a: a8
-                jmp cod4                   ; c32b: 4c ea 82
-+               iny                          ; c32e: c8
-                ora ram23                    ; c32f: 05 9f
-                sta arr17,x                  ; c331: 9d 3d 02
-cod6            tya                          ; c334: 98
-                sta arr20,x                  ; c335: 9d 46 02
-cod7            inx                          ; c338: e8
-                cpx #$03                     ; c339: e0 03
-                bne cod2                     ; c33b: d0 8a
-                ldx #$00                     ; c33d: a2 00
-cod8            lda arr22,x                  ; c33f: bd 4c 02
-                beq cod9                     ; c342: f0 2b
+cod5            bne +                   ; $8325
+                iny
+                lda (ptr4),y
+                tay
+                jmp cod4
++               iny
+                ora ram23
+                sta arr17,x
+cod6            tya
+                sta arr20,x
+cod7            inx
+                cpx #$03
+                bne cod2
+                ldx #$00
+cod8            lda arr22,x
+                beq cod9
 
                 ; unaccessed chunk
                 ;
-                clc                          ; c344: 18
-                lda arr22,x                  ; c345: bd 4c 02
-                adc arr23,x                  ; c348: 7d 50 02
-                sta arr23,x                  ; c34b: 9d 50 02
-                lda arr22,x                  ; c34e: bd 4c 02
-                and #%10000000               ; c351: 29 80
-                beq +                        ; c353: f0 0d
-                lda #$ff                     ; c355: a9 ff
-                adc arr24,x                  ; c357: 7d 54 02
-                sta arr24,x                  ; c35a: 9d 54 02
-                bpl cod9                     ; c35d: 10 10
-                jmp ++                       ; c35f: 4c 6a 83
-+               adc arr24,x                  ; c362: 7d 54 02
-                sta arr24,x                  ; c365: 9d 54 02
-                bmi cod9                     ; c368: 30 05
-++              lda #$00                     ; c36a: a9 00
-                sta arr22,x                  ; c36c: 9d 4c 02
+                clc                     ; $8344
+                lda arr22,x
+                adc arr23,x
+                sta arr23,x
+                lda arr22,x
+                and #%10000000
+                beq +
+                lda #$ff
+                adc arr24,x
+                sta arr24,x
+                bpl cod9
+                jmp ++
++               adc arr24,x
+                sta arr24,x
+                bmi cod9
+++              lda #$00
+                sta arr22,x
 
-cod9            inx                          ; c36f: e8
-                cpx #$04                     ; c370: e0 04
-                bne cod8                    ; c372: d0 cb
-cod10           lda arr27                    ; c374: ad 62 02
-                bne +                        ; c377: d0 03
-                jmp ++                       ; c379: 4c 9e 83 (unaccessed)
+cod9            inx                     ; $836f
+                cpx #$04
+                bne cod8
+cod10           lda arr27
+                bne +
+                jmp ++                  ; $8379 (unaccessed)
 +               add arr10+1
                 add arr37+8
-                tax                          ; c384: aa
-                ldy #$00                     ; c385: a0 00
-                jsr sub4                    ; c387: 20 77 81
-                lda ptr5+0                    ; c38a: a5 a4
-                sta ram62                    ; c38c: 8d a7 02
-                lda ptr5+1                    ; c38f: a5 a5
-                sta ram63                    ; c391: 8d a8 02
-                lda arr33                    ; c394: ad 80 02
-                ora arr10+0                     ; c397: 0d 00 02
-                tax                          ; c39a: aa
-                lda dat12,x                  ; c39b: bd 72 8b
-++              ldx arr10+2                   ; c39e: ae 02 02
-                ora dat11,x                  ; c3a1: 1d 6e 8b
-                sta ram61                    ; c3a4: 8d a6 02
-                lda arr27+1                    ; c3a7: ad 63 02
-                bne +                        ; c3aa: d0 03
-                jmp ++                       ; c3ac: 4c d1 83
+                tax
+                ldy #$00
+                jsr sub4
+                lda ptr5+0
+                sta ram62
+                lda ptr5+1
+                sta ram63
+                lda arr33
+                ora arr10+0
+                tax
+                lda dat12,x
+++              ldx arr10+2
+                ora dat11,x
+                sta ram61
+                lda arr27+1
+                bne +
+                jmp ++
 +               add arr10+4
                 add arr37+8
-                tax                          ; c3b7: aa
-                ldy #$01                     ; c3b8: a0 01
-                jsr sub4                    ; c3ba: 20 77 81
-                lda ptr5+0                    ; c3bd: a5 a4
-                sta ram65                    ; c3bf: 8d aa 02
-                lda ptr5+1                    ; c3c2: a5 a5
-                sta ram66                    ; c3c4: 8d ab 02
-                lda arr33+1                    ; c3c7: ad 81 02
-                ora arr10+3                   ; c3ca: 0d 03 02
-                tax                          ; c3cd: aa
-                lda dat12,x                  ; c3ce: bd 72 8b
-++              ldx arr10+5                    ; c3d1: ae 05 02
-                ora dat11,x                  ; c3d4: 1d 6e 8b
-                sta ram64                    ; c3d7: 8d a9 02
-                lda arr27+2                    ; c3da: ad 64 02
-                bne +                        ; c3dd: d0 03
-                jmp ++                       ; c3df: 4c 04 84
+                tax
+                ldy #$01
+                jsr sub4
+                lda ptr5+0
+                sta ram65
+                lda ptr5+1
+                sta ram66
+                lda arr33+1
+                ora arr10+3
+                tax
+                lda dat12,x
+++              ldx arr10+5
+                ora dat11,x
+                sta ram64
+                lda arr27+2
+                bne +
+                jmp ++
 +               add arr10+7
                 add arr37+8
-                tax                          ; c3ea: aa
-                ldy #$02                     ; c3eb: a0 02
-                jsr sub4                    ; c3ed: 20 77 81
-                lda ptr5+0                    ; c3f0: a5 a4
-                sta ram68                    ; c3f2: 8d ad 02
-                lda ptr5+1                    ; c3f5: a5 a5
-                sta ram69                    ; c3f7: 8d ae 02
-                lda arr33+2                    ; c3fa: ad 82 02
-                ora arr10+6                    ; c3fd: 0d 06 02
-                tax                          ; c400: aa
-                lda dat12,x                  ; c401: bd 72 8b
-++              ora #%10000000               ; c404: 09 80
-                sta ram67                    ; c406: 8d ac 02
-                lda arr27+3                    ; c409: ad 65 02
-                bne +                        ; c40c: d0 03
-                jmp cod11                   ; c40e: 4c 5a 84
+                tax
+                ldy #$02
+                jsr sub4
+                lda ptr5+0
+                sta ram68
+                lda ptr5+1
+                sta ram69
+                lda arr33+2
+                ora arr10+6
+                tax
+                lda dat12,x
+++              ora #%10000000
+                sta ram67
+                lda arr27+3
+                bne +
+                jmp cod11
 
                 ; unaccessed chunk
                 ;
-+               add arr10+9                    ; $8411
-                ldy arr22+3                  ; c415: ac 4f 02
-                beq +                        ; c418: f0 22
-                sta ram23                    ; c41a: 85 9f
-                lda arr23+3                    ; c41c: ad 53 02
-                sta ptr5+0                    ; c41f: 85 a4
-                lda arr24+3                    ; c421: ad 57 02
-                cmp #$80                     ; c424: c9 80
-                ror a                        ; c426: 6a
-                ror ptr5+0                    ; c427: 66 a4
-                cmp #$80                     ; c429: c9 80
-                ror a                        ; c42b: 6a
-                ror ptr5+0                    ; c42c: 66 a4
-                cmp #$80                     ; c42e: c9 80
-                ror a                        ; c430: 6a
-                ror ptr5+0                    ; c431: 66 a4
-                cmp #$80                     ; c433: c9 80
-                ror a                        ; c435: 6a
-                lda ptr5+0                    ; c436: a5 a4
-                ror a                        ; c438: 6a
++               add arr10+9             ; $8411
+                ldy arr22+3
+                beq +
+                sta ram23
+                lda arr23+3
+                sta ptr5+0
+                lda arr24+3
+                cmp #$80
+                ror a
+                ror ptr5+0
+                cmp #$80
+                ror a
+                ror ptr5+0
+                cmp #$80
+                ror a
+                ror ptr5+0
+                cmp #$80
+                ror a
+                lda ptr5+0
+                ror a
                 add ram23
-+               and #%00001111               ; c43c: 29 0f
-                eor #%00001111               ; c43e: 49 0f
-                sta ram23                    ; c440: 85 9f
-                ldx arr10+10                     ; c442: ae 0a 02
-                lda dat11,x                  ; c445: bd 6e 8b
-                asl a                        ; c448: 0a
-                and #%10000000               ; c449: 29 80
-                ora ram23                    ; c44b: 05 9f
-                sta ram71                    ; c44d: 8d b0 02
-                lda arr33+3                    ; c450: ad 83 02
-                ora arr10+8                    ; c453: 0d 08 02
-                tax                          ; c456: aa
-                lda dat12,x                  ; c457: bd 72 8b
++               and #%00001111
+                eor #%00001111
+                sta ram23
+                ldx arr10+10
+                lda dat11,x
+                asl a
+                and #%10000000
+                ora ram23
+                sta ram71
+                lda arr33+3
+                ora arr10+8
+                tax
+                lda dat12,x
 
-cod11           ldx arr10+10                     ; c45a: ae 0a 02
-                ora dat11,x                  ; c45d: 1d 6e 8b
-                ora #%11110000               ; c460: 09 f0
-                sta ram70                    ; c462: 8d af 02
-                lda arr28+4                    ; c465: ad 6b 02
-                bmi +                        ; c468: 30 13
-                clc                          ; c46a: 18
-                lda arr37+5                    ; c46b: ad 99 02
-                adc arr37+3                    ; c46e: 6d 97 02
-                sta arr37+5                    ; c471: 8d 99 02
-                lda arr37+6                    ; c474: ad 9a 02
-                adc arr37+4                    ; c477: 6d 98 02
-                sta arr37+6                    ; c47a: 8d 9a 02
-+               ldx #$00                     ; c47d: a2 00
-                jsr sub13                    ; c47f: 20 f3 88
-                ldx #$0f                     ; c482: a2 0f
-                jsr sub13                    ; c484: 20 f3 88
-                lda ram61                    ; c487: ad a6 02
-                sta sq1_vol                  ; c48a: 8d 00 40
-                lda ram62                    ; c48d: ad a7 02
-                sta sq1_lo                   ; c490: 8d 02 40
-                lda ram63                    ; c493: ad a8 02
-                cmp arr37+16                    ; c496: cd a4 02
-                beq +                        ; c499: f0 06
-                sta arr37+16                    ; c49b: 8d a4 02
-                sta sq1_hi                   ; c49e: 8d 03 40
-+               lda ram64                    ; c4a1: ad a9 02
-                sta sq2_vol                  ; c4a4: 8d 04 40
-                lda ram65                    ; c4a7: ad aa 02
-                sta sq2_lo                   ; c4aa: 8d 06 40
-                lda ram66                    ; c4ad: ad ab 02
-                cmp ram60                    ; c4b0: cd a5 02
-                beq +                        ; c4b3: f0 06
-                sta ram60                    ; c4b5: 8d a5 02
-                sta sq2_hi                   ; c4b8: 8d 07 40
-+               lda ram67                    ; c4bb: ad ac 02
-                sta tri_linear               ; c4be: 8d 08 40
-                lda ram68                    ; c4c1: ad ad 02
-                sta tri_lo                   ; c4c4: 8d 0a 40
-                lda ram69                    ; c4c7: ad ae 02
-                sta tri_hi                   ; c4ca: 8d 0b 40
-                lda ram70                    ; c4cd: ad af 02
-                sta noise_vol                ; c4d0: 8d 0c 40
-                lda ram71                    ; c4d3: ad b0 02
-                sta noise_lo                 ; c4d6: 8d 0e 40
-                pla                          ; c4d9: 68
-                sta ptr4+1                    ; c4da: 85 a3
-                pla                          ; c4dc: 68
-                sta ptr4+0                    ; c4dd: 85 a2
-                rts                          ; c4df: 60
+cod11           ldx arr10+10            ; $845a
+                ora dat11,x
+                ora #%11110000
+                sta ram70
+                lda arr28+4
+                bmi +
+                clc
+                lda arr37+5
+                adc arr37+3
+                sta arr37+5
+                lda arr37+6
+                adc arr37+4
+                sta arr37+6
++               ldx #$00
+                jsr sub13
+                ldx #$0f
+                jsr sub13
+                lda ram61
+                sta sq1_vol
+                lda ram62
+                sta sq1_lo
+                lda ram63
+                cmp arr37+16
+                beq +
+                sta arr37+16
+                sta sq1_hi
++               lda ram64
+                sta sq2_vol
+                lda ram65
+                sta sq2_lo
+                lda ram66
+                cmp ram60
+                beq +
+                sta ram60
+                sta sq2_hi
++               lda ram67
+                sta tri_linear
+                lda ram68
+                sta tri_lo
+                lda ram69
+                sta tri_hi
+                lda ram70
+                sta noise_vol
+                lda ram71
+                sta noise_lo
+                pla
+                sta ptr4+1
+                pla
+                sta ptr4+0
+                rts
 
-sub8            sty ram24                    ; $84e0
-                asl a                        ; c4e2: 0a
-                tay                          ; c4e3: a8
-                lda arr37+12                    ; c4e4: ad a0 02
-                adc #$00                     ; c4e7: 69 00
-                sta ptr4+1                    ; c4e9: 85 a3
-                lda arr37+11                    ; c4eb: ad 9f 02
-                sta ptr4+0                    ; c4ee: 85 a2
-                lda (ptr4),y                ; c4f0: b1 a2
-                sta arr11,x                  ; c4f2: 9d 16 02
-                iny                          ; c4f5: c8
-                lda (ptr4),y                ; c4f6: b1 a2
-                iny                          ; c4f8: c8
-                sta arr12,x                  ; c4f9: 9d 21 02
-                inx                          ; c4fc: e8
-                stx ram25                    ; c4fd: 86 a1
-                ldx ram24                    ; c4ff: a6 a0
-                lda arr34,x                  ; c501: bd 85 02
-                lsr a                        ; c504: 4a
-                ldx ram25                    ; c505: a6 a1
-                bcc +                        ; c507: 90 04
-                iny                          ; c509: c8       (unaccessed)
-                jmp ++                       ; c50a: 4c 18 85 (unaccessed)
-+               lda (ptr4),y                ; c50d: b1 a2
-                sta arr11,x                  ; c50f: 9d 16 02
-                iny                          ; c512: c8
-                lda (ptr4),y                ; c513: b1 a2
-                sta arr12,x                  ; c515: 9d 21 02
-++              lda #$01                     ; c518: a9 01
-                sta arr13,x                  ; c51a: 9d 2b 02
-                lda #$00                     ; c51d: a9 00
-                sta arr10+10,x                   ; c51f: 9d 0a 02
-                sta arr10+11,x                  ; c522: 9d 0b 02
-                sta arr14,x                  ; c525: 9d 2c 02
-                lda ram24                    ; c528: a5 a0
-                cmp #$02                     ; c52a: c9 02
-                bne +                        ; c52c: d0 04
-                iny                          ; c52e: c8
-                iny                          ; c52f: c8
-                bne ++                    ; c530: d0 25
-+               inx                          ; c532: e8
-                iny                          ; c533: c8
-                lda (ptr4),y                ; c534: b1 a2
-                sta arr11,x                  ; c536: 9d 16 02
-                iny                          ; c539: c8
-                lda (ptr4),y                ; c53a: b1 a2
-                sta arr12,x                  ; c53c: 9d 21 02
-                lda #$00                     ; c53f: a9 00
-                sta arr10+11,x                  ; c541: 9d 0b 02
-                sta arr14,x                  ; c544: 9d 2c 02
-                stx ram25                    ; c547: 86 a1
-                ldx ram24                    ; c549: a6 a0
-                lda dat9,x                  ; c54b: bd 64 8b
-                tax                          ; c54e: aa
-                lda arr37,x                  ; c54f: bd 94 02
-                ldx ram25                    ; c552: a6 a1
-                sta arr10,x                   ; c554: 9d 00 02
-++              ldx ram24                    ; c557: a6 a0
-                lda arr34,x                  ; c559: bd 85 02
-                bmi +                        ; c55c: 30 22
-                lda dat8,x                  ; c55e: bd 5f 8b
-                bmi +                        ; c561: 30 1d
-                tax                          ; c563: aa
-                lda #$01                     ; c564: a9 01
-                sta arr20,x                  ; c566: 9d 46 02
-                lda #$00                     ; c569: a9 00
-                sta arr17,x                  ; c56b: 9d 3d 02
-                sta arr15,x                  ; c56e: 9d 37 02
-                sta arr16,x                  ; c571: 9d 3a 02
-                iny                          ; c574: c8
-                lda (ptr4),y                ; c575: b1 a2
-                sta arr18,x                  ; c577: 9d 40 02
-                iny                          ; c57a: c8
-                lda (ptr4),y                ; c57b: b1 a2
-                sta arr19,x                  ; c57d: 9d 43 02
-+               ldx ram24                    ; c580: a6 a0
-                rts                          ; c582: 60
+sub8            sty ram24               ; $84e0
+                asl a
+                tay
+                lda arr37+12
+                adc #$00
+                sta ptr4+1
+                lda arr37+11
+                sta ptr4+0
+                lda (ptr4),y
+                sta arr11,x
+                iny
+                lda (ptr4),y
+                iny
+                sta arr12,x
+                inx
+                stx ram25
+                ldx ram24
+                lda arr34,x
+                lsr a
+                ldx ram25
+                bcc +
+                iny                     ; $8509 (unaccessed)
+                jmp ++                  ; (unaccessed)
++               lda (ptr4),y
+                sta arr11,x
+                iny
+                lda (ptr4),y
+                sta arr12,x
+++              lda #$01
+                sta arr13,x
+                lda #$00
+                sta arr10+10,x
+                sta arr10+11,x
+                sta arr14,x
+                lda ram24
+                cmp #$02
+                bne +
+                iny
+                iny
+                bne ++
++               inx
+                iny
+                lda (ptr4),y
+                sta arr11,x
+                iny
+                lda (ptr4),y
+                sta arr12,x
+                lda #$00
+                sta arr10+11,x
+                sta arr14,x
+                stx ram25
+                ldx ram24
+                lda dat9,x
+                tax
+                lda arr37,x
+                ldx ram25
+                sta arr10,x
+++              ldx ram24
+                lda arr34,x
+                bmi +
+                lda dat8,x
+                bmi +
+                tax
+                lda #$01
+                sta arr20,x
+                lda #$00
+                sta arr17,x
+                sta arr15,x
+                sta arr16,x
+                iny
+                lda (ptr4),y
+                sta arr18,x
+                iny
+                lda (ptr4),y
+                sta arr19,x
++               ldx ram24
+                rts
 
-sub9            lda arr29,x                  ; $8583
-                beq +                        ; c586: f0 05
-                dec arr29,x                  ; c588: de 6c 02
-                clc                          ; c58b: 18
-                rts                          ; c58c: 60
-+               lda #$00                     ; c58d: a9 00
-                sta ram25                    ; c58f: 85 a1
-                lda arr25,x                  ; c591: bd 58 02
-                sta ptr4+0                    ; c594: 85 a2
-                lda arr26,x                  ; c596: bd 5d 02
-                sta ptr4+1                    ; c599: 85 a3
-                ldy #0                     ; c59b: a0 00
-cod12           lda (ptr4),y                ; $859d
-                inc ptr4+0                    ; c59f: e6 a2
-                bne +                        ; c5a1: d0 02
-                inc ptr4+1                    ; c5a3: e6 a3
-+               cmp #$61                     ; c5a5: c9 61
-                bcs +                        ; c5a7: b0 03
-                jmp cod13                   ; c5a9: 4c 54 87
-+               ora #%00000000               ; c5ac: 09 00
-                bpl +                        ; c5ae: 10 03
-                jmp cod14                   ; c5b0: 4c 7d 87
-+               cmp #$70                     ; c5b3: c9 70
-                bcc +                        ; c5b5: 90 0c
-                and #%00001111               ; c5b7: 29 0f
-                asl a                        ; c5b9: 0a
-                asl a                        ; c5ba: 0a
-                asl a                        ; c5bb: 0a
-                asl a                        ; c5bc: 0a
-                sta arr33,x                  ; c5bd: 9d 80 02
-                jmp cod12                   ; c5c0: 4c 9d 85
-+               stx ram23                    ; c5c3: 86 9f
-                and #%00001111               ; c5c5: 29 0f
-                tax                          ; c5c7: aa
-                lda dat1,x                   ; c5c8: bd 27 88
-                sta ptr5+0                    ; c5cb: 85 a4
-                lda dat2,x                   ; c5cd: bd 35 88
-                sta ptr5+1                    ; c5d0: 85 a5
-                ldx ram23                    ; c5d2: a6 9f
-                jmp (ptr5)                  ; c5d4: 6c a4 00
+sub9            lda arr29,x             ; $8583
+                beq +
+                dec arr29,x
+                clc
+                rts
++               lda #$00
+                sta ram25
+                lda arr25,x
+                sta ptr4+0
+                lda arr26,x
+                sta ptr4+1
+                ldy #0
+cod12           lda (ptr4),y            ; $859d
+                inc ptr4+0
+                bne +
+                inc ptr4+1
++               cmp #$61
+                bcs +
+                jmp cod13
++               ora #%00000000
+                bpl +
+                jmp cod14
++               cmp #$70
+                bcc +
+                and #%00001111
+                asl a
+                asl a
+                asl a
+                asl a
+                sta arr33,x
+                jmp cod12
++               stx ram23
+                and #%00001111
+                tax
+                lda dat1,x
+                sta ptr5+0
+                lda dat2,x
+                sta ptr5+1
+                ldx ram23
+                jmp (ptr5)
 
-                stx ram23                    ; c5d7: 86 9f
-                lda dat8,x                  ; c5d9: bd 5f 8b
-                tax                          ; c5dc: aa
-                lda (ptr4),y                ; c5dd: b1 a2
-                inc ptr4+0                    ; c5df: e6 a2
-                bne +                        ; c5e1: d0 02
-                inc ptr4+1                    ; c5e3: e6 a3    (unaccessed)
-+               sta arr21,x                  ; c5e5: 9d 49 02
-                ldx ram23                    ; c5e8: a6 9f
-                jmp cod12                   ; c5ea: 4c 9d 85
+                stx ram23               ; $85d7
+                lda dat8,x
+                tax
+                lda (ptr4),y
+                inc ptr4+0
+                bne +
+                inc ptr4+1              ; $85e3 (unaccessed)
++               sta arr21,x
+                ldx ram23
+                jmp cod12
 
-                lda #$7f                     ; c5ed: a9 7f
-                and arr34,x                  ; c5ef: 3d 85 02
-                sta arr34,x                  ; c5f2: 9d 85 02
-                jmp cod12                   ; c5f5: 4c 9d 85
+                lda #$7f                ; $85ed
+                and arr34,x
+                sta arr34,x
+                jmp cod12
 
-                lda #$80                     ; c5f8: a9 80
-                ora arr34,x                  ; c5fa: 1d 85 02
-                sta arr34,x                  ; c5fd: 9d 85 02
-                stx ram23                    ; c600: 86 9f
-                lda dat8,x                  ; c602: bd 5f 8b
-                tax                          ; c605: aa
-                lda (ptr4),y                ; c606: b1 a2
-                sta arr18,x                  ; c608: 9d 40 02
-                iny                          ; c60b: c8
-                lda (ptr4),y                ; c60c: b1 a2
-                sta arr19,x                  ; c60e: 9d 43 02
-                lda #$00                     ; c611: a9 00
-                tay                          ; c613: a8
-                sta arr17,x                  ; c614: 9d 3d 02
-                lda #$01                     ; c617: a9 01
-                sta arr20,x                  ; c619: 9d 46 02
-                ldx ram23                    ; c61c: a6 9f
-                clc                          ; c61e: 18
-                lda #$02                     ; c61f: a9 02
-                adc ptr4+0                    ; c621: 65 a2
-                sta ptr4+0                    ; c623: 85 a2
-                bcc +                        ; c625: 90 02
-                inc ptr4+1                    ; c627: e6 a3    (unaccessed)
-+               jmp cod12                   ; c629: 4c 9d 85
-
-                ; unaccessed chunk
-                ;
-                lda #$fe                     ; c62c: a9 fe
-                and arr34,x                  ; c62e: 3d 85 02
-                sta arr34,x                  ; c631: 9d 85 02
-                jmp cod12                   ; c634: 4c 9d 85
-                lda #$01                     ; c637: a9 01
-                ora arr34,x                  ; c639: 1d 85 02
-                sta arr34,x                  ; c63c: 9d 85 02
-                stx ram23                    ; c63f: 86 9f
-                lda dat6,x                  ; c641: bd 55 8b
-                tax                          ; c644: aa
-                lda (ptr4),y                ; c645: b1 a2
-                sta arr11,x                  ; c647: 9d 16 02
-                iny                          ; c64a: c8
-                lda (ptr4),y                ; c64b: b1 a2
-                sta arr12,x                  ; c64d: 9d 21 02
-                lda #$00                     ; c650: a9 00
-                tay                          ; c652: a8
-                sta arr10+11,x                  ; c653: 9d 0b 02
-                sta arr10,x                   ; c656: 9d 00 02
-                sta arr14,x                  ; c659: 9d 2c 02
-                ldx ram23                    ; c65c: a6 9f
-                clc                          ; c65e: 18
-                lda #$02                     ; c65f: a9 02
-                adc ptr4+0                    ; c661: 65 a2
-                sta ptr4+0                    ; c663: 85 a2
-                bcc +                        ; c665: 90 02
-                inc ptr4+1                    ; c667: e6 a3
-+               jmp cod12                   ; c669: 4c 9d 85
-                stx ram23                    ; c66c: 86 9f
-                lda dat6,x                  ; c66e: bd 55 8b
-                tax                          ; c671: aa
-                lda #$00                     ; c672: a9 00
-                sta arr10+11,x                  ; c674: 9d 0b 02
-                sta arr10,x                   ; c677: 9d 00 02
-                sta arr14,x                  ; c67a: 9d 2c 02
-                ldx ram23                    ; c67d: a6 9f
-                jmp cod12                   ; c67f: 4c 9d 85
-
-                stx ram23                    ; c682: 86 9f
-                lda dat9,x                  ; c684: bd 64 8b
-                tax                          ; c687: aa
-                lda (ptr4),y                ; c688: b1 a2
-                sta arr37,x                  ; c68a: 9d 94 02
-                sta ram24                    ; c68d: 85 a0
-                ldx ram23                    ; c68f: a6 9f
-                lda dat10,x                  ; c691: bd 69 8b
-                tax                          ; c694: aa
-                lda ram24                    ; c695: a5 a0
-                sta arr10,x                   ; c697: 9d 00 02
-                ldx ram23                    ; c69a: a6 9f
-                inc ptr4+0                    ; c69c: e6 a2
-                bne +                        ; c69e: d0 02
-                inc ptr4+1                    ; c6a0: e6 a3    (unaccessed)
-+               jmp cod12                   ; c6a2: 4c 9d 85
-
-                lda (ptr4),y                ; c6a5: b1 a2
-                sta arr35,x                  ; c6a7: 9d 8a 02
-                inc ptr4+0                    ; c6aa: e6 a2
-                bne +                        ; c6ac: d0 02
-                inc ptr4+1                    ; c6ae: e6 a3    (unaccessed)
-+               jmp cod17                   ; c6b0: 4c 1c 88
+                lda #$80                ; $85f8
+                ora arr34,x
+                sta arr34,x
+                stx ram23
+                lda dat8,x
+                tax
+                lda (ptr4),y
+                sta arr18,x
+                iny
+                lda (ptr4),y
+                sta arr19,x
+                lda #$00
+                tay
+                sta arr17,x
+                lda #$01
+                sta arr20,x
+                ldx ram23
+                clc
+                lda #$02
+                adc ptr4+0
+                sta ptr4+0
+                bcc +
+                inc ptr4+1              ; $8627 (unaccessed)
++               jmp cod12
 
                 ; unaccessed chunk
                 ;
-                lda #$40                     ; c6b3: a9 40
-                sta ram25                    ; c6b5: 85 a1
-                lda (ptr4),y                ; c6b7: b1 a2
-                sta arr36,x                  ; c6b9: 9d 8f 02
-                inc ptr4+0                    ; c6bc: e6 a2
-                bne +                        ; c6be: d0 02
-                inc ptr4+1                    ; c6c0: e6 a3
-+               jmp cod12                   ; c6c2: 4c 9d 85
+                lda #$fe                ; $862c
+                and arr34,x
+                sta arr34,x
+                jmp cod12
+                lda #$01
+                ora arr34,x
+                sta arr34,x
+                stx ram23
+                lda dat6,x
+                tax
+                lda (ptr4),y
+                sta arr11,x
+                iny
+                lda (ptr4),y
+                sta arr12,x
+                lda #$00
+                tay
+                sta arr10+11,x
+                sta arr10,x
+                sta arr14,x
+                ldx ram23
+                clc
+                lda #$02
+                adc ptr4+0
+                sta ptr4+0
+                bcc +
+                inc ptr4+1
++               jmp cod12
+                stx ram23
+                lda dat6,x
+                tax
+                lda #$00
+                sta arr10+11,x
+                sta arr10,x
+                sta arr14,x
+                ldx ram23
+                jmp cod12
+
+                stx ram23               ; $8682
+                lda dat9,x
+                tax
+                lda (ptr4),y
+                sta arr37,x
+                sta ram24
+                ldx ram23
+                lda dat10,x
+                tax
+                lda ram24
+                sta arr10,x
+                ldx ram23
+                inc ptr4+0
+                bne +
+                inc ptr4+1              ; $86a0 (unaccessed)
++               jmp cod12
+
+                lda (ptr4),y            ; $86a5
+                sta arr35,x
+                inc ptr4+0
+                bne +
+                inc ptr4+1              ; $86ae (unaccessed)
++               jmp cod17
+
+                ; unaccessed chunk
                 ;
-                lda #$80                     ; c6c5: a9 80
-                ora ram25                    ; c6c7: 05 a1
-                sta ram25                    ; c6c9: 85 a1
-                jmp cod12                   ; c6cb: 4c 9d 85
--               lda (ptr4),y                ; c6ce: b1 a2
-                iny                          ; c6d0: c8
-                sta arr22+3                    ; c6d1: 8d 4f 02
-                lda (ptr4),y                ; c6d4: b1 a2
-                iny                          ; c6d6: c8
-                sec                          ; c6d7: 38
-                sbc (ptr4),y                ; c6d8: f1 a2
-                sta arr23+3                    ; c6da: 8d 53 02
-                bpl +                        ; c6dd: 10 04
-                lda #$ff                     ; c6df: a9 ff
-                bmi ++                    ; c6e1: 30 02
-+               lda #$00                     ; c6e3: a9 00
-++              asl arr23+3                    ; c6e5: 0e 53 02
-                rol a                        ; c6e8: 2a
-                asl arr23+3                    ; c6e9: 0e 53 02
-                rol a                        ; c6ec: 2a
-                asl arr23+3                    ; c6ed: 0e 53 02
-                rol a                        ; c6f0: 2a
-                asl arr23+3                    ; c6f1: 0e 53 02
-                rol a                        ; c6f4: 2a
-                sta arr24+3                    ; c6f5: 8d 57 02
-                jmp +                        ; c6f8: 4c 3f 87
+                lda #$40                ; $86b3
+                sta ram25
+                lda (ptr4),y
+                sta arr36,x
+                inc ptr4+0
+                bne +
+                inc ptr4+1
++               jmp cod12
                 ;
-                cpx #$03                     ; c6fb: e0 03
-                beq -                    ; c6fd: f0 cf
-                stx ram23                    ; c6ff: 86 9f
-                lda dat7,x                  ; c701: bd 5a 8b
-                tax                          ; c704: aa
-                lda (ptr4),y                ; c705: b1 a2
-                iny                          ; c707: c8
-                sta arr22,x                  ; c708: 9d 4c 02
-                lda (ptr4),y                ; c70b: b1 a2
+                lda #$80                ; $86c5
+                ora ram25
+                sta ram25
+                jmp cod12
+-               lda (ptr4),y
+                iny
+                sta arr22+3
+                lda (ptr4),y
+                iny
+                sec
+                sbc (ptr4),y
+                sta arr23+3
+                bpl +
+                lda #$ff
+                bmi ++
++               lda #$00
+++              asl arr23+3
+                rol a
+                asl arr23+3
+                rol a
+                asl arr23+3
+                rol a
+                asl arr23+3
+                rol a
+                sta arr24+3
+                jmp +
+                ;
+                cpx #$03                ; $86fb
+                beq -
+                stx ram23
+                lda dat7,x
+                tax
+                lda (ptr4),y
+                iny
+                sta arr22,x
+                lda (ptr4),y
                 add arr37+8
-                sta ram24                    ; c711: 85 a0
-                iny                          ; c713: c8
-                lda (ptr4),y                ; c714: b1 a2
-                ldy ram24                    ; c716: a4 a0
-                adc arr37+8                    ; c718: 6d 9c 02
-                stx ram24                    ; c71b: 86 a0
-                tax                          ; c71d: aa
-                sec                          ; c71e: 38
-                lda dat3,y                  ; c71f: b9 cc 89
-                sbc dat3,x                  ; c722: fd cc 89
-                sta ptr5+1                    ; c725: 85 a5
-                lda dat4,y                  ; c727: b9 8e 8a
-                sbc dat4,x                  ; c72a: fd 8e 8a
-                ldx ram24                    ; c72d: a6 a0
-                sta arr24,x                  ; c72f: 9d 54 02
-                lda ptr5+1                    ; c732: a5 a5
-                asl a                        ; c734: 0a
-                sta arr23,x                  ; c735: 9d 50 02
-                rol arr24,x                  ; c738: 3e 54 02
-                ldx ram23                    ; c73b: a6 9f
-                ldy #$02                     ; c73d: a0 02
-+               lda (ptr4),y                ; c73f: b1 a2
-                sta arr27,x                  ; c741: 9d 62 02
-                clc                          ; c744: 18
-                lda #$03                     ; c745: a9 03
-                adc ptr4+0                    ; c747: 65 a2
-                sta ptr4+0                    ; c749: 85 a2
-                bcc +                        ; c74b: 90 02
-                inc ptr4+1                    ; c74d: e6 a3
-+               ldy #$00                     ; c74f: a0 00
-                jmp +                        ; c751: 4c 61 87
+                sta ram24
+                iny
+                lda (ptr4),y
+                ldy ram24
+                adc arr37+8
+                stx ram24
+                tax
+                sec
+                lda dat3,y
+                sbc dat3,x
+                sta ptr5+1
+                lda dat4,y
+                sbc dat4,x
+                ldx ram24
+                sta arr24,x
+                lda ptr5+1
+                asl a
+                sta arr23,x
+                rol arr24,x
+                ldx ram23
+                ldy #$02
++               lda (ptr4),y
+                sta arr27,x
+                clc
+                lda #$03
+                adc ptr4+0
+                sta ptr4+0
+                bcc +
+                inc ptr4+1
++               ldy #$00
+                jmp +
 
-cod13           sta arr27,x                  ; c754: 9d 62 02
-                ldy dat7,x                  ; c757: bc 5a 8b
-                bmi +                        ; c75a: 30 05
-                lda #$00                     ; c75c: a9 00
-                sta arr22,y                  ; c75e: 99 4c 02
-+               bit ram25                    ; c761: 24 a1
-                bmi ++                    ; c763: 30 10
-                bvs +                        ; c765: 70 05
-                lda #$ff                     ; c767: a9 ff
-                sta arr36,x                  ; c769: 9d 8f 02
-+               lda arr27,x                  ; c76c: bd 62 02
-                beq ++                    ; c76f: f0 04
--               sec                          ; c771: 38
-                jmp cod16                   ; c772: 4c 05 88
-++              cpx #$04                     ; c775: e0 04    (unaccessed)
-                beq -                    ; c777: f0 f8    (unaccessed)
-                clc                          ; c779: 18       (unaccessed)
-                jmp cod16                   ; c77a: 4c 05 88 (unaccessed)
-cod14           and #%01111111               ; c77d: 29 7f
-                lsr a                        ; c77f: 4a
-                bcs ++                    ; c780: b0 27
-                asl a                        ; c782: 0a
-                asl a                        ; c783: 0a
-                sta arr28,x                  ; c784: 9d 67 02
-                jmp cod12                   ; c787: 4c 9d 85
---              lda (ptr4),y                ; c78a: b1 a2
-                sta arr28+4                    ; c78c: 8d 6b 02
-                inc ptr4+0                    ; c78f: e6 a2
-                bne +                        ; c791: d0 02
-                inc ptr4+1                    ; c793: e6 a3    (unaccessed)
-+               jmp cod12                   ; c795: 4c 9d 85
--               lda (ptr4),y                ; c798: b1 a2
-                sta ram23                    ; c79a: 85 9f
-                iny                          ; c79c: c8
-                lda (ptr4),y                ; c79d: b1 a2
-                sta ptr4+1                    ; c79f: 85 a3
-                lda ram23                    ; c7a1: a5 9f
-                sta ptr4+0                    ; c7a3: 85 a2
-                dey                          ; c7a5: 88
-                jmp cod12                   ; c7a6: 4c 9d 85
-++              cmp #$3d                     ; c7a9: c9 3d
-                beq --                    ; c7ab: f0 dd
-                cmp #$3c                     ; c7ad: c9 3c
-                beq +                        ; c7af: f0 2d
-                bcc cod15                    ; c7b1: 90 4f
-                cmp #$3e                     ; c7b3: c9 3e
-                beq -                    ; c7b5: f0 e1
-                clc                          ; c7b7: 18
-                lda ptr4+0                    ; c7b8: a5 a2
-                adc #$03                     ; c7ba: 69 03
-                sta arr30,x                  ; c7bc: 9d 71 02
-                lda ptr4+1                    ; c7bf: a5 a3
-                adc #$00                     ; c7c1: 69 00
-                sta arr31,x                  ; c7c3: 9d 76 02
-                lda (ptr4),y                ; c7c6: b1 a2
-                sta arr32,x                  ; c7c8: 9d 7b 02
-                iny                          ; c7cb: c8
-                lda (ptr4),y                ; c7cc: b1 a2
-                sta ram23                    ; c7ce: 85 9f
-                iny                          ; c7d0: c8
-                lda (ptr4),y                ; c7d1: b1 a2
-                sta ptr4+1                    ; c7d3: 85 a3
-                lda ram23                    ; c7d5: a5 9f
-                sta ptr4+0                    ; c7d7: 85 a2
-                ldy #$00                     ; c7d9: a0 00
-                jmp cod12                   ; c7db: 4c 9d 85
+cod13           sta arr27,x             ; $8754
+                ldy dat7,x
+                bmi +
+                lda #$00
+                sta arr22,y
++               bit ram25
+                bmi ++
+                bvs +
+                lda #$ff
+                sta arr36,x
++               lda arr27,x
+                beq ++
+-               sec
+                jmp cod16
+++              cpx #$04                ; $8775 (unaccessed)
+                beq -                   ; (unaccessed)
+                clc                     ; (unaccessed)
+                jmp cod16               ; (unaccessed)
+cod14           and #%01111111          ; $877d
+                lsr a
+                bcs ++
+                asl a
+                asl a
+                sta arr28,x
+                jmp cod12
+--              lda (ptr4),y
+                sta arr28+4
+                inc ptr4+0
+                bne +
+                inc ptr4+1              ; $8793 (unaccessed)
++               jmp cod12
+-               lda (ptr4),y
+                sta ram23
+                iny
+                lda (ptr4),y
+                sta ptr4+1
+                lda ram23
+                sta ptr4+0
+                dey
+                jmp cod12
+++              cmp #$3d
+                beq --
+                cmp #$3c
+                beq +
+                bcc cod15
+                cmp #$3e
+                beq -
+                clc
+                lda ptr4+0
+                adc #$03
+                sta arr30,x
+                lda ptr4+1
+                adc #$00
+                sta arr31,x
+                lda (ptr4),y
+                sta arr32,x
+                iny
+                lda (ptr4),y
+                sta ram23
+                iny
+                lda (ptr4),y
+                sta ptr4+1
+                lda ram23
+                sta ptr4+0
+                ldy #$00
+                jmp cod12
 
                 ; unaccessed chunk
                 ;
-+               stx ram23                    ; c7de: 86 9f
-                lda dat5,x                  ; c7e0: bd 50 8b
-                tax                          ; c7e3: aa
-                lda arr11,x                  ; c7e4: bd 16 02
-                sta ptr5+0                    ; c7e7: 85 a4
-                lda arr12,x                  ; c7e9: bd 21 02
-                sta ptr5+1                    ; c7ec: 85 a5
-                ldy #0                       ; c7ee: a0 00
-                lda (ptr5),y                ; c7f0: b1 a4
-                beq +                        ; c7f2: f0 08
-                sta arr14,x                  ; c7f4: 9d 2c 02
-                lda #$00                     ; c7f7: a9 00
-                sta arr10+11,x                  ; c7f9: 9d 0b 02
-+               ldx ram23                    ; c7fc: a6 9f
-                clc                          ; c7fe: 18
-                jmp cod16                   ; c7ff: 4c 05 88
++               stx ram23               ; $87de
+                lda dat5,x
+                tax
+                lda arr11,x
+                sta ptr5+0
+                lda arr12,x
+                sta ptr5+1
+                ldy #0
+                lda (ptr5),y
+                beq +
+                sta arr14,x
+                lda #$00
+                sta arr10+11,x
++               ldx ram23
+                clc
+                jmp cod16
 
-cod15           sta arr29,x                  ; c802: 9d 6c 02
-cod16           lda arr32,x                  ; c805: bd 7b 02
-                beq cod17                   ; c808: f0 12
-                dec arr32,x                  ; c80a: de 7b 02
-                bne cod17                   ; c80d: d0 0d
-                lda arr30,x                  ; c80f: bd 71 02
-                sta arr25,x                  ; c812: 9d 58 02
-                lda arr31,x                  ; c815: bd 76 02
-                sta arr26,x                  ; c818: 9d 5d 02
-                rts                          ; c81b: 60
-cod17           lda ptr4+0                    ; c81c: a5 a2
-                sta arr25,x                  ; c81e: 9d 58 02
-                lda ptr4+1                    ; c821: a5 a3
-                sta arr26,x                  ; c823: 9d 5d 02
-                rts                          ; c826: 60
+cod15           sta arr29,x             ; $8802
+cod16           lda arr32,x             ; $8805
+                beq cod17
+                dec arr32,x
+                bne cod17
+                lda arr30,x
+                sta arr25,x
+                lda arr31,x
+                sta arr26,x
+                rts
+cod17           lda ptr4+0              ; $881c
+                sta arr25,x
+                lda ptr4+1
+                sta arr26,x
+                rts
 
-dat1            hex 00 fb c5                 ; $8827 (unaccessed)
-                hex f8 ed                    ; $882a
-                hex 37 2c 6c                 ; $882c (unaccessed)
-                hex d7 82 a5                 ; $882f
-                hex b3 27 27                 ; $8832
+dat1            hex 00 fb c5            ; $8827 (unaccessed)
+                hex f8 ed               ; $882a
+                hex 37 2c 6c            ; $882c (unaccessed)
+                hex d7 82 a5 b3 27 27   ; $882f
 
-dat2            hex 27 86 86                 ; $8835 (unaccessed)
-                hex 85 85                    ; $8838
-                hex 86 86 86                 ; $883a (unaccessed)
-                hex 85 86 86                 ; $883d
-                hex 86 88 88 88              ; $8840 (unaccessed)
+dat2            hex 27 86 86            ; $8835 (unaccessed)
+                hex 85 85               ; $8838
+                hex 86 86 86            ; $883a (unaccessed)
+                hex 85 86 86            ; $883d
+                hex 86 88 88 88         ; $8840 (unaccessed)
 
-sub10           lda #$0f                     ; $8844
-                sta snd_chn                  ; c846: 8d 15 40
-                rts                          ; c849: 60
+sub10           lda #$0f                ; $8844
+                sta snd_chn
+                rts
 
-                ldx #$01                     ; c84a: a2 01    (unaccessed)
-                stx arr37+15                    ; c84c: 8e a3 02 (unaccessed)
-cod18           asl a                        ; c84f: 0a
-                asl a                        ; c850: 0a
+                ldx #$01                ; $884a (unaccessed)
+                stx arr37+15            ; (unaccessed)
+                ;
+cod18           asl a                   ; $884f
+                asl a
                 add arr37+13
-                sta ptr4+0                    ; c855: 85 a2
-                lda #$00                     ; c857: a9 00
-                adc arr37+14                    ; c859: 6d a2 02
-                sta ptr4+1                    ; c85c: 85 a3
-                lda #$0f                     ; c85e: a9 0f
-                sta snd_chn                  ; c860: 8d 15 40
-                ldy #0                     ; c863: a0 00
-                lda (ptr4),y                ; c865: b1 a2
-                sta dmc_start                ; c867: 8d 12 40
-                iny                          ; c86a: c8
-                lda (ptr4),y                ; c86b: b1 a2
-                sta dmc_len                  ; c86d: 8d 13 40
-                iny                          ; c870: c8
-                lda (ptr4),y                ; c871: b1 a2
-                sta dmc_freq                 ; c873: 8d 10 40
-                iny                          ; c876: c8
-                lda (ptr4),y                ; c877: b1 a2
-                sta dmc_raw                  ; c879: 8d 11 40
-                lda #$1f                     ; c87c: a9 1f
-                sta snd_chn                  ; c87e: 8d 15 40
-                rts                          ; c881: 60
+                sta ptr4+0
+                lda #$00
+                adc arr37+14
+                sta ptr4+1
+                lda #$0f
+                sta snd_chn
+                ldy #0
+                lda (ptr4),y
+                sta dmc_start
+                iny
+                lda (ptr4),y
+                sta dmc_len
+                iny
+                lda (ptr4),y
+                sta dmc_freq
+                iny
+                lda (ptr4),y
+                sta dmc_raw
+                lda #$1f
+                sta snd_chn
+                rts
 
-sub11           ldx arr37+15                    ; $8882
-                beq cod18                   ; c885: f0 c8
+sub11           ldx arr37+15            ; $8882
+                beq cod18
 
                 ; unaccessed chunk
                 ;
-                tax                          ; c887: aa
-                lda snd_chn                  ; c888: ad 15 40
-                and #%00010000               ; c88b: 29 10
-                beq +                        ; c88d: f0 01
-                rts                          ; c88f: 60
-+               sta arr37+15                    ; c890: 8d a3 02
-                txa                          ; c893: 8a
-                jmp cod18                   ; c894: 4c 4f 88
+                tax                     ; $8887
+                lda snd_chn
+                and #%00010000
+                beq +
+                rts
++               sta arr37+15
+                txa
+                jmp cod18
                 ;
-                stx ptr4+0                    ; c897: 86 a2
-                sty ptr4+1                    ; c899: 84 a3
-                ldy #0                     ; c89b: a0 00
-                lda arr37+8                    ; c89d: ad 9c 02
-                bne +                        ; c8a0: d0 02
-                iny                          ; c8a2: c8
-                iny                          ; c8a3: c8
-+               lda (ptr4),y                ; c8a4: b1 a2
-                sta ram72                    ; c8a6: 8d b1 02
-                iny                          ; c8a9: c8
-                lda (ptr4),y                ; c8aa: b1 a2
-                sta ram73                    ; c8ac: 8d b2 02
-                ldx #$00                     ; c8af: a2 00
--               jsr sub12                    ; c8b1: 20 be 88
-                txa                          ; c8b4: 8a
+                stx ptr4+0              ; $8897
+                sty ptr4+1
+                ldy #0
+                lda arr37+8
+                bne +
+                iny
+                iny
++               lda (ptr4),y
+                sta ram72
+                iny
+                lda (ptr4),y
+                sta ram73
+                ldx #$00
+-               jsr sub12
+                txa
                 add #$0f
-                tax                          ; c8b8: aa
-                cpx #$1e                     ; c8b9: e0 1e
-                bne -                        ; c8bb: d0 f4
-                rts                          ; c8bd: 60
+                tax
+                cpx #$1e
+                bne -
+                rts
 
-sub12           lda #$00                     ; $88be
-                sta arr40,x                  ; c8c0: 9d b5 02
-                sta arr38,x                  ; c8c3: 9d b3 02
-                sta arr41,x                  ; c8c6: 9d b6 02
-                sta arr48,x                  ; c8c9: 9d bd 02
-                lda #$30                     ; c8cc: a9 30
-                sta arr42,x                  ; c8ce: 9d b7 02
-                sta arr45,x                  ; c8d1: 9d ba 02
-                sta arr51,x                  ; c8d4: 9d c0 02
-                rts                          ; c8d7: 60
+sub12           lda #$00                ; $88be
+                sta arr40,x
+                sta arr38,x
+                sta arr41,x
+                sta arr48,x
+                lda #$30
+                sta arr42,x
+                sta arr45,x
+                sta arr51,x
+                rts
 
-                asl a                        ; c8d8: 0a
-                tay                          ; c8d9: a8
-                jsr sub12                    ; c8da: 20 be 88
-                lda ram72                    ; c8dd: ad b1 02
-                sta ptr4+0                    ; c8e0: 85 a2
-                lda ram73                    ; c8e2: ad b2 02
-                sta ptr4+1                    ; c8e5: 85 a3
-                lda (ptr4),y                ; c8e7: b1 a2
-                sta arr39,x                  ; c8e9: 9d b4 02
-                iny                          ; c8ec: c8
-                lda (ptr4),y                ; c8ed: b1 a2
-                sta arr40,x                  ; c8ef: 9d b5 02
-                rts                          ; c8f2: 60
+                asl a                   ; $88d8
+                tay
+                jsr sub12
+                lda ram72
+                sta ptr4+0
+                lda ram73
+                sta ptr4+1
+                lda (ptr4),y
+                sta arr39,x
+                iny
+                lda (ptr4),y
+                sta arr40,x
+                rts
 
-sub13           lda arr38,x                  ; $88f3
-                beq +                        ; c8f6: f0 05
-                dec arr38,x                  ; c8f8: de b3 02 (unaccessed)
-                bne cod19                    ; c8fb: d0 4b    (unaccessed)
-+               lda arr40,x                  ; c8fd: bd b5 02
-                bne +                        ; c900: d0 01
-                rts                          ; c902: 60
+sub13           lda arr38,x             ; $88f3
+                beq +
+                dec arr38,x             ; $88f8 (unaccessed)
+                bne cod19               ; (unaccessed)
++               lda arr40,x             ; $88fd
+                bne +
+                rts
 
                 ; unaccessed chunk
                 ;
-+               sta ptr4+1                    ; c903: 85 a3
-                lda arr39,x                  ; c905: bd b4 02
-                sta ptr4+0                    ; c908: 85 a2
-                ldy arr41,x                  ; c90a: bc b6 02
-                clc                          ; c90d: 18
--               lda (ptr4),y                ; c90e: b1 a2
-                bmi ++                    ; c910: 30 12
-                beq +++                    ; c912: f0 31
-                iny                          ; c914: c8
-                bne +                        ; c915: d0 03
-                jsr sub14                    ; c917: 20 bd 89
-+               sta arr38,x                  ; c91a: 9d b3 02
-                tya                          ; c91d: 98
-                sta arr41,x                  ; c91e: 9d b6 02
-                jmp cod19                    ; c921: 4c 48 89
-++              iny                          ; c924: c8
-                bne +                        ; c925: d0 03
-                jsr sub14                    ; c927: 20 bd 89
-+               stx ram23                    ; c92a: 86 9f
-                adc ram23                    ; c92c: 65 9f
-                tax                          ; c92e: aa
-                lda (ptr4),y                ; c92f: b1 a2
-                iny                          ; c931: c8
-                bne +                        ; c932: d0 09
-                stx ram24                    ; c934: 86 a0
-                ldx ram23                    ; c936: a6 9f
-                jsr sub14                    ; c938: 20 bd 89
-                ldx ram24                    ; c93b: a6 a0
-+               sta arr15,x                  ; c93d: 9d 37 02
-                ldx ram23                    ; c940: a6 9f
-                jmp -                        ; c942: 4c 0e 89
-+++             sta arr40,x                  ; c945: 9d b5 02
-cod19           lda ram61                    ; c948: ad a6 02
-                and #%00001111               ; c94b: 29 0f
-                sta ram23                    ; c94d: 85 9f
-                lda arr42,x                  ; c94f: bd b7 02
-                and #%00001111               ; c952: 29 0f
-                cmp ram23                    ; c954: c5 9f
-                bcc +                        ; c956: 90 12
-                lda arr42,x                  ; c958: bd b7 02
-                sta ram61                    ; c95b: 8d a6 02
-                lda arr43,x                  ; c95e: bd b8 02
-                sta ram62                    ; c961: 8d a7 02
-                lda arr44,x                  ; c964: bd b9 02
-                sta ram63                    ; c967: 8d a8 02
-+               lda ram64                    ; c96a: ad a9 02
-                and #%00001111               ; c96d: 29 0f
-                sta ram23                    ; c96f: 85 9f
-                lda arr45,x                  ; c971: bd ba 02
-                and #%00001111               ; c974: 29 0f
-                cmp ram23                    ; c976: c5 9f
-                bcc +                        ; c978: 90 12
-                lda arr45,x                  ; c97a: bd ba 02
-                sta ram64                    ; c97d: 8d a9 02
-                lda arr46,x                  ; c980: bd bb 02
-                sta ram65                    ; c983: 8d aa 02
-                lda arr47,x                  ; c986: bd bc 02
-                sta ram66                    ; c989: 8d ab 02
-+               lda arr48,x                  ; c98c: bd bd 02
-                beq +                        ; c98f: f0 0f
-                sta ram67                    ; c991: 8d ac 02
-                lda arr49,x                  ; c994: bd be 02
-                sta ram68                    ; c997: 8d ad 02
-                lda arr50,x                  ; c99a: bd bf 02
-                sta ram69                    ; c99d: 8d ae 02
-+               lda ram70                    ; c9a0: ad af 02
-                and #%00001111               ; c9a3: 29 0f
-                sta ram23                    ; c9a5: 85 9f
-                lda arr51,x                  ; c9a7: bd c0 02
-                and #%00001111               ; c9aa: 29 0f
-                cmp ram23                    ; c9ac: c5 9f
-                bcc +                        ; c9ae: 90 0c
-                lda arr51,x                  ; c9b0: bd c0 02
-                sta ram70                    ; c9b3: 8d af 02
-                lda arr52,x                  ; c9b6: bd c1 02
-                sta ram71                    ; c9b9: 8d b0 02
-+               rts                          ; c9bc: 60
++               sta ptr4+1              ; $8903
+                lda arr39,x
+                sta ptr4+0
+                ldy arr41,x
+                clc
+-               lda (ptr4),y
+                bmi ++
+                beq +++
+                iny
+                bne +
+                jsr sub14
++               sta arr38,x
+                tya
+                sta arr41,x
+                jmp cod19
+++              iny
+                bne +
+                jsr sub14
++               stx ram23
+                adc ram23
+                tax
+                lda (ptr4),y
+                iny
+                bne +
+                stx ram24
+                ldx ram23
+                jsr sub14
+                ldx ram24
++               sta arr15,x
+                ldx ram23
+                jmp -
++++             sta arr40,x
+cod19           lda ram61
+                and #%00001111
+                sta ram23
+                lda arr42,x
+                and #%00001111
+                cmp ram23
+                bcc +
+                lda arr42,x
+                sta ram61
+                lda arr43,x
+                sta ram62
+                lda arr44,x
+                sta ram63
++               lda ram64
+                and #%00001111
+                sta ram23
+                lda arr45,x
+                and #%00001111
+                cmp ram23
+                bcc +
+                lda arr45,x
+                sta ram64
+                lda arr46,x
+                sta ram65
+                lda arr47,x
+                sta ram66
++               lda arr48,x
+                beq +
+                sta ram67
+                lda arr49,x
+                sta ram68
+                lda arr50,x
+                sta ram69
++               lda ram70
+                and #%00001111
+                sta ram23
+                lda arr51,x
+                and #%00001111
+                cmp ram23
+                bcc +
+                lda arr51,x
+                sta ram70
+                lda arr52,x
+                sta ram71
++               rts
 
-sub14           inc ptr4+1                    ; $89bd
-                inc arr40,x                  ; c9bf: fe b5 02
-                rts                          ; c9c2: 60
+sub14           inc ptr4+1              ; $89bd
+                inc arr40,x
+                rts
 
-                hex c0 7f 00 00 00 c0 7f 00 01  ; c9c3
+                hex c0 7f 00 00 00 c0 7f 00  ; $89c3
+                hex 01
 
                 ; unaccessed chunk
                 ;
@@ -2263,38 +2261,38 @@ dat3            hex 00 68 b6 0e 6f d9 4b c6  ; $89cc
                 hex 0c 00 5b 9c e6 3b 9a 01
                 hex 72 ea 6a
 
-                hex f1                       ; ca37
-                hex 7f                       ; ca38 (unaccessed)
-                hex 13                       ; ca39
-                hex ad 4d                    ; ca3a (unaccessed)
-                hex f3                       ; ca3c
-                hex 9d                       ; ca3d (unaccessed)
-                hex 4c                       ; ca3e
-                hex 00                       ; ca3f (unaccessed)
-                hex b8                       ; ca40
-                hex 74                       ; ca41 (unaccessed)
-                hex 34 f8                    ; ca42
-                hex bf                       ; ca44 (unaccessed)
-                hex 89 56                    ; ca45
-                hex 26 f9 ce                 ; ca47 (unaccessed)
-                hex a6                       ; ca4a
-                hex 80                       ; ca4b (unaccessed)
-                hex 5c 3a 1a fb              ; ca4c
-                hex df                       ; ca50 (unaccessed)
-                hex c4                       ; ca51
-                hex ab 93 7c 67              ; ca52 (unaccessed)
-                hex 52                       ; ca56
-                hex 3f 2d 1c 0c fd ef e1 d5  ; ca57 (unaccessed)
-                hex c9                       ; ca5e (unaccessed)
-                hex bd                       ; ca60
-                hex b3                       ; ca61 (unaccessed)
-                hex a9                       ; ca62
-                hex 9f                       ; ca63 (unaccessed)
-                hex 96 8e                    ; ca64
-                hex 86                       ; ca66 (unaccessed)
-                hex 7e 77 70 6a 64 5e        ; ca67
-                hex 59                       ; ca6d (unaccessed)
-                hex 54                       ; ca6e
+                hex f1                  ; $8a37
+                hex 7f                  ; (unaccessed)
+                hex 13
+                hex ad 4d               ; (unaccessed)
+                hex f3
+                hex 9d                  ; (unaccessed)
+                hex 4c
+                hex 00                  ; (unaccessed)
+                hex b8
+                hex 74                  ; (unaccessed)
+                hex 34 f8
+                hex bf                  ; (unaccessed)
+                hex 89 56
+                hex 26 f9 ce            ; (unaccessed)
+                hex a6
+                hex 80                  ; (unaccessed)
+                hex 5c 3a 1a fb
+                hex df                  ; (unaccessed)
+                hex c4
+                hex ab 93 7c 67         ; (unaccessed)
+                hex 52
+                hex 3f 2d 1c 0c fd ef e1 d5  ; (unaccessed)
+                hex c9                  ; (unaccessed)
+                hex bd
+                hex b3                  ; (unaccessed)
+                hex a9
+                hex 9f                  ; (unaccessed)
+                hex 96 8e
+                hex 86                  ; (unaccessed)
+                hex 7e 77 70 6a 64 5e
+                hex 59                  ; (unaccessed)
+                hex 54
 
                 ; unaccessed chunk
                 hex 4f 4b 46 42 3f 3b 38 34  ; $8a6f
@@ -2318,38 +2316,38 @@ dat4            hex 00 0c 0b 0b 0a 09 09 08  ; $8a8e
                 hex 00 00 0d 0c 0b 0b 0a 0a
                 hex 09 08 08
 
-                hex 07                       ; caf9
-                hex 07                       ; cafa (unaccessed)
-                hex 07                       ; cafb
-                hex 06 06                    ; cafc (unaccessed)
-                hex 05                       ; cafe
-                hex 05                       ; caff (unaccessed)
-                hex 05                       ; cb00
-                hex 05                       ; cb01 (unaccessed)
-                hex 04                       ; cb02
-                hex 04                       ; cb03 (unaccessed)
-                hex 04 03                    ; cb04
-                hex 03                       ; cb06 (unaccessed)
-                hex 03 03                    ; cb07
-                hex 03 02 02                 ; cb09 (unaccessed)
-                hex 02                       ; cb0c
-                hex 02                       ; cb0d (unaccessed)
-                hex 02 02 02 01              ; cb0e
-                hex 01                       ; cb12 (unaccessed)
-                hex 01                       ; cb13
-                hex 01 01 01 01              ; cb14 (unaccessed)
-                hex 01                       ; cb18
-                hex 01 01 01 01 00 00 00 00  ; cb19 (unaccessed)
-                hex 00                       ; cb21 (unaccessed)
-                hex 00                       ; cb22
-                hex 00                       ; cb23 (unaccessed)
-                hex 00                       ; cb24
-                hex 00                       ; cb25 (unaccessed)
-                hex 00 00                    ; cb26
-                hex 00                       ; cb28 (unaccessed)
-                hex 00 00 00 00 00 00        ; cb29
-                hex 00                       ; cb2f (unaccessed)
-                hex 00                       ; cb30
+                hex 07                  ; $8af9
+                hex 07                  ; (unaccessed)
+                hex 07
+                hex 06 06               ; (unaccessed)
+                hex 05
+                hex 05                  ; (unaccessed)
+                hex 05
+                hex 05                  ; (unaccessed)
+                hex 04
+                hex 04                  ; (unaccessed)
+                hex 04 03
+                hex 03                  ; (unaccessed)
+                hex 03 03
+                hex 03 02 02            ; (unaccessed)
+                hex 02
+                hex 02                  ; (unaccessed)
+                hex 02 02 02 01
+                hex 01                  ; (unaccessed)
+                hex 01
+                hex 01 01 01 01         ; (unaccessed)
+                hex 01
+                hex 01 01 01 01 00 00 00 00  ; (unaccessed)
+                hex 00                  ; (unaccessed)
+                hex 00
+                hex 00                  ; (unaccessed)
+                hex 00
+                hex 00                  ; (unaccessed)
+                hex 00 00
+                hex 00                  ; (unaccessed)
+                hex 00 00 00 00 00 00
+                hex 00                  ; (unaccessed)
+                hex 00
 
                 ; unaccessed chunk
                 hex 00 00 00 00 00 00 00 00  ; $8b31
@@ -2357,32 +2355,32 @@ dat4            hex 00 0c 0b 0b 0a 09 09 08  ; $8a8e
                 hex 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00
 
-dat5            hex 00 03 06                 ; $8b50
-                hex 08                       ; (unaccessed)
+dat5            hex 00 03 06            ; $8b50
+                hex 08                  ; (unaccessed)
                 hex ff
 
-dat6            hex 01 04 07 09 ff           ; $8b55 (unaccessed)
+dat6            hex 01 04 07 09 ff      ; $8b55 (unaccessed)
 
-dat7            hex 00 01 02                 ; $8b5a
-                hex 03                       ; (unaccessed)
+dat7            hex 00 01 02            ; $8b5a
+                hex 03                  ; (unaccessed)
                 hex ff
 
-dat8            hex 00 01 02                 ; $8b5f
-                hex ff ff                    ; (unaccessed)
+dat8            hex 00 01 02            ; $8b5f
+                hex ff ff               ; (unaccessed)
 
-dat9            hex 00 01                    ; $8b64
-                hex ff 02 ff                 ; (unaccessed)
+dat9            hex 00 01               ; $8b64
+                hex ff 02 ff            ; (unaccessed)
 
-dat10           hex 02 05                    ; $8b69
-                hex ff 0a ff                 ; (unaccessed)
+dat10           hex 02 05               ; $8b69
+                hex ff 0a ff            ; (unaccessed)
 
-dat11           hex 30 70                    ; $8b6e
-                hex b0                       ; (unaccessed)
+dat11           hex 30 70               ; $8b6e
+                hex b0                  ; (unaccessed)
                 hex f0
 
 dat12           hex 00 00 00 00 00 00 00 00  ; $8b72 (unaccessed)
                 hex 00 00 00 00 00 00 00     ; (unaccessed)
-                hex 00                       ; $8b81
+                hex 00
 
                 ; unaccessed chunk
                 hex 00 01 01 01 01 01 01 01  ; $8b82
@@ -2427,1638 +2425,823 @@ dat12           hex 00 00 00 00 00 00 00 00  ; $8b72 (unaccessed)
                 hex 01 02 03 04 05 06 07 08  ; $8c63 (unaccessed)
                 hex 09 0a 0b 0c 0d 0e        ; (unaccessed)
 
-                hex 0f 62 a9 ff 9c 39 73 e7  ; $8c71
-                hex cf 9f 3f 7f ff 49 93 26
-                hex 4c 99 33 67 ce bf 00 01
-                hex 02 04 09 12 24 e0 c0 80
-                hex 00 24 1f 01 03 07 0f 1f
-                hex fc 18 30 60 c0 80 00 ff
-                hex b3 66 cc 98 31 63 c6 8c
-                hex ff cc 98 31 63 c6 8c 18
-                hex 30 23 5d f0 60 c0 80 00
-                hex bf 91 31 63 c6 8c 18 30
-                hex 80 17 87 ef ee ed eb ff
-                hex f6 ed db b6 6c d9 b3 66
-                hex 22 51 87 ff fe fd fb 7f
-                hex 01 03 07 0f 1f 3f 7f 78
-                hex 01 03 07 ff 22 5b ff fd
-                hex fb f6 ed db b6 6c d9 81
-                hex ff fe 9f 00 88 00 22 00
-                hex 88 ff 0f 07 03 89 00 22
-                hex 00 88 f8 0f 07 03 01 00  ; $8d01
-                hex 82 f6 7f 20 00 88 00 22
-                hex 00 88 f8 0f 07 03 01 00
-                hex 1f 08 00 22 00 88 fc f8
-                hex f0 e0 c0 80 00 83 ff fe
-                hex fc 7f 22 00 88 00 22 00
-                hex 88 82 f5 7f 02 00 08 00
-                hex 22 00 88 fc f8 f0 e0 c0
-                hex 80 00 01 80 87 ff 7f 3f
-                hex 1f da 30 18 00 18 00 1f
-                hex 25 26 74 24 00 49 3c 80
-                hex e0 60 00 9f 80 be 84 88
-                hex 90 be 80 80 e6 80 a4 aa
-                hex 92 80 92 75 f8 0f 07 03
-                hex 01 00 19 88 00 88 f8 0f
-                hex 07 03 01 00 ff 9c ce e7
-                hex f3 f9 fc fe ff 07 7f 3f
-                hex 1f 62 a5 ff 00 80 40 20
-                hex 90 48 24 92 ff c9 64 32
-                hex 99 cc e6 73 39 07 80 00
-                hex 7e 06 9f 03 24 c7 fe ff
-                hex 83 f9 c1 ff 66 33 19 8c
-                hex c6 63 31 18 f8 0c 06 03
-                hex 01 00 3f 80 c0 e0 f0 f8
-                hex fc 63 6a 01 80 f0 e0 c0
-                hex 80 00 87 fe fc f8 f0 80
-                hex fe 82 6f 81 ff fc 19 88
-                hex 00 88 19 08 00 88 fc f8
-                hex f0 e0 c0 80 00 e0 ff bf
-                hex 3f e0 2e 6e ee 52 ef 80
-                hex d1 3c bf 3f 7f ff 80 d1
-                hex 80 d1 87 3f 7f bf 3f 80
-                hex d1 ff 7f bf 3f 7f ff bf  ; $8e01
-                hex 3f 7f 52 fe 8e 01 81 41
-                hex a1 02 7f 80 7e 80 fe 80
-                hex d1 80 3f da 45 42 41 40
-                hex 20 52 fe e2 1f e0 ff 00
-                hex 02 00 3e 01 03 07 03 00
-                hex ae 3f 1f 0f 03 00 80 45
-                hex 88 fe ff 80 45 52 fe 80
-                hex 45 08 fe 80 45 87 fe ff
-                hex fe ff 80 45 d9 fe ff fe
-                hex ff fe 86 40 41 42 02 db
-                hex 80 45 80 bb 80 3f ff ff
-                hex 55 ff 55 ff 55 ff 55 fe
-                hex bf 50 a0 20 c0 40 80 ea
-                hex 1f 10 20 40 80 83 6b b2
-                hex ff c0 df dc ff aa 44 aa
-                hex 11 aa 44 aa 11 ff aa 44
-                hex aa 15 aa 44 aa 15 07 80
-                hex 40 a8 8f 80 c0 30 0c 03
-                hex 68 32 03 fb 3b c1 3e 63
-                hex 00 e7 1c 32 63 26 1c 00
-                hex ff 7f 70 3c 1e 07 63 3e
-                hex 00 83 59 c8 df bf 7f ee
-                hex ff fc fb f7 ef df cc ee
-                hex ff ee ff a6 3b fb 03 ff
-                hex 82 66 80 df ff ff dd ff
-                hex 55 ff dd ff 55 a6 dc df
-                hex c0 ff ff ff dd ff 77 ff
-                hex dd ff 77 6c 0e 00 ff 00
-                hex e0 af df ff 1e 3f c0 3f
-                hex 00 a0 aa ff 0e 00 ff 00
-                hex b8 81 bf 80 ff 0e 00 ff
-                hex 00 e0 aa 9a ff 0d 80 f4  ; $8f01
-                hex a7 5b bb fb 1b fb 80 f4
-                hex c3 fb 3b fb 5b 80 f4 b0
-                hex 7b fb db 80 f4 ac fb 1b
-                hex fb 7b 0d 80 f4 b9 1b fb
-                hex 1b 3b 5b 80 f4 b1 1b fb
-                hex db fb 80 f4 c1 fb 7b fb
-                hex 80 f4 f8 5b bb fb 7b 3b
-                hex 0d 80 f4 81 fb 7b 80 f4
-                hex e5 3b 9b 5b 1b fb 81 f4
-                hex e8 81 fb f7 80 f4 e0 3b
-                hex 7b fb 03 ea 80 bc 80 40
-                hex ff aa dd aa 77 aa dd aa
-                hex 77 ff aa dd aa 7f aa dd
-                hex aa 7f ff aa 55 aa 55 aa
-                hex 55 aa 55 82 9f ff ee 55
-                hex aa 55 ee 55 bb 55 80 fb
-                hex 78 3f 70 60 ff 03 ff 00
-                hex 78 fe 07 03 ff 03 ff 00
-                hex 43 ea 80 4d 80 4f bb df
-                hex ef f7 fb fc ff 89 7f bf
-                hex df 77 0c 9e 92 d2 7e 3c
-                hex 63 b5 c8 fb fd fe 80 17
-                hex e0 fa f9 f8 e0 02 01 00
-                hex ff 4c 26 93 49 24 12 09
-                hex 04 49 fe 80 be 84 88 90
-                hex be 80 ad 80 a2 be a2 80
-                hex ab aa a2 80 be 84 b5 82
-                hex be 82 80 be 49 ec a2 9c
-                hex 80 9c a2 f6 88 90 be 80
-                hex be a2 b0 aa 92 80 db 9c
-                hex 80 86 80 a4 aa 49 ea 80
-                hex be aa a2 80 b3 80 be aa  ; $9001
-                hex 9c 80 eb a2 be a2 80 be
-                hex 84 dd 9c a2 aa ba 80 a2
-                hex 49 eb 90 be 80 a2 be a2
-                hex f7 88 90 be 80 be 84 88
-                hex b7 80 9c a2 aa ba 80 df
-                hex a2 80 be 84 88 90 be 49
-                hex 80 ad f8 49 93 a6 ac ad
-                hex 80 df fc 9c 39 73 e7 cf
-                hex df 68 31 07 e3 07 64 7f
-                hex bf df 80 ef c0 fe ff 69
-                hex 07 f8 c7 bf 0c 00 ff 12
-                hex 80 de c0 7f ff 68 64 7e
-                hex bd db 88 ef f7 93 df bf
-                hex 7f ff 01 fe 43 ab bb fb
-                hex f7 ef df 3f ff 89 fe fd
-                hex fb 53 fe 92 fe 6c a0 0b
-                hex 17 a0 fc f8 43 fa 81 17
-                hex 0b 81 f8 fc 80 17 80 f8
-                hex 73 4e ce 8a fa 70 7e 38
-                hex 7c c6 82 92 f2 49 28 fe
-                hex 80 7b 78 fc 96 92 f2 60
-                hex 7b 60 e0 80 82 fe 7e 7f
-                hex 40 c2 92 9a 9e f6 62 49
-                hex 7b 38 7c c6 82 c6 44 3a
-                hex 80 84 fe 80 73 6c fe 92
-                hex fe 6c 51 fe 12 02 49 5e
-                hex fe 1c 38 1c fe 80 fb 87
-                hex ff 1f e3 fd ac b6 80 c1
-                hex ff 62 a9 6d c0 c7 c0 c7
-                hex c0 61 18 88 c1 61 8c 88
-                hex c1 06 9f d0 34 07 20 3e
-                hex 3f 66 3f df 9f ff f8 5f  ; $9101
-                hex 1f 5f ff 00 fb fb db 31
-                hex ff 00 f0 38 62 a8 01 7f
-                hex 93 db bd 7e ff be bf cf
-                hex f7 fb fc ff 49 5e fe 70
-                hex 38 70 fe 53 fe 22 3e 1c
-                hex 5f fe 30 78 ec c6 82 57
-                hex fe 82 c6 7c 38 49 52 fe
-                hex 10 fe 3b 0e 1e f0 1e 0e
-                hex 5e fe 1c 38 70 fe 2a 82
-                hex fe 82 49 77 4c de 92 96
-                hex f4 60 28 66 00 14 c0 00
-                hex 2a 02 fe 02 48 fb 67 6e
-                hex 7c 67 63 7e 00 ff 26 4c
-                hex 99 33 67 ce 9c 39 ff 01
-                hex 02 04 09 12 24 49 93 f9
-                hex 08 1c 3e 77 63 00 42 fa
-                hex 01 01 03 03 07 0b 80 00
-                hex c0 0b 80 e0 f0 0d 60 30
-                hex 00 b7 63 7f 63 36 1c 00
-                hex 83 46 51 fe 92 82 73 7c
-                hex fe 82 fe 7c ff aa 44 aa
-                hex 00 aa 44 aa 00 82 a5 7f
-                hex 22 00 aa 00 22 00 aa 7f
-                hex 22 aa 00 aa 00 aa 00 fe
-                hex 73 e7 cf 9f 3f 7f ff ff
-                hex 26 4c 99 33 e7 ce 1c f9
-                hex 62 af 0f fe fc f8 f0 f0
-                hex f3 e7 0f ff 82 7e fe 80
-                hex fe de d1 a1 41 81 01 02
-                hex d0 3f 7f ff 22 b5 ae fe
-                hex fc f8 e0 00 e2 fd 03 ff
-                hex 00 e0 02 fc 00 fa 83 f1  ; $9201
-                hex d9 0d bf ff fa 9d 91 87
-                hex 9b 9d ff 34 0f 00 20 50
-                hex 47 0f 00 52 55 75 70 01
-                hex 00 ff fa 07 00 0f 03 cf
-                hex ff 34 0f 7f 63 79 7c 0f
-                hex 00 65 55 56 f8 87 f2 b0
-                hex 1b ff d8 01 f9 01 ff 34
-                hex 07 06 ff c5 07 9e c3 e3
-                hex 18 0f ff fa c7 63 33 83
-                hex 99 ff 24 87 ff e0 ff 3f
-                hex 87 ff 1f 8f c8 72 92 52
-                hex 56 5a 60 71 4a 24 fb 5a
-                hex 52 92 00 ff 1f 83 bb 4a
-                hex 71 00 ff 9f 9d 61 90 10
-                hex 28 77 97 94 a4 c4 c7 a4
-                hex 24 b8 28 a8 00 ff fb a4
-                hex 94 97 00 ff e7 07 72 24
-                hex a5 ad b5 75 93 94 a4 c4
-                hex a4 25 ff cd 0c ec 8c 0e
-                hex ef 0f cf ff ec 0c 8c 6c
-                hex 0c cc 2c 2f 80 fa 80 91
-                hex a2 e7 81 07 ff 80 05 81
-                hex 00 0f 87 05 3b c7 df c0
-                hex 1f 3f 1c 30 3c 3f a2 bd
-                hex 81 00 f8 81 f0 ff 80 d0
-                hex c0 fc fe 01 80 87 d0 ee
-                hex f1 fc 03 2a 57 fe 82 c6
-                hex 7c 38 73 7c fe 82 fe 7c
-                hex 5e fe 1c 38 70 fe 09 5f
-                hex fe 30 78 ec c6 82 51 fe
-                hex 92 82 3b 0e 1e f0 1e 0e
-                hex 7e 38 7c c6 82 92 f2 83  ; $9301
-                hex ab 7b 60 e0 80 82 fe 7e
-                hex 5f fe 22 62 f2 de 9c 14
-                hex c0 00 3a c0 f0 f8 fc 07
-                hex 08 1c 3c 43 fd 90 80 40
-                hex 80 fc 80 40 80 fc 83 40
-                hex 80 00 80 fc 97 fc f8 f0
-                hex c0 00 a2 9f 80 3f da 44
-                hex 42 41 40 20 a0 aa ff 0e
-                hex c0 3f 00 e0 af df ff 06
-                hex ff 00 ad 1f 3f ff 3f bf
-                hex 3f 80 04 40 0f e1 04 f4
-                hex d4 14 80 0f c3 f4 34 f4
-                hex 54 80 0f a7 54 b4 f4 14
-                hex f4 4d ac fb 1b fb 7b 80
-                hex 0f b0 7b fb db 80 0f b1
-                hex 1b fb db fb 80 0f b9 1b
-                hex fb 1b 3b 5b 80 0f 4d f8
-                hex 5b bb fb 7b 3b 80 0f c1
-                hex fb 7b fb 80 0f e5 3b 9b
-                hex 5b 1b fb 80 0f 80 fb 81
-                hex 0f 8f 5d 80 fb e0 cf 8f
-                hex 0f 81 fb f7 81 0f 1f fb
-                hex f7 ef 9f 7f ff fc 03 e0
-                hex 1f 7f ff c0 fc 00 01 00
-                hex 3c 80 bb 88 45 44 07 ad
-                hex aa 8a 08 00 07 df af b8
-                hex 08 00 07 da aa e9 08 00
-                hex 62 ea 07 e3 f9 fc 08 80
-                hex 07 9e c3 e3 07 06 ff c5
-                hex 07 1f 8f c8 68 07 e0 ff
-                hex 3f 07 20 3e 3f 06 60 2f
-                hex 06 60 fc 62 b5 07 7f ff  ; $9401
-                hex 81 07 83 f9 c1 c0 01 00
-                hex bf ff 7f 3f 1f 0f 07 03
-                hex 9f ff fe fc f8 f0 e0 22
-                hex 7f e0 3f 7f ff 80 ee 80
-                hex d1 80 80 80 7e 80 bb 80
-                hex 45 68 fa 9d 91 87 9b 9d
-                hex ff fa 83 f1 d9 0d bf ff
-                hex fa 07 00 0f 03 cf ff 70
-                hex 01 00 ff 48 d8 01 f9 01
-                hex ff f8 87 f2 b0 1b ff fa
-                hex c7 63 33 83 99 ff b8 f3
-                hex ff 0f ff 63 a1 5a 03 ff
-                hex 03 33 f0 33 03 c7 ff 01
-                hex 80 72 5f f8 f3 f9 fc fe
-                hex ff fc e7 cf 9f 3f 7f ff
-                hex 80 ee 60 bf 3f 80 bb 08
-                hex fe 8c b8 b5 8e ff 00 0b
-                hex ff 9f 9d f8 a5 ad 6d ff
-                hex 00 0b ff 1f 83 f8 5b 6b
-                hex 68 ff 00 0b ff e7 07 b8
-                hex d7 57 ff 00 08 ff ac f8
-                hex 5b 6b 6c ff 00 0a ff 01
-                hex f8 4a 5a db ff 00 0b ff
-                hex 0f 87 78 df 3f ff 00 0b
-                hex ff 0f c7 b8 ad a3 ff 00
-                hex 0b ff f8 f0 62 e5 03 33
-                hex 13 f8 ff fe fc f8 00 02
-                hex 93 ff 99 cc e6 73 39 9c
-                hex ce e7 ff 4c 99 33 67 ce
-                hex 9c 39 73 a2 5a 80 11 80
-                hex 44 60 8e b5 72 6d ad a9
-                hex a5 28 77 68 6b 5b 3b 38  ; $9501
-                hex 5b 61 6f ef d7 75 6c 6b
-                hex 5b 3b 5b 72 db 5a 52 4a
-                hex 22 a9 66 3e dd 9f ff 63
-                hex 6d ad a3 ad 50 3f ff 7f
-                hex 01 03 07 0f 1f 3f 7f 72
-                hex 5f ff 20 90 48 24 92 c9
-                hex 64 32 ff 02 04 09 12 24
-                hex 49 93 26 80 ee 3c bf 3f
-                hex 7f ff 80 bb d9 fe ff fe
-                hex ff fe 25 80 91 bf 91 31
-                hex 63 c6 8c 18 30 f0 60 c0
-                hex 80 00 e0 fd fe ff 63 7d
-                hex 01 01 19 00 ff 00 e0 4c
-                hex 99 ff 66 00 ff 00 ff 81
-                hex ff 05 80 05 32 5d ff f6
-                hex ed db b6 6c d9 b3 66 ff
-                hex cc 98 31 63 c6 8c 18 30
-                hex 80 ee 87 d1 91 51 d1 07
-                hex fe fd fb 73 bf 63 00 ff
-                hex fc fb a0 f7 ef a0 fc f8
-                hex 80 ef 80 f8 80 ef 87 f8
-                hex f9 fa fc 4d 80 ef e0 fa
-                hex f9 f8 81 ef f7 81 f8 fc
-                hex f1 f7 fb fc ff 00 c0 fc
-                hex ff 2a 1f 0f 07 30 7f ff
-                hex 72 8b 87 05 3b c7 df 87
-                hex d0 ee f1 fc 81 00 80 c0
-                hex fc fe 02 7d 01 0f 80 05
-                hex 81 02 fa 80 d0 81 20 2f
-                hex 01 f8 0d 07 01 03 02 01
-                hex 01 80 02 f8 0d 3d 7d 6d
-                hex 4d 80 02 80 4d 80 02 87  ; $9601
-                hex 4d 6d 7d 3d 02 ea 03 e0
-                hex 30 0b 80 00 c0 55 30 00
-                hex 30 00 c1 3e 63 00 c1 3f
-                hex 30 00 08 c7 3f 0c 1c 0c
-                hex 00 ef 3e 63 03 7e 60 7e
-                hex 00 1f 25 26 74 24 00 d0
-                hex 30 18 00 09 77 0c 9e 92
-                hex d2 7e 3c 73 6c fe 92 fe
-                hex 6c 7f 40 c2 92 9a 9e f6
-                hex 62 77 4c de 92 96 f4 60
-                hex 09 53 fe 22 3e 1c 7b 38
-                hex 7c c6 82 c6 44 53 fe 92
-                hex fe 6c 3c 80 ec 6c 00 09
-                hex 7b 78 fc 96 92 f2 60 52
-                hex fe 10 fe 7f f8 fc 26 22
-                hex 26 fc f8 2a 02 fe 02 09
-                hex 51 fe 12 02 2a 82 fe 82
-                hex 78 08 0e 06 00 5e fe 1c
-                hex 38 1c fe 03 a8 7f c4 e6
-                hex f2 b2 ba 9e 8c 5e fe 70
-                hex 38 70 fe 41 10 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 03 2a
-                hex 53 fe 92 fe 6c 7f f8 fc
-                hex 26 22 26 fc f8 77 4c de
-                hex 92 96 f4 60 83 af 51 fe
-                hex 92 82 28 fe 80 07 08 1c
-                hex 3c 3a c0 f0 f8 fc 90 7c
-                hex bc 80 fc 03 f7 80 40 80
-                hex fc 83 40 80 00 80 fc 97
-                hex fc f8 f0 c0 00 20 ff 20  ; d701
-                hex ff b2 bf da 45 42 41 40
-                hex 20 1e 3f c0 3f 00 a0 aa
-                hex ff 0e 00 ff 00 e0 af df
-                hex ff 0e 00 ff 00 e0 aa 9d
-                hex ff 9d 80 f4 61 0f 2f ef
-                hex 80 f4 c3 0f cf 0f af 80
-                hex f4 a7 af 4f 0f ef 0f 80
-                hex f4 ac 0f ef 0f 8f 4d b0
-                hex 7b fb db 80 f4 b1 1b fb
-                hex db fb 80 f4 b9 1b fb 1b
-                hex 3b 5b 80 f4 f8 5b bb fb
-                hex 7b 3b 80 f4 4d c1 fb 7b
-                hex fb 80 f4 e5 3b 9b 5b 1b
-                hex fb 80 f4 81 fb 7b 80 f4
-                hex e0 3b 7b fb 80 f4 2c 0e
-                hex fe 01 ff 18 01 ff de ee
-                hex de be 7e fe fd d0 3f 7f
-                hex ff 82 80 00 80 fe 88 bb
-                hex ba 88 fe ff a4 0f ff ad
-                hex aa 8a cf 40 00 ff df af
-                hex b8 cf 07 00 ff 9a aa 98
-                hex cf f0 00 80 9c 86 83 a4
-                hex e7 30 78 00 61 3c 1c 07
-                hex f9 00 3a a7 1e 00 e0 70
-                hex 37 07 1f 00 c0 a4 07 df
-                hex c1 c0 06 9f d0 06 9f 03
-                hex 07 80 00 7e 58 c7 fe ff
-                hex 83 f9 c1 3f 80 c0 e0 f0
-                hex f8 fc 1f 01 03 07 0f 1f
-                hex e0 3f 7f ff a2 fd 80 d1
-                hex 80 3f 80 7e 80 fe 80 45
-                hex 80 fe 7f 21 73 33 3f 1e  ; d801
-                hex 0c 09 59 f0 0c 3e 7f c7
-                hex 8f c7 ff fe 7c 1c fd 0c
-                hex 80 00 3c 7f ff 18 ef 08
-                hex c8 00 c8 08 38 ff a2 54
-                hex 12 ff 00 f7 33 37 36 96
-                hex 9e 1a 1e 90 80 00 b2 57
-                hex c0 01 00 f8 f3 f9 fc fe
-                hex ff fc e7 cf 9f 3f 7f ff
-                hex 80 d1 60 bf 3f b2 d5 80
-                hex 45 08 fe f8 a5 b9 83 ff
-                hex 00 fb 4a 32 87 ff 00 40
-                hex c0 fb 95 65 0c ff 00 02
-                hex 07 58 fb f5 14 f7 00 ff
-                hex e7 e2 fb ab 6c c7 00 ff
-                hex cf 49 f8 54 d4 9c 00 ff
-                hex bb 28 38 00 ff fd cc 58
-                hex 09 ff 7f 78 01 03 07 ff
-                hex ff 66 33 19 8c c6 63 31
-                hex 18 ff b3 66 cc 98 31 63
-                hex c6 8c b2 a5 80 d1 80 45
-                hex 73 83 b9 a5 b9 a5 67 03
-                hex 4a 4b 7a 4a 58 7b f3 9a
-                hex 6a ea 9a 7a 7b f7 14 f5
-                hex 85 f4 15 73 cf 6b ab 68
-                hex ab 78 df 50 57 54 52 8a
-                hex 78 bf a1 af 28 7f 01 03
-                hex 07 0f 1f 3f 7f ff df 6f
-                hex b7 db 6d 36 9b cd b3 7d
-                hex ff 02 04 09 12 24 49 93
-                hex 26 39 00 ff 00 ff e0 e7
-                hex cf ff e7 00 ff 00 ff 00
-                hex ff 01 6e 80 6e a4 ff 33  ; d901
-                hex e7 ce 1c f9 f3 e7 0f f0
-                hex 9f 3f 7f ff 03 80 40 01
-                hex 01 b3 f5 39 00 ff 00 ff
-                hex e0 4c 99 ff e7 00 ff 00
-                hex ff 00 ff 01 05 80 05 ff
-                hex 09 12 24 49 93 26 4c 99
-                hex b2 76 ff 33 67 ce 9c 39
-                hex 73 e7 cf 80 d1 87 3f 7f
-                hex bf 3f 87 00 01 02 04 86
-                hex 40 41 42 4d a0 f7 ef a0
-                hex 0b 17 80 ef 80 17 87 ef
-                hex ee ed eb 80 17 e0 ed ee
-                hex ef 80 17 12 fe 9c ff 01
-                hex fe ff 06 01 00 8e fe 7e
-                hex be de 02 7f 1c 30 3c 3f
-                hex c0 1f 3f 87 05 3b c7 df
-                hex 12 ad 80 ff 87 d0 ee f1
-                hex fc 01 80 c0 fc fe 81 00
-                hex 0f 42 f7 80 05 81 02 fa
-                hex 80 d0 81 20 2f 01 f8 03
-                hex 03 06 01 01 4d 80 02 f8
-                hex 0d 3d 7d 6d 4d 80 02 80
-                hex 4d 80 02 87 4d 6d 7d 3d
-                hex b8 02 03 01 00 e0 0d 01
-                hex 00 09 57 fe 82 c6 7c 38
-                hex 14 c0 00 73 7c fe 82 fe
-                hex 7c 5f fe 22 62 f2 de 9c
-                hex 09 28 66 00 7b 38 7c c6
-                hex 82 c6 44 5e fe 1c 38 1c
-                hex fe 5f 06 e2 f2 1a 0e 06
-                hex 08 1f 25 26 74 24 00 d0
-                hex 30 18 00 c7 3f 0c 1c 0c  ; da01
-                hex 00 fb 3c 06 03 3f 63 3e
-                hex 00 09 73 6c fe 92 fe 6c
-                hex 7f 40 c2 92 9a 9e f6 62
-                hex 53 fe 22 3e 1c 7b 78 fc
-                hex 96 92 f2 60 09 5f fe 30
-                hex 78 ec c6 82 7e 38 7c c6
-                hex 82 92 f2 3c 80 ec 6c 00
-                hex 52 fe 10 fe 09 2a 02 fe
-                hex 02 51 fe 12 02 2a 82 fe
-                hex 82 5e fe 70 38 70 fe 02
-                hex 80 0d 60 30 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 03
-                hex 2a 57 fe 82 c6 7c 38 73
-                hex 7c fe 82 fe 7c 5e fe 1c
-                hex 38 70 fe 09 5f fe 30 78
-                hex ec c6 82 51 fe 92 82 3b
-                hex 0e 1e f0 1e 0e 7e 38 7c
-                hex c6 82 92 f2 83 bf 7f 40
-                hex c2 92 9a 9e f6 62 07 08
-                hex 1c 3c 3a c0 f0 f8 fc 90
-                hex 7c bc 80 fc 80 bc 80 fc
-                hex 12 de e0 02 fc 00 02 00
-                hex ae fe fc f8 e0 00 80 3f
-                hex 80 3f da ba bd be bf df
-                hex ac 1e 3f c0 3f 00 a0 aa
-                hex ff 0e 00 ff 00 e0 af df
-                hex ff 0e 00 ff 00 e0 ad 98
-                hex ff 0e 00 ff 00 b8 81 bf
-                hex 80 ff 4d c3 fb 3b fb 5b
-                hex 80 f4 a7 5b bb fb 1b fb  ; db01
-                hex 80 f4 ac fb 1b fb 7b 80
-                hex f4 b0 7b fb db 80 f4 4d
-                hex b1 1b fb db fb 80 f4 b9
-                hex 1b fb 1b 3b 5b 80 f4 f8
-                hex 5b bb fb 7b 3b 80 f4 c1
-                hex fb 7b fb 80 f4 4d e5 3b
-                hex 9b 5b 1b fb 80 f4 81 fb
-                hex 7b 80 f4 e0 3b 7b fb 80
-                hex f4 81 fb f7 81 f4 e8 a2
-                hex fd de d1 a1 41 81 01 02
-                hex d0 3f 7f ff 82 7e fe 80
-                hex fe 80 45 88 fe ff 0f ff
-                hex ad aa 8a a4 0f ff df af
-                hex b8 0e ff 9d ad 0f 80 9c
-                hex 86 83 07 61 3c 1c a4 07
-                hex f9 00 3a 07 e0 70 37 07
-                hex 1f 00 c0 07 df c1 c0 a4
-                hex 06 9f d0 06 9f 03 07 80
-                hex 00 7e c7 01 00 7c 06 3e
-                hex 52 ab 3f 80 c0 e0 f0 f8
-                hex fc 1f 01 03 07 0f 1f e0
-                hex 3f 7f ff 80 ee 80 d1 52
-                hex fa 80 80 80 7e 80 bb 80
-                hex 45 fa 9d 91 87 9b 9d ff
-                hex fa 83 f1 d9 0d bf ff a4
-                hex fa f8 ff f0 fc 30 00 70
-                hex fe ff 00 d8 fe 06 fe 00
-                hex f8 78 0d 4f e4 00 a2 54
-                hex fa 38 9c cc 7c 66 00 1f
-                hex f0 06 07 03 00 d7 18 f8
-                hex 18 f8 f0 00 b2 57 c0 01
-                hex 00 f8 f3 f9 fc fe ff fc  ; dc01
-                hex e7 cf 9f 3f 7f ff 80 d1
-                hex 60 bf 3f b2 d5 80 45 08
-                hex fe bb b5 8e ff 00 60 62
-                hex fb a5 ad 6d ff 00 e0 7c
-                hex fb 5b 6b 68 ff 00 18 f8
-                hex 58 b8 28 a8 00 ff fa a4
-                hex 94 93 00 ff 01 fb b5 a5
-                hex 24 00 ff 0f 87 fb 06 27
-                hex c3 00 ff 0f c7 59 9f 6f
-                hex ef cf 0c 08 09 9f 09 08
-                hex 0c 1f 3f 7f ff 18 8c c6
-                hex 63 31 98 cc 66 ff b3 66
-                hex cc 98 31 63 c6 8c b2 a5
-                hex 80 d1 80 45 60 8e b5 72
-                hex 6d ad a9 a5 58 77 97 94
-                hex a4 c4 c7 a4 61 90 10 28
-                hex 75 93 94 a4 c4 a4 72 24
-                hex a5 ad b5 52 a2 7e c3 27
-                hex 26 20 60 00 75 f0 f8 18
-                hex f8 18 7f 01 03 07 0f 1f
-                hex 3f 7f b2 5f ff 20 90 48
-                hex 24 92 c9 64 32 ff 02 04
-                hex 09 12 24 49 93 26 80 d1
-                hex 3c bf 3f 7f ff 80 45 d9
-                hex fe ff fe ff fe 59 80 91
-                hex bf 91 31 63 c6 8c 18 30
-                hex f0 60 c0 80 00 e0 fd fe
-                hex ff a3 7d 01 01 39 00 ff
-                hex 00 ff e0 4c 99 ff e7 00
-                hex ff 00 ff 00 ff 81 ff 05
-                hex 80 05 a2 5d ff 09 12 24
-                hex 49 93 26 4c 99 ff 33 67  ; dd01
-                hex ce 9c 39 73 e7 cf 80 d1
-                hex 87 3f 7f bf 3f 07 01 02
-                hex 04 93 bf 63 ff 00 03 04
-                hex a0 0b 17 a0 fc f8 80 17
-                hex 80 f8 80 17 87 f8 f9 fa
-                hex fc 8d 80 17 e0 fa f9 f8
-                hex 81 17 0b 81 f8 fc f1 0b
-                hex 04 03 00 ff c0 fc ff 3a
-                hex 60 e0 f0 f8 30 7f ff 32
-                hex 8b 87 05 3b c7 df 87 d0
-                hex ee f1 fc 81 00 80 c0 fc
-                hex fe 02 7d 01 0f 80 05 81
-                hex 07 ff 80 d0 81 f0 ff 01
-                hex f8 4d 07 01 03 02 01 01
-                hex 80 02 f8 0d 3d 7d 6d 4d
-                hex 80 02 80 4d 80 02 87 4d
-                hex 6d 7d 3d 83 ea e0 0d 01
-                hex 00 d8 0f 03 01 00 14 c0
-                hex 00 5f fe 22 62 f2 de 9c
-                hex 28 66 00 08 d3 3e 63 03
-                hex 0f 00 c1 3e 63 00 c1 3f
-                hex 30 00 c7 3f 0c 1c 0c 00
-                hex 08 1f 62 12 67 32 00 d0
-                hex 30 18 00 fb 3c 06 03 3f
-                hex 63 3e 00 db 3e 63 3e 63
-                hex 3e 00 09 7d 30 38 2c 26
-                hex fe 20 77 4c de 92 96 f4
-                hex 60 53 fe 22 3e 1c 7b 38
-                hex 7c c6 82 c6 44 09 7b 78
-                hex fc 96 92 f2 60 53 fe 92
-                hex fe 6c 3c 80 ec 6c 00 52
-                hex fe 10 fe 09 2a 02 fe 02  ; de01
-                hex 2a 82 fe 82 7f f8 fc 26
-                hex 22 26 fc f8 5e fe 70 38
-                hex 70 fe 03 a8 51 fe 12 02
-                hex 5e fe 1c 38 1c fe 41 10
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 03 2a 57 fe 82 c6
-                hex 7c 38 73 7c fe 82 fe 7c
-                hex 5e fe 1c 38 70 fe 09 5f
-                hex fe 30 78 ec c6 82 51 fe
-                hex 92 82 3b 0e 1e f0 1e 0e
-                hex 7e 38 7c c6 82 92 f2 09
-                hex 7b 60 e0 80 82 fe 7e 5f
-                hex fe 22 62 f2 de 9c 14 c0
-                hex 00 5e fe 1c 38 1c fe 83
-                hex ab 7f f8 fc 26 22 26 fc
-                hex f8 2a 02 fe 02 52 fe 10
-                hex fe 07 08 1c 3c 3a c0 f0
-                hex f8 fc 03 fd 90 80 40 80
-                hex fc 80 40 80 fc 83 40 80
-                hex 00 80 fc 97 fc f8 f0 c0
-                hex 00 92 6f 80 3f da 45 42
-                hex 41 40 20 9e ff 3f c0 3f
-                hex 00 a0 aa ff 8e ff 00 ff
-                hex 00 e0 af df ff 9d 80 f4
-                hex 7f 7f bf 7f ff 7f bf 7f
-                hex 80 f4 61 0f 2f ef 80 f4
-                hex c3 0f
-                hex cf 0f af 80 f4 a7 af 4f
-                hex 0f ef 0f 4d ac fb 1b fb
-                hex 7b 80 f4 b0 7b fb db 80
-                hex f4 b1 1b fb db fb 80 f4  ; df03
-                hex b9 1b fb 1b 3b 5b 80 f4
-                hex 4d f8 5b bb fb 7b 3b 80
-                hex f4 c1 fb 7b fb 80 f4 e5
-                hex 3b 9b 5b 1b fb 80 f4 81
-                hex fb 7b 80 f4 9d 80 f4 e0
-                hex cf 8f 0f 81 f4 e8 81 0f
-                hex 1f fb e8 90 60 80 00 03
-                hex fc e0 1f 7f ff c1 03 ff
-                hex 00 01 00 a2 d5 80 45 88
-                hex fe ff 0f ff ad aa 8a 0f
-                hex ff df af b8 0f ff da aa
-                hex b8 a4 0f 80 9c 86 83 07
-                hex 61 3c 1c 07 f9 00 3a 07
-                hex e0 70 37 a4 07 1f 00 c0
-                hex 07 df c1 c0 06 9f d0 06
-                hex 9f 03 58 87 ff 7f ff 81
-                hex c7 fe ff 83 f9 c1 3f 80
-                hex c0 e0 f0 f8 fc 1f 01 03
-                hex 07 0f 1f 52 bf e0 3f 7f
-                hex ff 80 ee 80 d1 80 80 80
-                hex 7e 80 bb 80 45 58 f0 a7
-                hex 9f 9e ff f0 e5 9e e4 ff
-                hex f0 a2 60 b3 ff fc 1a f8
-                hex fa d5 f8 ff a2 51 fc 7b
-                hex 73 2c 7f f8 00 fc d4 d0
-                hex 6a fe d0 00 c0 01 00 b2
-                hex 5f f8 f3 f9 fc fe ff fc
-                hex e7 cf 9f 3f 7f ff 80 d1
-                hex 60 bf 3f 80 45 08 fe 58
-                hex 08 ff e8 12 1e 00 ff eb
-                hex 13 1c 00 ff fa f0 fb 20
-                hex e1 01 00 ff ae 14 58 5b  ; e003
-                hex 80 00 ff 13 23 78 01 03
-                hex 07 ff ff 66 33 19 8c c6
-                hex 63 31 18 ff b3 66 cc 98
-                hex 31 63 c6 8c b2 a1 80 d1
-                hex 80 45 3d e1 ed 8c bf 8c
-                hex 58 0d bf a0 bf 3d 1c 13
-                hex d3 48 d3 7d 01 e1 20 2f
-                hex 48 2f 5d 80 00 f0 10 f0
-                hex b2 57 7f fe fc f8 f0 e0
-                hex c0 80 ff 20 90 48 24 92
-                hex c9 64 32 ff 02 04 09 12
-                hex 24 49 93 26 80 d1 3c bf
-                hex 3f 7f ff b3 d5 e7 00 ff
-                hex 00 ff 00 ff 01 6e 80 6e
-                hex bf 6e ce 9c 39 73 e7 cf
-                hex f0 9f 3f 7f ff a2 5f 03
-                hex 80 40 01 01 80 d1 ff 7f
-                hex bf 3f 7f ff bf 3f 7f 80
-                hex 45 87 fe ff fe ff a2 57
-                hex 07 ff 00 ff ff 09 12 24
-                hex 49 93 26 4c 99 ff 33 67
-                hex ce 9c 39 73 e7 cf 80 d1
-                hex 87 3f 7f bf 3f b3 6f 87
-                hex 00 01 02 04 e3 00 ff 00
-                hex 03 04 a0 0b 17 a0 fc f8
-                hex 80 17 80 f8 8d 80 17 87
-                hex f8 f9 fa fc 80 17 e0 fa
-                hex f9 f8 81 17 0b 81 f8 fc
-                hex f1 0b 04 03 00 ff c0 fc
-                hex ff 32 e2 9c 00 30 3c 3f
-                hex c0 1f 3f 87 05 3b c7 df
-                hex 87 d0 ee f1 fc 02 df 01  ; e103
-                hex 80 c0 fc fe 01 0f 80 05
-                hex 81 07 ff 80 d0 81 f0 ff
-                hex 43 7f 84 01 00 07 01 03
-                hex 02 01 01 80 02 f8 0d 3d
-                hex 7d 6d 4d 80 02 80 4d 02
-                hex fa 03 ff 00 78 fe 07 03
-                hex ff 03 e0 30 0b 80 e0 f0
-                hex 55 30 00 30 00 e7 1e 33
-                hex 60 33 1e 00 09 53 fe 92
-                hex fe 6c 3a 80 84 fe 80 7f
-                hex c4 e6 f2 b2 ba 9e 8c 7f
-                hex 04 1e 04 00 1e 08 10 09
-                hex 3c 80 e0 60 00 77 0c 9e
-                hex 92 d2 7e 3c 73 6c fe 92
-                hex fe 6c 7f 40 c2 92 9a 9e
-                hex f6 62 09 77 4c de 92 96
-                hex f4 60 53 fe 22 3e 1c 7b
-                hex 78 fc 96 92 f2 60 3c 80
-                hex ec 6c 00 08 c1 3e 63 00
-                hex c3 3f 0c 3f 00 c1 3f 30
-                hex 00 0d 60 30 00 03 a8 5e
-                hex fe 70 38 70 fe 7f 1e 3e
-                hex 70 e0 70 3e 1e 51 fe 12
-                hex 02 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 03 2a 7e 38
-                hex 7c c6 82 92 f2 73 7c fe
-                hex 82 fe 7c 28
-                hex fe 80 83 bf 51 fe 12 02
-                hex 07 08 1c 3c 3a c0 f0 f8
-                hex fc 90 7c bc 80 fc 80 bc
-                hex 80 fc 12 de e0 02 fc 00  ; e207
-                hex 02 00 ae fe fc f8 e0 00
-                hex 80 3f 80 3f da ba bd be
-                hex bf df 9d a0 e8 f4 7f 3f
-                hex ff 3f ff 3f ff 3f 80 f4
-                hex 78 7f bf 7f ff 80 f4 6e
-                hex 7f bf ff 3f bf 80 f4 61
-                hex 0f 2f ef 4d c3 fb 3b fb
-                hex 5b 80 f4 a7 5b bb fb 1b
-                hex fb 80 f4 ac fb 1b fb 7b
-                hex 80 f4 b0 7b fb db 80 f4
-                hex 4d b1 1b fb db fb 80 f4
-                hex b9 1b fb 1b 3b 5b 80 f4
-                hex f8 5b bb fb 7b 3b 80 f4
-                hex c1 fb 7b fb 80 f4 4d e5
-                hex 3b 9b 5b 1b fb 80 f4 81
-                hex fb 7b 80 f4 e0 3b 7b fb
-                hex 80 f4 81 fb f7 81 f4 e8
-                hex a2 fd de d1 a1 41 81 01
-                hex 02 d0 3f 7f ff 82 7e fe
-                hex 80 fe 80 45 88 fe ff 0f
-                hex ff ad aa 8a a4 0f ff df
-                hex af b8 0f ff cb ab b9 0f
-                hex 80 9c 86 83 07 61 3c 1c
-                hex a4 07 f9 00 3a 07 e0 70
-                hex 37 07 1f 00 c0 07 df c1
-                hex c0 a4 06 9f d0 06 9f 03
-                hex 07 80 00 7e c7 01 00 7c
-                hex 06 3e 52 ab 3f 80 c0 e0
-                hex f0 f8 fc 1f 01 03 07 0f
-                hex 1f e0 3f 7f ff 80 ee 80
-                hex d1 a2 f1 80 7e 80 fe 80
-                hex 45 80 fe c9 1f 00 0f 00  ; e307
-                hex 58 cb 07 c7 07 0f d7 91
-                hex c8 e4 ec ad 0f 8f bf fe
-                hex ff f4 c1 e1 f8 fc 00 b2
-                hex 57 c0 01 00 f8 f3 f9 fc
-                hex fe ff fc e7 cf 9f 3f 7f
-                hex ff 80 d1 60 bf 3f b2 d5
-                hex 80 45 08 fe 08 00 0b 00
-                hex 0f 1f fa 4a 32 87 ff 00
-                hex f8 59 ff 6f af ac 6e cf
-                hex 0c ec 2c e7 ec 0e 0f ef
-                hex 2f af fa af ac ec 0c 0e
-                hex 0f 87 0f 1f 3f 7f b2 5a
-                hex ff 99 cc e6 73 39 9c ce
-                hex e7 ff 4c 99 33 67 ce 9c
-                hex 39 73 80 d1 80 45 52 2a
-                hex 76 78 cd b5 a5 bd 70 f3
-                hex 9a 6a 79 f7 15 f5 85 84
-                hex 58 03 e0 20 7f 01 03 07
-                hex 0f 1f 3f 7f ff df 6f b7
-                hex db 6d 36 9b cd ff fd fb
-                hex f6 ed db b6 6c d9 b3 f5
-                hex 39 00 ff 00 ff e0 e7 cf
-                hex ff e7 00 ff 00 ff 00 ff
-                hex 01 6e 80 6e bf 6e ce 9c
-                hex 39 73 e7 cf a3 57 f0 9f
-                hex 3f 7f ff e0 02 01 00 01
-                hex 01 39 00 ff 00 ff e0 4c
-                hex 99 ff a2 d5 80 45 87 fe
-                hex ff fe ff 07 ff 00 ff ff
-                hex 09 12 24 49 93 26 4c 99
-                hex ff 33 67 ce 9c 39 73 e7
-                hex cf b2 db 80 d1 87 3f 7f  ; e407
-                hex bf 3f 87 00 01 02 04 86
-                hex 40 41 42 9e 00 3f c0 3f
-                hex ff 06 c0 00 4d 80 ef 80
-                hex 17 87 ef ee ed eb 80 17
-                hex e0 ed ee ef 80 17 81 ef
-                hex f7 81 17 0b 32 f8 8e fe
-                hex 7e be de 02 7f 9c 00 30
-                hex 3c 3f c0 1f 3f 87 05 3b
-                hex c7 df 12 b7 87 d0 ee f1
-                hex fc 01 80 c0 fc fe 81 00
-                hex 0f 80 05 81 07 ff 02 df
-                hex 80 d0 81 f0 ff 01 f8 03
-                hex 03 06 03 03 07 03 ff 00
-                hex 78 3f 70 60 ff 03 fe 80
-                hex 02 80 4f 80 02 87 4f 6f
-                hex 7f 3f b8 02 03 01 00 d8
-                hex 0f 03 01 00 57 fe 82 c6
-                hex 7c 38 09 14 c0 00 5f fe
-                hex 22 62 f2 de 9c 28 66 00
-                hex 5e fe 1c 38 1c fe 08 b7
-                hex 63 7f 63 36 1c 00 99 0c
-                hex 1e 33 00 c7 3f 0c 1c 0c
-                hex 00 1f 62 12 67 32 00 09
-                hex 3c 80 e0 60 00 77 0c 9e
-                hex 92 d2 7e 3c 73 6c fe 92
-                hex fe 6c 7d 30 38 2c 26 fe
-                hex 20 09 77 4c de 92 96 f4
-                hex 60 53 fe 22 3e 1c 51 fe
-                hex 92 82 7b 38 7c c6 82 c6
-                hex 44 09 7b 78 fc 96 92 f2
-                hex 60 5f fe 30 78 ec c6 82
-                hex 53 fe 92 fe 6c 3c 80 ec  ; e507
-                hex 6c 00 09 52 fe 10 fe 2a
-                hex 02 fe 02 2a 82 fe 82 5e
-                hex fe 70 38 70 fe 02 a8 0d
-                hex 60 30 00 ff 63 67 6f 7f
-                hex 7b 73 63 00 c1 3e 63 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 03 2a 7e 38
-                hex 7c c6 82 92 f2 73 7c fe
-                hex 82 fe 7c 5e fe 1c 38 1c
-                hex fe 09 5f fe 30 78 ec c6
-                hex 82 73 7e fe 80 fe 7e 5e
-                hex fe 1c 38 70 fe 7f f8 fc
-                hex 26 22 26 fc f8 83 ab 5f
-                hex fe 22 62 f2 de 9c 53 fe
-                hex 92 fe 6c 51 fe 92 82 07
-                hex 08 1c 3c 3a c0 f0 f8 fc
-                hex 03 fd 90 80 40 80 fc 80
-                hex 40 80 fc 83 40 80 00 80
-                hex fc 97 fc f8 f0 c0 00 82
-                hex 7f 80 3f da 44 42 41 40
-                hex 20 c0 fe ff ae 55 00 c0
-                hex 3f 00 18 c0 ff e6 50 20
-                hex 00 ff 00 08 ff 0d ef 0b
-                hex 8b 4b 0b 8b 4b 8b 80 0f
-                hex e1 0b fb db 1b 80 0f c3
-                hex fb 3b fb 5b 80 0f a7 5b
-                hex bb fb 1b fb 80 0f 0d ac
-                hex fb 1b fb 7b 80 0f b0 7b
-                hex fb db 80 0f b1 1b fb db
-                hex fb 80 0f b9 1b fb 1b 3b  ; e607
-                hex 5b 80 0f 0d f8 5b bb fb
-                hex 7b 3b 80 0f c1 fb 7b fb
-                hex 80 0f e5 3b 9b 5b 1b fb
-                hex 80 0f 81 fb 7b 80 0f 1d
-                hex e0 3b 7b fb 80 0f 81 fb
-                hex f7 81 0f 1f fb f7 ef 9f
-                hex 7f ff fc 03 e0 1f 7f ff
-                hex c0 fc 00 01 00 22 ea 88
-                hex bb ba 80 fe 0f 00 52 55
-                hex 75 0f 00 20 50 47 0f 00
-                hex 32 55 45 28 0f 7f 63 79
-                hex 7c 07 9e c3 e3 07 06 ff
-                hex c5 07 1f 8f c8 28 07 e0
-                hex ff 3f 07 20 3e 3f 06 60
-                hex 2f 06 60 fc 08 87 ff 7f
-                hex ff 81 c7 fe ff 83 f9 c1
-                hex 3f 80 c0 e0 f0 f8 fc 1f
-                hex 01 03 07 0f 1f 02 bf e0
-                hex 3f 7f ff 80 ee 80 3f 80
-                hex 80 80 fe 80 bb 80 fe 08
-                hex fa 80 ed 81 e7 80 ff f2
-                hex b9 81 b9 81 ff fe 43 06
-                hex b6 02 13 df ff fe 03 70
-                hex 00 46 1f 0f ff 09 fc e7
-                hex c7 8f 17 33 ff 6f fe 16
-                hex 4e 5e 02 7e ff 0e 7e fe
-                hex 86 ae b6 de 02 f0 b6 fe
-                hex 00 ff 23 2a 01 7f 8f 00
-                hex 80 c0 60 30 fc 18 30 60
-                hex c0 80 00 02 fa e0 2e 6e
-                hex ee 80 3f 88 ba bb 80 fe
-                hex f9 42 4a 31 00 ff 80 f9  ; e707
-                hex 5b 51 91 00 ff 81 08 b9
-                hex 4a 32 00 ff e7 d9 92 52
-                hex 00 ff 0f f8 d4 94 93 00
-                hex ff bb a5 38 00 ff 00 7f
-                hex 09 bd 2d cd 0d ed 2d cd
-                hex f4 0d ed 2c 2f 0f 87 0f
-                hex 1f 3f 7f ff 18 8c c6 63
-                hex 31 98 cc 66 02 be ff b3
-                hex 66 cc 98 31 63 c6 8c 80
-                hex 2e 80 3f 80 ba 80 fe 66
-                hex 31 4a 5a 42 08 72 91 51
-                hex 55 5b 65 32 4a 4b 4a 75
-                hex 4c 52 92 12 92 53 94 b4
-                hex d7 d4 08 43 a5 b9 a5 63
-                hex 2e 29 ee 29 63 78 40 70
-                hex 40 7f 01 03 07 0f 1f 3f
-                hex 7f 02 af ff df 6f b7 db
-                hex 6d 36 9b cd ff fd fb f6
-                hex ed db b6 6c d9 bc 2e 6e
-                hex ee ae 2e 80 3f d9 bb ba
-                hex bb ba bb 80 fe 09 80 91
-                hex bf 91 31 63 c6 8c 18 30
-                hex f0 60 c0 80 00 e0 fd fe
-                hex ff 23 be 01 fe f9 b3 66
-                hex ff 00 ff 00 20 ff 67 00
-                hex ff 00 ff fa 81 ff 00 80
-                hex fa 22 ae ff f6 ed db b6
-                hex 6c d9 b3 66 ff cc 98 31
-                hex 63 c6 8c 18 30 87 ee ae
-                hex 6e ee 80 3f 07 fe fd fb
-                hex 33 bf 63 00 ff fc fb a0
-                hex f7 ef a0 fc f8 80 ef 80  ; e807
-                hex f8 87 ef ee ed eb 80 f8
-                hex 0d e0 ed ee ef 80 f8 81
-                hex ef f7 81 f8 fc f1 f7 fb
-                hex fc ff 00 c0 fc ff 2a 1f
-                hex 0f 07 30 7f ff 32 8b 87
-                hex 05 3b c7 df 87 d0 ee f1
-                hex fc 81 00 80 c0 fc fe 02
-                hex 7d 01 0f 80 05 81 07 ff
-                hex 80 d0 81 f0 ff 01 f8 4d
-                hex 07 01 03 02 01 01 80 02
-                hex f8 0d 3d 7d 6d 4d 80 02
-                hex 80 4d 80 02 87 4d 6d 7d
-                hex 3d 83 ea e0 0d 01 00 d8
-                hex 0f 03 01 00 57 fe 82 c6
-                hex 7c 38 14 c0 00 28 66 00
-                hex 09 77 4c de 92 96 f4 60
-                hex 2a 02 fe 02 7f c4 e6 f2
-                hex b2 ba 9e 8c 5f 06 e2 f2
-                hex 1a 0e 06 08 1f 25 26 74
-                hex 24 00 d0 30 18 00 c7 3f
-                hex 0c 1c 0c 00 fb 3c 06 03
-                hex 3f 63 3e 00 09 73 6c fe
-                hex 92 fe 6c 7f 40 c2 92 9a
-                hex 9e f6 62 53 fe 22 3e 1c
-                hex 7b 38 7c c6 82 c6 44 09
-                hex 3c 80 ec 6c 00 7b 78 fc
-                hex 96 92 f2 60 52 fe 10 fe
-                hex 51 fe 12 02 09 2a 82 fe
-                hex 82 41 10 00 28 fe 80 3b
-                hex 0e 1e f0 1e 0e 02 a0 f9
-                hex 08 1c 3e 77 63 00 ed 63
-                hex 77 7f 6b 63 00 00 00 00  ; e907
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 03 2a
-                hex 5e fe 1c 38 1c fe 7f f8
-                hex fc 26 22 26 fc f8 52 fe
-                hex 10 fe 09 41 10 00 7b 60
-                hex e0 80 82 fe 7e 73 7c fe
-                hex 82 fe 7c 5e fe 1c 38 70
-                hex fe 83 bf 7e 38 7c c6 82
-                hex 92 f2 07 08 1c 3c 3a c0
-                hex f0 f8 fc 90 7c bc 80 fc
-                hex 80 bc 80 fc 12 de e0 02
-                hex fc 00 02 00 ae fe fc f8
-                hex e0 00 80 3f 80 3f da ba
-                hex bd be bf df 9d a0 e8 f4
-                hex 7f 3f ff 3f ff 3f ff 3f
-                hex 80 f4 78 7f bf 7f ff 80
-                hex f4 79 3f 7f 3f ff 3f 80
-                hex f4 61 0f 2f ef 4d c3 fb
-                hex 3b fb 5b 80 f4 a7 5b bb
-                hex fb 1b fb 80 f4 ac fb 1b
-                hex fb 7b 80 f4 b0 7b fb db
-                hex 80 f4 4d b1 1b fb db fb
-                hex 80 f4 b9 1b fb 1b 3b 5b
-                hex 80 f4 f8 5b bb fb 7b 3b
-                hex 80 f4 c1 fb 7b fb 80 f4
-                hex 4d e5 3b 9b 5b 1b fb 80
-                hex f4 81 fb 7b 80 f4 e0 3b
-                hex 7b fb 80 f4 81 fb f7 81
-                hex f4 e8 a2 fd de d1 a1 41
-                hex 81 01 02 d0 3f 7f ff 82
-                hex 7e fe 80 fe 80 45 88 fe  ; ea07
-                hex ff 0f ff ad aa 8a 58 6f
-                hex e7 ff 00 20 50 47 8f ff
-                hex 00 52 55 51 ef e5 fe ff
-                hex 7f 63 79 7c c7 bf ff 9e
-                hex c3 e3 a4 07 f9 00 3a 07
-                hex e0 70 37 07 1f 00 c0 07
-                hex df c1 c0 a4 06 9f d0 06
-                hex 9f 03 07 80 00 7e c7 01
-                hex 00 7c 06 3e 52 ab 3f 80
-                hex c0 e0 f0 f8 fc 1f 01 03
-                hex 07 0f 1f e0 3f 7f ff 80
-                hex ee 80 d1 a2 f1 80 7e 80
-                hex fe 80 45 80 fe ef df fe
-                hex d6 df 7f de 77 a5 1f 3d
-                hex ff fa 7f ff f0 fe 49 09
-                hex 00 01 80 8f ff 7f 3f 9f
-                hex cf b2 7d fc e7 cf 9f 3f
-                hex 7f ff 80 d1 60 bf 3f 80
-                hex 45 08 fe e8 fc fe ff 00
-                hex 58 fa 39 ad e7 00 ff 69
-                hex f8 5a 66 3c 00 ff ba b4
-                hex fc 00 ff e0 0a ff 1f 58
-                hex f8 2a 2b 39 00 ff f8 d5
-                hex 35 e7 00 ff f8 ab ac e7
-                hex 00 ff f8 40 c1 83 07 ff
-                hex b2 5a ff 99 cc e6 73 39
-                hex 9c ce e7 ff 4c 99 33 67
-                hex ce 9c 39 73 80 d1 80 45
-                hex 58 7f 70 58 6c 36 1b 0d
-                hex 06 6f e7 a5 b5 9d ad b5
-                hex 63 7e 5a 42 5a 67 fc b4
-                hex b5 85 b5 58 27 01 fd 04  ; eb07
-                hex fc 76 f1 9b 6a ea 2a 72
-                hex e7 35 d5 d4 7e e7 ac ab
-                hex 2b 2a ab 59 e0 63 3f 00
-                hex 7f 01 03 07 0f 1f 3f 7f
-                hex ff b3 d9 6c b6 db ed f6
-                hex fb ff fd fb f6 ed db b6
-                hex 6c d9 b3 f5 39 00 ff 00
-                hex ff e0 e7 cf ff e7 00 ff
-                hex 00 ff 00 ff 01 6e 80 6e
-                hex bf 6e ce 9c 39 73 e7 cf
-                hex a3 57 f0 9f 3f 7f ff e0
-                hex 02 01 00 01 01 39 00 ff
-                hex 00 ff e0 4c 99 ff a2 d5
-                hex 80 45 87 fe ff fe ff 07
-                hex ff 00 ff ff 09 12 24 49
-                hex 93 26 4c 99 ff 33 67 ce
-                hex 9c 39 73 e7 cf b2 db 80
-                hex d1 87 3f 7f bf 3f 87 00
-                hex 01 02 04 86 40 41 42 9e
-                hex 00 3f c0 3f ff 06 c0 00
-                hex 4d 80 ef 80 17 87 ef ee
-                hex ed eb 80 17 e0 ed ee ef
-                hex 80 17 81 ef f7 81 17 0b
-                hex 32 f8 8e fe 7e be de 02
-                hex 7f 9c 00 30 3c 3f c0 1f
-                hex 3f 87 05 3b c7 df 12 b7
-                hex 87 d0 ee f1 fc 01 80 c0
-                hex fc fe 81 00 0f 80 05 81
-                hex 07 ff 02 df 80 d0 81 f0
-                hex ff 01 f8 03 03 06 03 03
-                hex 07 03 ff 00 78 3f 70 60
-                hex ff 03 fe 80 02 80 4f 80  ; ec07
-                hex 02 87 4f 6f 7f 3f b8 02
-                hex 03 01 00 d8 0f 03 01 00
-                hex 57 fe 82 c6 7c 38 09 14
-                hex c0 00 5f fe 22 62 f2 de
-                hex 9c 28 66 00 73 7e fe 80
-                hex fe 7e 09 77 4c de 92 96
-                hex f4 60 2a 02 fe 02 7f c4
-                hex e6 f2 b2 ba 9e 8c 5f 06
-                hex e2 f2 1a 0e 06 08 1f 25
-                hex 26 74 24 00 d0 30 18 00
-                hex c7 3f 0c 1c 0c 00 fb 3c
-                hex 06 03 3f 63 3e 00 09 73
-                hex 6c fe 92 fe 6c 7f 40 c2
-                hex 92 9a 9e f6 62 53 fe 22
-                hex 3e 1c 51 fe 92 82 09 7b
-                hex 38 7c c6 82 c6 44 7b 78
-                hex fc 96 92 f2 60 5f fe 30
-                hex 78 ec c6 82 53 fe 92 fe
-                hex 6c 09 3c 80 ec 6c 00 51
-                hex fe 12 02 2a 82 fe 82 28
-                hex fe 80 02 a8 99 0c 1e 33
-                hex 00 f9 08 1c 3e 77 63 00
-                hex ed 63 77 7f 6b 63 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
-                hex 00 03 2a 5e fe 1c 38 1c
-                hex fe 7f f8 fc 26 22 26 fc
-                hex f8 5f fe 22 62 f2 de 9c
-                hex 09 2a 82 fe 82 73 7c fe
-                hex 82 fe 7c 53 fe 92 fe 6c
-                hex 77 4c de 92 96 f4 60 83  ; ed07
-                hex bf 14 c0 00 07 08 1c 3c
-                hex 3a c0 f0 f8 fc 90 7c bc
-                hex 80 fc 80 bc 80 fc 12 de
-                hex e0 02 fc 00 02 00 ae fe
-                hex fc f8 e0 00 80 3f 80 3f
-                hex da ba bd be bf df ac 1e
-                hex 3f c0 3f 00 a0 aa ff 0e
-                hex 00 ff 00 e0 af df ff 0e
-                hex 00 ff 00 e0 8a ad ff 0e
-                hex 00 ff 00 b8 81 bf 80 ff
-                hex 4d c3 fb 3b fb 5b 80 f4
-                hex a7 5b bb fb 1b fb 80 f4
-                hex ac fb 1b fb 7b 80 f4 b0
-                hex 7b fb db 80 f4 4d b1 1b
-                hex fb db fb 80 f4 b9 1b fb
-                hex 1b 3b 5b 80 f4 f8 5b bb
-                hex fb 7b 3b 80 f4 c1 fb 7b
-                hex fb 80 f4 4d e5 3b 9b 5b
-                hex 1b fb 80 f4 81 fb 7b 80
-                hex f4 e0 3b 7b fb 80 f4 81
-                hex fb f7 81 f4 e8 a2 fd de
-                hex d1 a1 41 81 01 02 d0 3f
-                hex 7f ff 82 7e fe 80 fe 80
-                hex 45 88 fe ff 0f ff ad aa
-                hex 8a a4 0f ff df af b8 0d
-                hex ff aa a8 0f 80 9c 86 83
-                hex 07 61 3c 1c a4 07 f9 00
-                hex 3a 07 e0 70 37 07 1f 00
-                hex c0 07 df c1 c0 a4 06 9f
-                hex d0 06 9f 03 07 80 00 7e
-                hex c7 01 00 7c 06 3e 52 ab
-                hex 3f 80 c0 e0 f0 f8 fc 1f  ; ee07
-                hex 01 03 07 0f 1f e0 3f 7f
-                hex ff 80 ee 80 d1 52 fa 80
-                hex 80 80 7e 80 bb 80 45 f4
-                hex e3 c1 fd 80 ff ec f3 bb
-                hex ba bb ff 58 ec 0f 8f 03
-                hex ef ff b4 f3 f9 01 ff fc
-                hex f3 03 02 06 07 ff fc 2f
-                hex 2c 00 27 6f ff a3 51 87
-                hex 60 00 18 98 b8 f8 88 08
-                hex 00 01 80 b2 5f f8 f3 f9
-                hex fc fe ff fc e7 cf 9f 3f
-                hex 7f ff 80 d1 60 bf 3f 80
-                hex 45 08 fe 58 eb 03 01 00
-                hex ff f3 e3 fb 39 ad e7 00
-                hex ff 87 82 fb 55 6d 39 00
-                hex ff ef 2f fb 55 35 e7 00
-                hex ff 8f c7 58 fb 54 6c 38
-                hex 00 ff 8f 87 fb 55 4d 79
-                hex 00 ff 9f 8f fb 55 36 e3
-                hex 00 ff fd f8 fb 55 db 8e
-                hex 00 ff df 8f b2 56 78 fe
-                hex fc f8 00 ff 99 cc e6 73
-                hex 39 9c ce e7 ff 4c 99 33
-                hex 67 ce 9c 39 73 80 d1 b2
-                hex 95 80 45 7f 8f a7 93 c9
-                hex e4 f2 f9 6f 18 5a 4a 62
-                hex 52 4a 63 82 aa ba aa 58
-                hex 63 f7 55 35 55 70 38 6c
-                hex 54 73 79 4d 55 4d 55 73
-                hex f3 56 55 35 55 58 7f 8e
-                hex db 55 5d 4d 5b 57 78 70
-                hex 50 70 00 7f 01 03 07 0f  ; ef07
-                hex 1f 3f 7f ff df 6f b7 db
-                hex 6d 36 9b cd b3 7d ff 02
-                hex 04 09 12 24 49 93 26 39
-                hex 00 ff 00 ff e0 e7 cf ff
-                hex e7 00 ff 00 ff 00 ff 01
-                hex 6e 80 6e a4 ff 33 e7 ce
-                hex 1c f9 f3 e7 0f f0 9f 3f
-                hex 7f ff 03 80 40 01 01 b3
-                hex f5 39 00 ff 00 ff e0 4c
-                hex 99 ff e7 00 ff 00 ff 00
-                hex ff 01 05 80 05 ff 09 12
-                hex 24 49 93 26 4c 99 b2 76
-                hex ff 33 67 ce 9c 39 73 e7
-                hex cf 80 d1 87 3f 7f bf 3f
-                hex 87 00 01 02 04 86 40 41
-                hex 42 4d a0 f7 ef a0 0b 17
-                hex 80 ef 80 17 87 ef ee ed
-                hex eb 80 17 e0 ed ee ef 80
-                hex 17 12 fe 9c ff 01 fe ff
-                hex 06 01 00 8e fe 7e be de
-                hex 02 7f 1c 30 3c 3f c0 1f
-                hex 3f 87 05 3b c7 df 12 ad
-                hex 80 ff 87 d0 ee f1 fc 01
-                hex 80 c0 fc fe 81 00 0f 42
-                hex f7 80 05 81 02 fa 80 d0
-                hex 81 20 2f 01 f8 03 03 06
-                hex 01 01 4d 80 02 f8 0d 3d
-                hex 7d 6d 4d 80 02 80 4d 80
-                hex 02 87 4d 6d 7d 3d b8 02
-                hex 03 01 00 e0 0d 01 00 09
-                hex 57 fe 82 c6 7c 38 28 66
-                hex 00 51 fe 92 82 53 fe 22  ; f007
-                hex 3e 1c 08 83 0c 3f 00 fb
-                hex 3c 06 03 3f 63 3e 00 1f
-                hex 25 26 74 24 00 d0 30 18
-                hex 00 09 3a 80 84 fe 80 73
-                hex 6c fe 92 fe 6c 7f 40 c2
-                hex 92 9a 9e f6 62 7b 38 7c  ; f037
-                hex c6 82 c6 44 09 7b 78 fc  ; f03f
-                hex 96 92 f2 60 5f fe 30 78  ; f047
-                hex ec c6 82 7e 38 7c c6 82  ; f04f
-                hex 92 f2 3c 80 ec 6c 00 09  ; f057
-                hex 52 fe 10 fe 51 fe 12 02  ; f05f
-                hex 5e fe 1c 38 70 fe 78 08  ; f067
-                hex 0e 06 00 09 73 7e fe 80  ; f06f
-                hex fe 7e 28 fe 80 7f c2 e2  ; f077
-                hex f2 ba 9e 8e 86 5e fe 70  ; f07f
-                hex 38 70 fe 02 80 99 0c 1e  ; f087
-                hex 33 00 00 00 00 00 00 00  ; f08f
-                hex 00 00 00 00 00 00 00 00  ; f097
-                hex 00 00 00 00 00 00 00 00  ; f09f
-                hex 00 00 00 03 2a 53 fe 22  ; f0a7
-                hex 3e 1c 54 82 fe 82 5e fe  ; f0af
-                hex 1c 38 70 fe 83 ab 53 fe  ; f0b7
-                hex 92 fe 6c 7f f8 fc 26 22  ; f0bf
-                hex 26 fc f8 28 fe 80 07 08  ; f0c7
-                hex 1c 3c 3a c0 f0 f8 fc 03  ; f0cf
-                hex fd 90 80 40 80 fc 80 40  ; f0d7
-                hex 80 fc 83 40 80 00 80 fc  ; f0df
-                hex 97 fc f8 f0 c0 00 82 7f  ; f0e7
-                hex 80 3f da 47 43 41 40 20  ; f0ef
-                hex d0 fc fe ff a6 aa ff 3f  ; f0f7
-                hex 00 0c c0 ff e2 af df ff  ; f0ff
-                hex 00 04 ff 8c e2 aa 98 ff  ; f107
-                hex 00 04 ff 86 80 ff 00 dc  ; f10f
-                hex 7c 7e 40 7f ff 06 ff 00  ; f117
-                hex f8 e3 82 83 fe ff 06 ff  ; f11f
-                hex 00 f8 c5 3d c5 3d ff 9d  ; f127
-                hex 80 04 2c 0f ff 3f 80 04  ; f12f
-                hex b0 3f ff ef 80 04 b1 0f  ; f137
-                hex ff ef ff 80 04 b9 0f ff  ; f13f
-                hex 0f 9f af 9d 80 04 fa af  ; f147
-                hex df ff bf 9f 1f 80 04 41  ; f14f
-                hex 3f ff 80 04 e5 9f cf 2f  ; f157
-                hex 0f ff 81 04 84 01 7f 13  ; f15f
-                hex eb 80 fb e0 3f 7f ff 81  ; f167
-                hex fb f7 fb f7 ef 9f 7f ff  ; f16f
-                hex fc 03 c0 fc 00 01 00 3c  ; f177
-                hex 80 bb 08 fc c7 fc ff ad  ; f17f
-                hex aa 8a c8 fc ff 00 c7 f9  ; f187
-                hex ff df af b8 c8 f9 ff 00  ; f18f
-                hex 05 ba 9a 08 00 62 ea c3  ; f197
-                hex fe ff e3 f9 08 80 c3 57  ; f19f
-                hex ff 9e c3 03 06 ff 03 1f  ; f1a7
-                hex 8f 68 03 e0 ff 03 20 3e  ; f1af
-                hex 03 60 2f 03 60 fc 62 b5  ; f1b7
-                hex 03 7f ff 03 83 f9 c0 01  ; f1bf
-                hex 00 bf ff 7f 3f 1f 0f 07  ; f1c7
-                hex 03 9f ff fe fc f8 f0 e0  ; f1cf
-                hex 32 6e e0 3f 7f ff 80 ee  ; f1d7
-                hex 80 80 80 fe 80 bb 48 80  ; f1df
-                hex fc cf 01 ff 03 07 c7 f9  ; f1e7
-                hex ff 81 e0 f8 fc ef cf 87  ; f1ef
-                hex 8f e9 e6 e2 72 20 7e 68  ; f1f7
-                hex fd 67 47 4f 4c 04 07 7f  ; f1ff
-                hex 14 00 ff f0 98 88 89 c9  ; f207
-                hex bc 3f 1f 9f bf ff 33 15  ; f20f
-                hex 01 7f 8f 00 80 c0 60 30  ; f217
-                hex fc 18 30 60 c0 80 00 0c  ; f21f
-                hex 80 ee e0 3f 7f ff 80 bb  ; f227
-                hex 88 fc ff f1 4a 7a 02 ff  ; f22f
-                hex fe 09 ff fe f1 ad a9 20  ; f237
-                hex ff 01 09 ff 01 8c f8 52  ; f23f
-                hex 5c 41 ff 00 0b ff 9f 87  ; f247
-                hex f8 a5 99 c3 ff 00 0b ff  ; f24f
-                hex fe e6 b8 5e 1e ff 00 0b  ; f257
-                hex ff 7f 67 b8 bf 3f ff 00  ; f25f
-                hex 08 ff 72 d5 03 b9 98 08  ; f267
-                hex 00 08 00 78 fe fc f8 00  ; f26f
-                hex ff 99 cc e6 73 39 9c ce  ; f277
-                hex e7 22 7e ff b3 66 cc 98  ; f27f
-                hex 31 63 c6 8c 80 ee 80 1f  ; f287
-                hex 80 bb 80 fc 63 1e 5e 42  ; f28f
-                hex 7a 28 72 20 a9 ab ad 73  ; f297
-                hex 41 5c 52 5c 52 63 81 a5  ; f29f
-                hex bd a5 78 02 7a 42 5e 22  ; f2a7
-                hex 85 78 07 f7 87 bf 7f 01  ; f2af
-                hex 03 07 0f 1f 3f 7f ff df  ; f2b7
-                hex 6f b7 db 6d 36 9b cd 33  ; f2bf
-                hex 7d ff fd fb f6 ed db b6  ; f2c7
-                hex 6c d9 19 00 ff 00 f0 18  ; f2cf
-                hex 30 60 ff 66 00 ff 00 ff  ; f2d7
-                hex 02 91 80 91 34 ff cc 18  ; f2df
-                hex 31 e3 06 0c 18 f0 f0 60  ; f2e7
-                hex c0 80 00 03 7f bf 01 fe  ; f2ef
-                hex 33 f5 19 00 ff 00 f0 b3  ; f2f7
-                hex 66 cc ff 66 00 ff 00 ff  ; f2ff
-                hex 02 fa 80 fa ff f6 ed db  ; f307
-                hex b6 6c d9 b3 66 32 76 ff  ; f30f
-                hex cc 98 31 63 c6 8c 18 30  ; f317
-                hex 80 ee 0f df bf 7f df 07  ; f31f
-                hex fe fd fb 86 bf be bd 13  ; f327
-                hex af a0 f7 ef 80 ef 80 ef  ; f32f
-                hex 07 fe fd fb 80 ef e0 fd  ; f337
-                hex fe ff 12 ae 9c ff 01 fe  ; f33f
-                hex ff 8e fe 7e be de 1c 30  ; f347
-                hex 3c 3f c0 1f 3f 87 05 3b  ; f34f
-                hex c7 df 12 b7 87 d0 ee f1  ; f357
-                hex fc 01 80 c0 fc fe 81 00  ; f35f
-                hex 0f 80 05 81 07 ff 02 df  ; f367
-                hex 80 d0 81 f0 ff 01 f8 03  ; f36f
-                hex 03 06 03 03 07 03 ff 00  ; f377
-                hex 78 3f 70 60 ff 03 fe 80  ; f37f
-                hex 02 80 4f 80 02 87 4f 6f  ; f387
-                hex 7f 3f b8 02 03 01 00 d8  ; f38f
-                hex 0f 03 01 00 57 fe 82 c6  ; f397
-                hex 7c 38 09 14 c0 00 73 7c  ; f39f
-                hex fe 82 fe 7c 5f fe 22 62  ; f3a7
-                hex f2 de 9c 28 66 00 09 51  ; f3af
-                hex fe 12 02 51 fe 92 82 73  ; f3b7
-                hex 7e fe 80 fe 7e 3b 0e 1e  ; f3bf
-                hex f0 1e 0e 08 ff 7f 70 3c  ; f3c7
-                hex 1e 07 63 3e 00 1f 53 55  ; f3cf
-                hex 63 41 00 d0 30 18 00 c7  ; f3d7
-                hex 3f 0c 1c 0c 00 09 77 0c  ; f3df
-                hex 9e 92 d2 7e 3c 73 6c fe  ; f3e7
-                hex 92 fe 6c 7d 30 38 2c 26  ; f3ef
-                hex fe 20 77 4c de 92 96 f4  ; f3f7
-                hex 60 09 7b 38 7c c6 82 c6  ; f3ff
-                hex 44 7b 78 fc 96 92 f2 60  ; f407
-                hex 5f fe 30 78 ec c6 82 7e  ; f40f
-                hex 38 7c c6 82 92 f2 09 3c  ; f417
-                hex 80 ec 6c 00 52 fe 10 fe  ; f41f
-                hex 2a 02 fe 02 2a 82 fe 82  ; f427
-                hex 09 7f c6 ee 7c 38 7c ee  ; f42f
-                hex c6 5e fe 70 38 70 fe 5e  ; f437
-                hex fe 1c 38 1c fe 78 08 0e  ; f43f
-                hex 06 00 02 a0 f9 08 1c 3e  ; f447
-                hex 77 63 00 e7 1c 32 63 26  ; f44f
-                hex 1c 00 00 00 00 00 00 00  ; f457
-                hex 00 00 00 00 00 00 00 00  ; f45f
-                hex 00 00 00 00 00 00 00 00  ; f467
-                hex 00 00 00 03 2a 53 fe 22  ; f46f
-                hex 3e 1c 73 7c fe 82 fe 7c  ; f477
-                hex 51 fe 92 82 83 bf 3b 0e  ; f47f
-                hex 1e f0 1e 0e 07 08 1c 3c  ; f487
-                hex 3a c0 f0 f8 fc 90 7c bc  ; f48f
-                hex 80 fc 80 bc 80 fc 12 de  ; f497
-                hex e0 02 fc 00 02 00 ae fe  ; f49f
-                hex fc f8 e0 00 80 3f 80 3f  ; f4a7
-                hex da ba bd be bf df ac 1e  ; f4af
-                hex 3f c0 3f 00 a0 aa ff 0e  ; f4b7
-                hex 00 ff 00 e0 af df ff 0e  ; f4bf
-                hex 00 ff 00 e0 aa 99 ff 0e  ; f4c7
-                hex 00 ff 00 b8 81 bf 80 ff  ; f4cf
-                hex 4d c3 fb 3b fb 5b 80 f4  ; f4d7
-                hex a7 5b bb fb 1b fb 80 f4  ; f4df
-                hex ac fb 1b fb 7b 80 f4 b0  ; f4e7
-                hex 7b fb db 80 f4 4d b1 1b  ; f4ef
-                hex fb db fb 80 f4 b9 1b fb  ; f4f7
-                hex 1b 3b 5b 80 f4 f8 5b bb  ; f4ff
-                hex fb 7b 3b 80 f4 c1 fb 7b  ; f507
-                hex fb 80 f4 4d e5 3b 9b 5b  ; f50f
-                hex 1b fb 80 f4 81 fb 7b 80  ; f517
-                hex f4 e0 3b 7b fb 80 f4 81  ; f51f
-                hex fb f7 81 f4 e8 a2 fd de  ; f527
-                hex d1 a1 41 81 01 02 d0 3f  ; f52f
-                hex 7f ff 82 7e fe 80 fe 80  ; f537
-                hex 45 88 fe ff bf 0b 02 00  ; f53f
-                hex ff ad aa 8a a4 cf 0d 00  ; f547
-                hex ff df af b8 cd 80 00 ff  ; f54f
-                hex bb 99 df 38 10 00 80 9c  ; f557
-                hex 86 83 07 61 3c 1c a4 07  ; f55f
-                hex f9 00 3a 07 e0 70 37 07  ; f567
-                hex 1f 00 c0 07 df c1 c0 a4  ; f56f
-                hex 06 9f d0 06 9f 03 07 80  ; f577
-                hex 00 7e c7 01 00 7c 06 3e  ; f57f
-                hex 52 ab 3f 80 c0 e0 f0 f8  ; f587
-                hex fc 1f 01 03 07 0f 1f e0  ; f58f
-                hex 3f 7f ff 80 ee 80 d1 52  ; f597
-                hex fa 80 80 80 7e 80 bb 80  ; f59f
-                hex 45 bc 84 81 c1 e7 80 a0  ; f5a7
-                hex e7 f2 a2 51 bc c0 80 81  ; f5af
-                hex 83 80 8a 60 e0 70 c0 01  ; f5b7
-                hex 00 b2 5f f8 f3 f9 fc fe  ; f5bf
-                hex ff fc e7 cf 9f 3f 7f ff  ; f5c7
-                hex 80 d1 60 bf 3f 80 45 08  ; f5cf
-                hex fe 58 fb 5a 42 7e 00 ff  ; f5d7
-                hex e7 b4 fa b5 85 fd 00 ff  ; f5df
-                hex e7 fa 6a 0a fb 00 ff 3f  ; f5e7
-                hex fa f5 15 f7 00 ff 9f 58  ; f5ef
-                hex f8 55 54 77 00 ff f8 e0  ; f5f7
-                hex 20 e0 00 ff 08 ff 78 01  ; f5ff
-                hex 03 07 ff b2 5a ff 99 cc  ; f607
-                hex e6 73 39 9c ce e7 ff 4c  ; f60f
-                hex 99 33 67 ce 9c 39 73 80  ; f617
-                hex d1 80 45 58 63 70 50 5e  ; f61f
-                hex 42 70 fd 85 b5 63 c3 42  ; f627
-                hex 7a 0a 7f f1 11 f1 81 83  ; f62f
-                hex f6 15 53 a2 ff 43 7d 06  ; f637
-                hex 03 00 7f 40 5e b0 52 73  ; f63f
-                hex 00 7f 01 03 07 0f 1f 3f  ; f647
-                hex 7f b2 5f ff 20 90 48 24  ; f64f
-                hex 92 c9 64 32 ff 02 04 09  ; f657
-                hex 12 24 49 93 26 80 d1 3c  ; f65f
-                hex bf 3f 7f ff 80 45 d9 fe  ; f667
-                hex ff fe ff fe 59 80 91 bf  ; f66f
-                hex 91 31 63 c6 8c 18 30 f0  ; f677
-                hex 60 c0 80 00 e0 fd fe ff  ; f67f
-                hex a3 7d 01 01 39 00 ff 00  ; f687
-                hex ff e0 4c 99 ff e7 00 ff  ; f68f
-                hex 00 ff 00 ff 81 ff 05 80  ; f697
-                hex 05 a2 5d ff 09 12 24 49  ; f69f
-                hex 93 26 4c 99 ff 33 67 ce  ; f6a7
-                hex 9c 39 73 e7 cf 80 d1 87  ; f6af
-                hex 3f 7f bf 3f 07 01 02 04  ; f6b7
-                hex 93 bf 63 ff 00 03 04 a0  ; f6bf
-                hex 0b 17 a0 fc f8 80 17 80  ; f6c7
-                hex f8 80 17 87 f8 f9 fa fc  ; f6cf
-                hex 8d 80 17 e0 fa f9 f8 81  ; f6d7
-                hex 17 0b 81 f8 fc f1 0b 04  ; f6df
-                hex 03 00 ff c0 fc ff 3a 60  ; f6e7
-                hex e0 f0 f8 30 7f ff 32 8b  ; f6ef
-                hex 87 05 3b c7 df 87 d0 ee  ; f6f7
-                hex f1 fc 81 00 80 c0 fc fe  ; f6ff
-                hex 02 7d 01 0f 80 05 81 07  ; f707
-                hex ff 80 d0 81 f0 ff 01 f8  ; f70f
-                hex 4d 07 01 03 02 01 01 80  ; f717
-                hex 02 f8 0d 3d 7d 6d 4d 80  ; f71f
-                hex 02 80 4d 80 02 87 4d 6d  ; f727
-                hex 7d 3d 02 ea 03 e0 30 0b  ; f72f
-                hex 80 e0 f0 e7 7c 66 63 66  ; f737
-                hex 7c 00 a0 18 00 fb 67 6e  ; f73f
-                hex 7c 67 63 7e 00 08 55 30  ; f747
-                hex 00 30 00 d3 3e 63 03 0f  ; f74f
-                hex 00 c1 3e 63 00 c1 3f 30  ; f757
-                hex 00 08 c7 3f 0c 1c 0c 00  ; f75f
-                hex ef 3e 63 03 7e 60 7e 00  ; f767
-                hex 1f 25 26 74 24 00 d0 30  ; f76f
-                hex 18 00 09 77 0c 9e 92 d2  ; f777
-                hex 7e 3c 73 6c fe 92 fe 6c  ; f77f
-                hex 7f 40 c2 92 9a 9e f6 62  ; f787
-                hex 77 4c de 92 96 f4 60 09  ; f78f
-                hex 7b 38 7c c6 82 c6 44 7b  ; f797
-                hex 78 fc 96 92 f2 60 5f fe  ; f79f
-                hex 30 78 ec c6 82 53 fe 92  ; f7a7
-                hex fe 6c 09 7e 38 7c c6 82  ; f7af
-                hex 92 f2 3c 80 ec 6c 00 52  ; f7b7
-                hex fe 10 fe 7f f8 fc 26 22  ; f7bf
-                hex 26 fc f8 09 2a 02 fe 02  ; f7c7
-                hex 51 fe 12 02 5e fe 1c 38  ; f7cf
-                hex 70 fe 2a 82 fe 82 09 78  ; f7d7
-                hex 08 0e 06 00 5e fe 1c 38  ; f7df
-                hex 1c fe 7f c4 e6 f2 b2 ba  ; f7e7
-                hex 9e 8c 5e fe 70 38 70 fe  ; f7ef
-                hex 00 00 00 00 00 00 00 00  ; f7f7
-                hex 00 00 00 00 00 00 00 00  ; f7ff
-                hex 00 00 00 00 00 00 00 00  ; f807
-                hex 00 00 00 03 2a 53 fe 22  ; f80f
-                hex 3e 1c 73 7c fe 82 fe 7c  ; f817
-                hex 51 fe 92 82 09 3b 0e 1e  ; f81f
-                hex f0 1e 0e 5e fe 1c 38 70  ; f827
-                hex fe 7e 38 7c c6 82 92 f2  ; f82f
-                hex 28 fe 80 83 ab 2a 82 fe  ; f837
-                hex 82 77 4c de 92 96 f4 60  ; f83f
-                hex 52 fe 10 fe 07 08 1c 3c  ; f847
-                hex 3a c0 f0 f8 fc 03 fd 90  ; f84f
-                hex 80 40 80 fc 80 40 80 fc  ; f857
-                hex 83 40 80 00 80 fc 97 fc  ; f85f
-                hex f8 f0 c0 00 92 6f 80 3f  ; f867
-                hex da 45 42 41 40 20 9e ff  ; f86f
-                hex 3f c0 3f 00 a0 aa ff 8e  ; f877
-                hex ff 00 ff 00 e0 af df ff  ; f87f
-                hex 9d 80 f4 6f 3f bf ff 3f  ; f887
-                hex bf 3f 80 f4 61 0f 2f ef  ; f88f
-                hex 80 f4 c3 0f cf 0f af 80  ; f897
-                hex f4 a7 af 4f 0f ef 0f 4d  ; f89f
-                hex ac fb 1b fb 7b 80 f4 b0  ; f8a7
-                hex 7b fb db 80 f4 b1 1b fb  ; f8af
-                hex db fb 80 f4 b9 1b fb 1b  ; f8b7
-                hex 3b 5b 80 f4 4d f8 5b bb  ; f8bf
-                hex fb 7b 3b 80 f4 c1 fb 7b  ; f8c7
-                hex fb 80 f4 e5 3b 9b 5b 1b  ; f8cf
-                hex fb 80 f4 81 fb 7b 80 f4  ; f8d7
-                hex 9d 80 f4 e0 cf 8f 0f 81  ; f8df
-                hex f4 e8 81 0f 1f fb e8 90  ; f8e7
-                hex 60 80 00 03 fc e0 1f 7f  ; f8ef
-                hex ff c1 03 ff 00 01 00 a2  ; f8f7
-                hex d5 80 45 88 fe ff 0f ff  ; f8ff
-                hex ad aa 8a 0f ff df af b8  ; f907
-                hex cf 07 00 ff 8a ba 9a 58  ; f90f
-                hex cf 08 ff 7f 63 79 7c c7  ; f917
-                hex 0d ff 9e c3 e3 c7 02 ff  ; f91f
-                hex 06 ff c5 c7 4f ff 1f 8f  ; f927
-                hex c8 a4 07 1f 00 c0 07 df  ; f92f
-                hex c1 c0 06 9f d0 06 9f 03  ; f937
-                hex 58 87 ff 7f ff 81 c7 fe  ; f93f
-                hex ff 83 f9 c1 3f 80 c0 e0  ; f947
-                hex f0 f8 fc 1f 01 03 07 0f  ; f94f
-                hex 1f 52 bf e0 3f 7f ff 80  ; f957
-                hex ee 80 d1 80 80 80 7e 80  ; f95f
-                hex bb 80 45 a4 4a 7b 79 00  ; f967
-                hex 7e 89 bd 99 9c 8c 00 f4  ; f96f
-                hex 07 ef a7 e7 07 ff f7 f0  ; f977
-                hex f6 f2 f3 c6 f7 f2 a2 54  ; f97f
-                hex ff d3 73 71 73 f7 70 e3  ; f987
-                hex 73 ff fd ed 9d fd ed 7c  ; f98f
-                hex f8 fd fe b0 38 10 18 9c  ; f997
-                hex 1e fc b2 57 c0 01 00 f8  ; f99f
-                hex f3 f9 fc fe ff fc e7 cf  ; f9a7
-                hex 9f 3f 7f ff 80 d1 60 bf  ; f9af
-                hex 3f b2 d5 80 45 08 fe f8  ; f9b7
-                hex a1 bd 81 ff 00 f8 6a 4a  ; f9bf
-                hex 03 ff 00 fb 95 65 0c ff  ; f9c7
-                hex 00 06 07 58 bb 85 87 00  ; f9cf
-                hex ff 98 08 fb 5a 66 3c 00  ; f9d7
-                hex ff 1d 0c ba b4 fc 00 ff  ; f9df
-                hex 03 0a ff 1f 58 08 ff 78  ; f9e7
-                hex 01 03 07 ff ff 66 33 19  ; f9ef
-                hex 8c c6 63 31 18 ff b3 66  ; f9f7
-                hex cc 98 31 63 c6 8c b2 a5  ; f9ff
-                hex 80 d1 80 45 7b 81 bd a1  ; fa07
-                hex af a1 bd 72 03 4a 5a 6a  ; fa0f
-                hex 58 76 f3 9a 6a 4a 7a 78  ; fa17
-                hex f7 15 f5 85 7f 3c 66 5a  ; fa1f
-                hex 7a 3a 66 5e 63 fc b4 84  ; fa27
-                hex b4 52 2a 7f 01 03 07 0f  ; fa2f
-                hex 1f 3f 7f ff df 6f b7 db  ; fa37
-                hex 6d 36 9b cd ff fd fb f6  ; fa3f
-                hex ed db b6 6c d9 b3 f5 39  ; fa47
-                hex 00 ff 00 ff e0 e7 cf ff  ; fa4f
-                hex e7 00 ff 00 ff 00 ff 01  ; fa57
-                hex 6e 80 6e bf 6e ce 9c 39  ; fa5f
-                hex 73 e7 cf a3 57 f0 9f 3f  ; fa67
-                hex 7f ff e0 02 01 00 01 01  ; fa6f
-                hex 39 00 ff 00 ff e0 4c 99  ; fa77
-                hex ff a2 d5 80 45 87 fe ff  ; fa7f
-                hex fe ff 07 ff 00 ff ff 09  ; fa87
-                hex 12 24 49 93 26 4c 99 ff  ; fa8f
-                hex 33 67 ce 9c 39 73 e7 cf  ; fa97
-                hex b2 db 80 d1 87 3f 7f bf  ; fa9f
-                hex 3f 87 00 01 02 04 86 40  ; faa7
-                hex 41 42 9e 00 3f c0 3f ff  ; faaf
-                hex 06 c0 00 4d 80 ef 80 17  ; fab7
-                hex 87 ef ee ed eb 80 17 e0  ; fabf
-                hex ed ee ef 80 17 81 ef f7  ; fac7
-                hex 81 17 0b 32 f8 8e fe 7e  ; facf
-                hex be de 02 7f 9c 00 30 3c  ; fad7
-                hex 3f c0 1f 3f 87 05 3b c7  ; fadf
-                hex df 12 b7 87 d0 ee f1 fc  ; fae7
-                hex 01 80 c0 fc fe 81 00 0f  ; faef
-                hex 80 05 81 07 ff 02 df 80  ; faf7
-                hex d0 81 f0 ff 01 f8 03 03  ; faff
-                hex 06 03 03 07 03 ff 00 78  ; fb07
-                hex 3f 70 60 ff 03 fe 80 02  ; fb0f
-                hex 80 4f 80 02 87 4f 6f 7f  ; fb17
-                hex 3f b8 02 03 01 00 d8 0f  ; fb1f
-                hex 03 01 00 57 fe 82 c6 7c  ; fb27
-                hex 38 09 14 c0 00 5f fe 22  ; fb2f
-                hex 62 f2 de 9c 28 66 00 7f  ; fb37
-                hex 1e 3e 70 e0 70 3e 1e 09  ; fb3f
-                hex 5e fe 1c 38 1c fe 53 fe  ; fb47
-                hex 92 fe 6c 7f c4 e6 f2 b2  ; fb4f
-                hex ba 9e 8c 7f 1e 04 18 00  ; fb57
-                hex 08 14 1e 09 3c 80 e0 60  ; fb5f
-                hex 00 3a 80 84 fe 80 77 0c  ; fb67
-                hex 9e 92 d2 7e 3c 73 6c fe  ; fb6f
-                hex 92 fe 6c 09 7f 40 c2 92  ; fb77
-                hex 9a 9e f6 62 7b 38 7c c6  ; fb7f
-                hex 82 c6 44 7b 78 fc 96 92  ; fb87
-                hex f2 60 5f fe 30 78 ec c6  ; fb8f
-                hex 82 09 3c 80 ec 6c 00 2a  ; fb97
-                hex 02 fe 02 51 fe 12 02 73  ; fb9f
-                hex 7e fe 80 fe 7e 02 a8 b7  ; fba7
-                hex 63 7f 63 36 1c 00 ed 63  ; fbaf
-                hex 77 7f 6b 63 00 0d 60 30  ; fbb7
-                hex 00 00 00 00 00 00 00 00  ; fbbf
-                hex 00 00 00 00 00 00 00 00  ; fbc7
-                hex 00 00 00 00 00 00 00 00  ; fbcf
-                hex 00 00 00 03 2a 2a 02 fe  ; fbd7
-                hex 02 51 fe 92 82 5e fe 1c  ; fbdf
-                hex 38 70 fe 83 af 2a 82 fe  ; fbe7
-                hex 82 77 4c de 92 96 f4 60  ; fbef
-                hex 07 08 1c 3c 3a c0 f0 f8  ; fbf7
-                hex fc 90 7c bc 80 fc 03 f7  ; fbff
-                hex 80 40 80 fc 83 40 80 00  ; fc07
-                hex 80 fc 97 fc f8 f0 c0 00  ; fc0f
-                hex 20 ff 20 ff b2 bf da 45  ; fc17
-                hex 42 41 40 20 1e 3f c0 3f  ; fc1f
-                hex 00 a0 aa ff 0e 00 ff 00  ; fc27
-                hex e0 af df ff 0e 00 ff 00  ; fc2f
-                hex e0 db 88 ff 9d 80 f4 61  ; fc37
-                hex 0f 2f ef 80 f4 c3 0f cf  ; fc3f
-                hex 0f af 80 f4 a7 af 4f 0f  ; fc47
-                hex ef 0f 80 f4 ac 0f ef 0f  ; fc4f
-                hex 8f 4d b0 7b fb db 80 f4  ; fc57
-                hex b1 1b fb db fb 80 f4 b9  ; fc5f
-                hex 1b fb 1b 3b 5b 80 f4 f8  ; fc67
-                hex 5b bb fb 7b 3b 80 f4 4d  ; fc6f
-                hex c1 fb 7b fb 80 f4 e5 3b  ; fc77
-                hex 9b 5b 1b fb 80 f4 81 fb  ; fc7f
-                hex 7b 80 f4 e0 3b 7b fb 80  ; fc87
-                hex f4 2c 0e fe 01 ff 18 01  ; fc8f
-                hex ff de ee de be 7e fe fd  ; fc97
-                hex d0 3f 7f ff 82 80 00 80  ; fc9f
-                hex fe 88 bb ba 88 fe ff 58  ; fca7
-                hex af e0 ff 00 52 55 75 af  ; fcaf
-                hex 3f ff 00 20 50 47 cf f8  ; fcb7
-                hex ff 00 27 24 26 cf 07 ff  ; fcbf
-                hex 7f 63 79 7c a4 a7 01 00  ; fcc7
-                hex 61 3c 1c a7 fc 00 f9 00  ; fccf
-                hex 3a 07 e0 70 37 07 1f 00  ; fcd7
-                hex c0 a4 07 df c1 c0 06 9f  ; fcdf
-                hex d0 06 9f 03 07 80 00 7e  ; fce7
-                hex 58 c7 fe ff 83 f9 c1 3f  ; fcef
-                hex 80 c0 e0 f0 f8 fc 1f 01  ; fcf7
-                hex 03 07 0f 1f e0 3f 7f ff  ; fcff
-                hex 52 fe 80 ee 80 d1 80 80  ; fd07
-                hex 80 7e 80 bb 80 45 ca f1  ; fd0f
-                hex f8 80 ff a5 90 0c 00 0c  ; fd17
-                hex c0 c1 86 c1 c0 00 01 81  ; fd1f
-                hex a2 45 fd ef fe 7c 38 18  ; fd27
-                hex 0c fc c0 01 00 f8 f3 f9  ; fd2f
-                hex fc fe ff b2 7d fc e7 cf  ; fd37
-                hex 9f 3f 7f ff 80 d1 60 bf  ; fd3f
-                hex 3f 80 45 08 fe fb 88 be  ; fd47
-                hex 80 ff 00 18 1c 58 f8 5e  ; fd4f
-                hex 42 7e 00 ff f8 95 b5 fd  ; fd57
-                hex 00 ff f8 2a 6a fb 00 ff  ; fd5f
-                hex fa ad b3 9e 00 ff fc 58  ; fd67
-                hex 0a ff 7c 0a ff 7f 08 ff  ; fd6f
-                hex 78 01 03 07 ff b2 5a ff  ; fd77
-                hex 99 cc e6 73 39 9c ce e7  ; fd7f
-                hex ff 4c 99 33 67 ce 9c 39  ; fd87
-                hex 73 80 d1 80 45 58 60 1c  ; fd8f
-                hex 14 7b 7e 42 5e 50 5e 42  ; fd97
-                hex 72 fd b5 a5 95 72 fb 6a  ; fd9f
-                hex 4a 2a 52 8a 7f 9e b3 ad  ; fda7
-                hex bd 9d b3 af 7f 01 03 07  ; fdaf
-                hex 0f 1f 3f 7f ff df 6f b7  ; fdb7
-                hex db 6d 36 9b cd b3 7d ff  ; fdbf
-                hex 02 04 09 12 24 49 93 26  ; fdc7
-                hex 39 00 ff 00 ff e0 e7 cf  ; fdcf
-                hex ff e7 00 ff 00 ff 00 ff  ; fdd7
-                hex 01 6e 80 6e a4 ff 33 e7  ; fddf
-                hex ce 1c f9 f3 e7 0f f0 9f  ; fde7
-                hex 3f 7f ff 03 80 40 01 01  ; fdef
-                hex b3 f5 39 00 ff 00 ff e0  ; fdf7
-                hex 4c 99 ff e7 00 ff 00 ff  ; fdff
-                hex 00 ff 01 05 80 05 ff 09  ; fe07
-                hex 12 24 49 93 26 4c 99 b2  ; fe0f
-                hex 76 ff 33 67 ce 9c 39 73  ; fe17
-                hex e7 cf 80 d1 87 3f 7f bf  ; fe1f
-                hex 3f 87 00 01 02 04 86 40  ; fe27
-                hex 41 42 4d a0 f7 ef a0 0b  ; fe2f
-                hex 17 80 ef 80 17 87 ef ee  ; fe37
-                hex ed eb 80 17 e0 ed ee ef  ; fe3f
-                hex 80 17 12 fe 9c ff 01 fe  ; fe47
-                hex ff 06 01 00 8e fe 7e be  ; fe4f
-                hex de 02 7f 1c 30 3c 3f c0  ; fe57
-                hex 1f 3f 87 05 3b c7 df 12  ; fe5f
-                hex ad 80 ff 87 d0 ee f1 fc  ; fe67
-                hex 01 80 c0 fc fe 81 00 0f  ; fe6f
-                hex 42 f7 80 05 81 02 fa 80  ; fe77
-                hex d0 81 20 2f 01 f8 03 03  ; fe7f
-                hex 06 01 01 4d 80 02 f8 0d  ; fe87
-                hex 3d 7d 6d 4d 80 02 80 4d  ; fe8f
-                hex 80 02 87 4d 6d 7d 3d b8  ; fe97
-                hex 02 03 01 00 e0 0d 01 00  ; fe9f
-                hex 09 57 fe 82 c6 7c 38 14  ; fea7
-                hex c0 00 73 7c fe 82 fe 7c  ; feaf
-                hex 5f fe 22 62 f2 de 9c 08  ; feb7
-                hex 55 30 00 30 00 d3 3e 63  ; febf
-                hex 03 0f 00 b7 63 7f 63 36  ; fec7
-                hex 1c 00 c1 3e 63 00 08 99  ; fecf
-                hex 0c 1e 33 00 c7 3f 0c 1c  ; fed7
-                hex 0c 00 bf 06 7f 66 36 1e  ; fedf
-                hex 0e 00 1f 25 26 74 24 00  ; fee7
-                hex 09 3c 80 e0 60 00 77 0c  ; feef
-                hex 9e 92 d2 7e 3c 73 6c fe  ; fef7
-                hex 92 fe 6c 53 fe 22 3e 1c  ; feff
-                hex 09 7b 38 7c c6 82 c6 44  ; ff07
-                hex 7b 78 fc 96 92 f2 60 5f  ; ff0f
-                hex fe 30 78 ec c6 82 53 fe  ; ff17
-                hex 92 fe 6c 09 7e 38 7c c6  ; ff1f
-                hex 82 92 f2 3c 80 ec 6c 00  ; ff27
-                hex 52 fe 10 fe 5e fe 1c 38  ; ff2f
-                hex 1c fe 09 28 fe 80 51 fe  ; ff37
-                hex 12 02 5e fe 70 38 70 fe  ; ff3f
-                hex 78 08 0e 06 00 00 00 00  ; ff47
-                hex 00 00 00 00 00 00 00 00  ; ff4f
-                hex 00 00 00 00 00 00 00 00  ; ff57
-                hex 00 00 00 00 00 00 00 00  ; ff5f
+                hex 0f 62 a9 ff 9c 39 73 e7 cf 9f 3f 7f ff 49 93 26  ; $8c71
+                hex 4c 99 33 67 ce bf 00 01 02 04 09 12 24 e0 c0 80
+                hex 00 24 1f 01 03 07 0f 1f fc 18 30 60 c0 80 00 ff
+                hex b3 66 cc 98 31 63 c6 8c ff cc 98 31 63 c6 8c 18
+                hex 30 23 5d f0 60 c0 80 00 bf 91 31 63 c6 8c 18 30
+                hex 80 17 87 ef ee ed eb ff f6 ed db b6 6c d9 b3 66
+                hex 22 51 87 ff fe fd fb 7f 01 03 07 0f 1f 3f 7f 78
+                hex 01 03 07 ff 22 5b ff fd fb f6 ed db b6 6c d9 81
+                hex ff fe 9f 00 88 00 22 00 88 ff 0f 07 03 89 00 22
+                hex 00 88 f8 0f 07 03 01 00 82 f6 7f 20 00 88 00 22  ; $8d01
+                hex 00 88 f8 0f 07 03 01 00 1f 08 00 22 00 88 fc f8
+                hex f0 e0 c0 80 00 83 ff fe fc 7f 22 00 88 00 22 00
+                hex 88 82 f5 7f 02 00 08 00 22 00 88 fc f8 f0 e0 c0
+                hex 80 00 01 80 87 ff 7f 3f 1f da 30 18 00 18 00 1f
+                hex 25 26 74 24 00 49 3c 80 e0 60 00 9f 80 be 84 88
+                hex 90 be 80 80 e6 80 a4 aa 92 80 92 75 f8 0f 07 03
+                hex 01 00 19 88 00 88 f8 0f 07 03 01 00 ff 9c ce e7
+                hex f3 f9 fc fe ff 07 7f 3f 1f 62 a5 ff 00 80 40 20
+                hex 90 48 24 92 ff c9 64 32 99 cc e6 73 39 07 80 00
+                hex 7e 06 9f 03 24 c7 fe ff 83 f9 c1 ff 66 33 19 8c
+                hex c6 63 31 18 f8 0c 06 03 01 00 3f 80 c0 e0 f0 f8
+                hex fc 63 6a 01 80 f0 e0 c0 80 00 87 fe fc f8 f0 80
+                hex fe 82 6f 81 ff fc 19 88 00 88 19 08 00 88 fc f8
+                hex f0 e0 c0 80 00 e0 ff bf 3f e0 2e 6e ee 52 ef 80
+                hex d1 3c bf 3f 7f ff 80 d1 80 d1 87 3f 7f bf 3f 80
+                hex d1 ff 7f bf 3f 7f ff bf 3f 7f 52 fe 8e 01 81 41  ; $8e01
+                hex a1 02 7f 80 7e 80 fe 80 d1 80 3f da 45 42 41 40
+                hex 20 52 fe e2 1f e0 ff 00 02 00 3e 01 03 07 03 00
+                hex ae 3f 1f 0f 03 00 80 45 88 fe ff 80 45 52 fe 80
+                hex 45 08 fe 80 45 87 fe ff fe ff 80 45 d9 fe ff fe
+                hex ff fe 86 40 41 42 02 db 80 45 80 bb 80 3f ff ff
+                hex 55 ff 55 ff 55 ff 55 fe bf 50 a0 20 c0 40 80 ea
+                hex 1f 10 20 40 80 83 6b b2 ff c0 df dc ff aa 44 aa
+                hex 11 aa 44 aa 11 ff aa 44 aa 15 aa 44 aa 15 07 80
+                hex 40 a8 8f 80 c0 30 0c 03 68 32 03 fb 3b c1 3e 63
+                hex 00 e7 1c 32 63 26 1c 00 ff 7f 70 3c 1e 07 63 3e
+                hex 00 83 59 c8 df bf 7f ee ff fc fb f7 ef df cc ee
+                hex ff ee ff a6 3b fb 03 ff 82 66 80 df ff ff dd ff
+                hex 55 ff dd ff 55 a6 dc df c0 ff ff ff dd ff 77 ff
+                hex dd ff 77 6c 0e 00 ff 00 e0 af df ff 1e 3f c0 3f
+                hex 00 a0 aa ff 0e 00 ff 00 b8 81 bf 80 ff 0e 00 ff
+                hex 00 e0 aa 9a ff 0d 80 f4 a7 5b bb fb 1b fb 80 f4  ; $8f01
+                hex c3 fb 3b fb 5b 80 f4 b0 7b fb db 80 f4 ac fb 1b
+                hex fb 7b 0d 80 f4 b9 1b fb 1b 3b 5b 80 f4 b1 1b fb
+                hex db fb 80 f4 c1 fb 7b fb 80 f4 f8 5b bb fb 7b 3b
+                hex 0d 80 f4 81 fb 7b 80 f4 e5 3b 9b 5b 1b fb 81 f4
+                hex e8 81 fb f7 80 f4 e0 3b 7b fb 03 ea 80 bc 80 40
+                hex ff aa dd aa 77 aa dd aa 77 ff aa dd aa 7f aa dd
+                hex aa 7f ff aa 55 aa 55 aa 55 aa 55 82 9f ff ee 55
+                hex aa 55 ee 55 bb 55 80 fb 78 3f 70 60 ff 03 ff 00
+                hex 78 fe 07 03 ff 03 ff 00 43 ea 80 4d 80 4f bb df
+                hex ef f7 fb fc ff 89 7f bf df 77 0c 9e 92 d2 7e 3c
+                hex 63 b5 c8 fb fd fe 80 17 e0 fa f9 f8 e0 02 01 00
+                hex ff 4c 26 93 49 24 12 09 04 49 fe 80 be 84 88 90
+                hex be 80 ad 80 a2 be a2 80 ab aa a2 80 be 84 b5 82
+                hex be 82 80 be 49 ec a2 9c 80 9c a2 f6 88 90 be 80
+                hex be a2 b0 aa 92 80 db 9c 80 86 80 a4 aa 49 ea 80
+                hex be aa a2 80 b3 80 be aa 9c 80 eb a2 be a2 80 be  ; $9001
+                hex 84 dd 9c a2 aa ba 80 a2 49 eb 90 be 80 a2 be a2
+                hex f7 88 90 be 80 be 84 88 b7 80 9c a2 aa ba 80 df
+                hex a2 80 be 84 88 90 be 49 80 ad f8 49 93 a6 ac ad
+                hex 80 df fc 9c 39 73 e7 cf df 68 31 07 e3 07 64 7f
+                hex bf df 80 ef c0 fe ff 69 07 f8 c7 bf 0c 00 ff 12
+                hex 80 de c0 7f ff 68 64 7e bd db 88 ef f7 93 df bf
+                hex 7f ff 01 fe 43 ab bb fb f7 ef df 3f ff 89 fe fd
+                hex fb 53 fe 92 fe 6c a0 0b 17 a0 fc f8 43 fa 81 17
+                hex 0b 81 f8 fc 80 17 80 f8 73 4e ce 8a fa 70 7e 38
+                hex 7c c6 82 92 f2 49 28 fe 80 7b 78 fc 96 92 f2 60
+                hex 7b 60 e0 80 82 fe 7e 7f 40 c2 92 9a 9e f6 62 49
+                hex 7b 38 7c c6 82 c6 44 3a 80 84 fe 80 73 6c fe 92
+                hex fe 6c 51 fe 12 02 49 5e fe 1c 38 1c fe 80 fb 87
+                hex ff 1f e3 fd ac b6 80 c1 ff 62 a9 6d c0 c7 c0 c7
+                hex c0 61 18 88 c1 61 8c 88 c1 06 9f d0 34 07 20 3e
+                hex 3f 66 3f df 9f ff f8 5f 1f 5f ff 00 fb fb db 31  ; $9101
+                hex ff 00 f0 38 62 a8 01 7f 93 db bd 7e ff be bf cf
+                hex f7 fb fc ff 49 5e fe 70 38 70 fe 53 fe 22 3e 1c
+                hex 5f fe 30 78 ec c6 82 57 fe 82 c6 7c 38 49 52 fe
+                hex 10 fe 3b 0e 1e f0 1e 0e 5e fe 1c 38 70 fe 2a 82
+                hex fe 82 49 77 4c de 92 96 f4 60 28 66 00 14 c0 00
+                hex 2a 02 fe 02 48 fb 67 6e 7c 67 63 7e 00 ff 26 4c
+                hex 99 33 67 ce 9c 39 ff 01 02 04 09 12 24 49 93 f9
+                hex 08 1c 3e 77 63 00 42 fa 01 01 03 03 07 0b 80 00
+                hex c0 0b 80 e0 f0 0d 60 30 00 b7 63 7f 63 36 1c 00
+                hex 83 46 51 fe 92 82 73 7c fe 82 fe 7c ff aa 44 aa
+                hex 00 aa 44 aa 00 82 a5 7f 22 00 aa 00 22 00 aa 7f
+                hex 22 aa 00 aa 00 aa 00 fe 73 e7 cf 9f 3f 7f ff ff
+                hex 26 4c 99 33 e7 ce 1c f9 62 af 0f fe fc f8 f0 f0
+                hex f3 e7 0f ff 82 7e fe 80 fe de d1 a1 41 81 01 02
+                hex d0 3f 7f ff 22 b5 ae fe fc f8 e0 00 e2 fd 03 ff
+                hex 00 e0 02 fc 00 fa 83 f1 d9 0d bf ff fa 9d 91 87  ; $9201
+                hex 9b 9d ff 34 0f 00 20 50 47 0f 00 52 55 75 70 01
+                hex 00 ff fa 07 00 0f 03 cf ff 34 0f 7f 63 79 7c 0f
+                hex 00 65 55 56 f8 87 f2 b0 1b ff d8 01 f9 01 ff 34
+                hex 07 06 ff c5 07 9e c3 e3 18 0f ff fa c7 63 33 83
+                hex 99 ff 24 87 ff e0 ff 3f 87 ff 1f 8f c8 72 92 52
+                hex 56 5a 60 71 4a 24 fb 5a 52 92 00 ff 1f 83 bb 4a
+                hex 71 00 ff 9f 9d 61 90 10 28 77 97 94 a4 c4 c7 a4
+                hex 24 b8 28 a8 00 ff fb a4 94 97 00 ff e7 07 72 24
+                hex a5 ad b5 75 93 94 a4 c4 a4 25 ff cd 0c ec 8c 0e
+                hex ef 0f cf ff ec 0c 8c 6c 0c cc 2c 2f 80 fa 80 91
+                hex a2 e7 81 07 ff 80 05 81 00 0f 87 05 3b c7 df c0
+                hex 1f 3f 1c 30 3c 3f a2 bd 81 00 f8 81 f0 ff 80 d0
+                hex c0 fc fe 01 80 87 d0 ee f1 fc 03 2a 57 fe 82 c6
+                hex 7c 38 73 7c fe 82 fe 7c 5e fe 1c 38 70 fe 09 5f
+                hex fe 30 78 ec c6 82 51 fe 92 82 3b 0e 1e f0 1e 0e
+                hex 7e 38 7c c6 82 92 f2 83 ab 7b 60 e0 80 82 fe 7e  ; $9301
+                hex 5f fe 22 62 f2 de 9c 14 c0 00 3a c0 f0 f8 fc 07
+                hex 08 1c 3c 43 fd 90 80 40 80 fc 80 40 80 fc 83 40
+                hex 80 00 80 fc 97 fc f8 f0 c0 00 a2 9f 80 3f da 44
+                hex 42 41 40 20 a0 aa ff 0e c0 3f 00 e0 af df ff 06
+                hex ff 00 ad 1f 3f ff 3f bf 3f 80 04 40 0f e1 04 f4
+                hex d4 14 80 0f c3 f4 34 f4 54 80 0f a7 54 b4 f4 14
+                hex f4 4d ac fb 1b fb 7b 80 0f b0 7b fb db 80 0f b1
+                hex 1b fb db fb 80 0f b9 1b fb 1b 3b 5b 80 0f 4d f8
+                hex 5b bb fb 7b 3b 80 0f c1 fb 7b fb 80 0f e5 3b 9b
+                hex 5b 1b fb 80 0f 80 fb 81 0f 8f 5d 80 fb e0 cf 8f
+                hex 0f 81 fb f7 81 0f 1f fb f7 ef 9f 7f ff fc 03 e0
+                hex 1f 7f ff c0 fc 00 01 00 3c 80 bb 88 45 44 07 ad
+                hex aa 8a 08 00 07 df af b8 08 00 07 da aa e9 08 00
+                hex 62 ea 07 e3 f9 fc 08 80 07 9e c3 e3 07 06 ff c5
+                hex 07 1f 8f c8 68 07 e0 ff 3f 07 20 3e 3f 06 60 2f
+                hex 06 60 fc 62 b5 07 7f ff 81 07 83 f9 c1 c0 01 00  ; $9401
+                hex bf ff 7f 3f 1f 0f 07 03 9f ff fe fc f8 f0 e0 22
+                hex 7f e0 3f 7f ff 80 ee 80 d1 80 80 80 7e 80 bb 80
+                hex 45 68 fa 9d 91 87 9b 9d ff fa 83 f1 d9 0d bf ff
+                hex fa 07 00 0f 03 cf ff 70 01 00 ff 48 d8 01 f9 01
+                hex ff f8 87 f2 b0 1b ff fa c7 63 33 83 99 ff b8 f3
+                hex ff 0f ff 63 a1 5a 03 ff 03 33 f0 33 03 c7 ff 01
+                hex 80 72 5f f8 f3 f9 fc fe ff fc e7 cf 9f 3f 7f ff
+                hex 80 ee 60 bf 3f 80 bb 08 fe 8c b8 b5 8e ff 00 0b
+                hex ff 9f 9d f8 a5 ad 6d ff 00 0b ff 1f 83 f8 5b 6b
+                hex 68 ff 00 0b ff e7 07 b8 d7 57 ff 00 08 ff ac f8
+                hex 5b 6b 6c ff 00 0a ff 01 f8 4a 5a db ff 00 0b ff
+                hex 0f 87 78 df 3f ff 00 0b ff 0f c7 b8 ad a3 ff 00
+                hex 0b ff f8 f0 62 e5 03 33 13 f8 ff fe fc f8 00 02
+                hex 93 ff 99 cc e6 73 39 9c ce e7 ff 4c 99 33 67 ce
+                hex 9c 39 73 a2 5a 80 11 80 44 60 8e b5 72 6d ad a9
+                hex a5 28 77 68 6b 5b 3b 38 5b 61 6f ef d7 75 6c 6b  ; $9501
+                hex 5b 3b 5b 72 db 5a 52 4a 22 a9 66 3e dd 9f ff 63
+                hex 6d ad a3 ad 50 3f ff 7f 01 03 07 0f 1f 3f 7f 72
+                hex 5f ff 20 90 48 24 92 c9 64 32 ff 02 04 09 12 24
+                hex 49 93 26 80 ee 3c bf 3f 7f ff 80 bb d9 fe ff fe
+                hex ff fe 25 80 91 bf 91 31 63 c6 8c 18 30 f0 60 c0
+                hex 80 00 e0 fd fe ff 63 7d 01 01 19 00 ff 00 e0 4c
+                hex 99 ff 66 00 ff 00 ff 81 ff 05 80 05 32 5d ff f6
+                hex ed db b6 6c d9 b3 66 ff cc 98 31 63 c6 8c 18 30
+                hex 80 ee 87 d1 91 51 d1 07 fe fd fb 73 bf 63 00 ff
+                hex fc fb a0 f7 ef a0 fc f8 80 ef 80 f8 80 ef 87 f8
+                hex f9 fa fc 4d 80 ef e0 fa f9 f8 81 ef f7 81 f8 fc
+                hex f1 f7 fb fc ff 00 c0 fc ff 2a 1f 0f 07 30 7f ff
+                hex 72 8b 87 05 3b c7 df 87 d0 ee f1 fc 81 00 80 c0
+                hex fc fe 02 7d 01 0f 80 05 81 02 fa 80 d0 81 20 2f
+                hex 01 f8 0d 07 01 03 02 01 01 80 02 f8 0d 3d 7d 6d
+                hex 4d 80 02 80 4d 80 02 87 4d 6d 7d 3d 02 ea 03 e0  ; $9601
+                hex 30 0b 80 00 c0 55 30 00 30 00 c1 3e 63 00 c1 3f
+                hex 30 00 08 c7 3f 0c 1c 0c 00 ef 3e 63 03 7e 60 7e
+                hex 00 1f 25 26 74 24 00 d0 30 18 00 09 77 0c 9e 92
+                hex d2 7e 3c 73 6c fe 92 fe 6c 7f 40 c2 92 9a 9e f6
+                hex 62 77 4c de 92 96 f4 60 09 53 fe 22 3e 1c 7b 38
+                hex 7c c6 82 c6 44 53 fe 92 fe 6c 3c 80 ec 6c 00 09
+                hex 7b 78 fc 96 92 f2 60 52 fe 10 fe 7f f8 fc 26 22
+                hex 26 fc f8 2a 02 fe 02 09 51 fe 12 02 2a 82 fe 82
+                hex 78 08 0e 06 00 5e fe 1c 38 1c fe 03 a8 7f c4 e6
+                hex f2 b2 ba 9e 8c 5e fe 70 38 70 fe 41 10 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 03 2a 53 fe 92 fe 6c 7f f8 fc
+                hex 26 22 26 fc f8 77 4c de 92 96 f4 60 83 af 51 fe
+                hex 92 82 28 fe 80 07 08 1c 3c 3a c0 f0 f8 fc 90 7c
+                hex bc 80 fc 03 f7 80 40 80 fc 83 40 80 00 80 fc 97
+                hex fc f8 f0 c0 00 20 ff 20 ff b2 bf da 45 42 41 40  ; $9701
+                hex 20 1e 3f c0 3f 00 a0 aa ff 0e 00 ff 00 e0 af df
+                hex ff 0e 00 ff 00 e0 aa 9d ff 9d 80 f4 61 0f 2f ef
+                hex 80 f4 c3 0f cf 0f af 80 f4 a7 af 4f 0f ef 0f 80
+                hex f4 ac 0f ef 0f 8f 4d b0 7b fb db 80 f4 b1 1b fb
+                hex db fb 80 f4 b9 1b fb 1b 3b 5b 80 f4 f8 5b bb fb
+                hex 7b 3b 80 f4 4d c1 fb 7b fb 80 f4 e5 3b 9b 5b 1b
+                hex fb 80 f4 81 fb 7b 80 f4 e0 3b 7b fb 80 f4 2c 0e
+                hex fe 01 ff 18 01 ff de ee de be 7e fe fd d0 3f 7f
+                hex ff 82 80 00 80 fe 88 bb ba 88 fe ff a4 0f ff ad
+                hex aa 8a cf 40 00 ff df af b8 cf 07 00 ff 9a aa 98
+                hex cf f0 00 80 9c 86 83 a4 e7 30 78 00 61 3c 1c 07
+                hex f9 00 3a a7 1e 00 e0 70 37 07 1f 00 c0 a4 07 df
+                hex c1 c0 06 9f d0 06 9f 03 07 80 00 7e 58 c7 fe ff
+                hex 83 f9 c1 3f 80 c0 e0 f0 f8 fc 1f 01 03 07 0f 1f
+                hex e0 3f 7f ff a2 fd 80 d1 80 3f 80 7e 80 fe 80 45
+                hex 80 fe 7f 21 73 33 3f 1e 0c 09 59 f0 0c 3e 7f c7  ; $9801
+                hex 8f c7 ff fe 7c 1c fd 0c 80 00 3c 7f ff 18 ef 08
+                hex c8 00 c8 08 38 ff a2 54 12 ff 00 f7 33 37 36 96
+                hex 9e 1a 1e 90 80 00 b2 57 c0 01 00 f8 f3 f9 fc fe
+                hex ff fc e7 cf 9f 3f 7f ff 80 d1 60 bf 3f b2 d5 80
+                hex 45 08 fe f8 a5 b9 83 ff 00 fb 4a 32 87 ff 00 40
+                hex c0 fb 95 65 0c ff 00 02 07 58 fb f5 14 f7 00 ff
+                hex e7 e2 fb ab 6c c7 00 ff cf 49 f8 54 d4 9c 00 ff
+                hex bb 28 38 00 ff fd cc 58 09 ff 7f 78 01 03 07 ff
+                hex ff 66 33 19 8c c6 63 31 18 ff b3 66 cc 98 31 63
+                hex c6 8c b2 a5 80 d1 80 45 73 83 b9 a5 b9 a5 67 03
+                hex 4a 4b 7a 4a 58 7b f3 9a 6a ea 9a 7a 7b f7 14 f5
+                hex 85 f4 15 73 cf 6b ab 68 ab 78 df 50 57 54 52 8a
+                hex 78 bf a1 af 28 7f 01 03 07 0f 1f 3f 7f ff df 6f
+                hex b7 db 6d 36 9b cd b3 7d ff 02 04 09 12 24 49 93
+                hex 26 39 00 ff 00 ff e0 e7 cf ff e7 00 ff 00 ff 00
+                hex ff 01 6e 80 6e a4 ff 33 e7 ce 1c f9 f3 e7 0f f0  ; $9901
+                hex 9f 3f 7f ff 03 80 40 01 01 b3 f5 39 00 ff 00 ff
+                hex e0 4c 99 ff e7 00 ff 00 ff 00 ff 01 05 80 05 ff
+                hex 09 12 24 49 93 26 4c 99 b2 76 ff 33 67 ce 9c 39
+                hex 73 e7 cf 80 d1 87 3f 7f bf 3f 87 00 01 02 04 86
+                hex 40 41 42 4d a0 f7 ef a0 0b 17 80 ef 80 17 87 ef
+                hex ee ed eb 80 17 e0 ed ee ef 80 17 12 fe 9c ff 01
+                hex fe ff 06 01 00 8e fe 7e be de 02 7f 1c 30 3c 3f
+                hex c0 1f 3f 87 05 3b c7 df 12 ad 80 ff 87 d0 ee f1
+                hex fc 01 80 c0 fc fe 81 00 0f 42 f7 80 05 81 02 fa
+                hex 80 d0 81 20 2f 01 f8 03 03 06 01 01 4d 80 02 f8
+                hex 0d 3d 7d 6d 4d 80 02 80 4d 80 02 87 4d 6d 7d 3d
+                hex b8 02 03 01 00 e0 0d 01 00 09 57 fe 82 c6 7c 38
+                hex 14 c0 00 73 7c fe 82 fe 7c 5f fe 22 62 f2 de 9c
+                hex 09 28 66 00 7b 38 7c c6 82 c6 44 5e fe 1c 38 1c
+                hex fe 5f 06 e2 f2 1a 0e 06 08 1f 25 26 74 24 00 d0
+                hex 30 18 00 c7 3f 0c 1c 0c 00 fb 3c 06 03 3f 63 3e  ; $9a01
+                hex 00 09 73 6c fe 92 fe 6c 7f 40 c2 92 9a 9e f6 62
+                hex 53 fe 22 3e 1c 7b 78 fc 96 92 f2 60 09 5f fe 30
+                hex 78 ec c6 82 7e 38 7c c6 82 92 f2 3c 80 ec 6c 00
+                hex 52 fe 10 fe 09 2a 02 fe 02 51 fe 12 02 2a 82 fe
+                hex 82 5e fe 70 38 70 fe 02 80 0d 60 30 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 03 2a 57 fe 82 c6 7c 38 73
+                hex 7c fe 82 fe 7c 5e fe 1c 38 70 fe 09 5f fe 30 78
+                hex ec c6 82 51 fe 92 82 3b 0e 1e f0 1e 0e 7e 38 7c
+                hex c6 82 92 f2 83 bf 7f 40 c2 92 9a 9e f6 62 07 08
+                hex 1c 3c 3a c0 f0 f8 fc 90 7c bc 80 fc 80 bc 80 fc
+                hex 12 de e0 02 fc 00 02 00 ae fe fc f8 e0 00 80 3f
+                hex 80 3f da ba bd be bf df ac 1e 3f c0 3f 00 a0 aa
+                hex ff 0e 00 ff 00 e0 af df ff 0e 00 ff 00 e0 ad 98
+                hex ff 0e 00 ff 00 b8 81 bf 80 ff 4d c3 fb 3b fb 5b
+                hex 80 f4 a7 5b bb fb 1b fb 80 f4 ac fb 1b fb 7b 80  ; $9b01
+                hex f4 b0 7b fb db 80 f4 4d b1 1b fb db fb 80 f4 b9
+                hex 1b fb 1b 3b 5b 80 f4 f8 5b bb fb 7b 3b 80 f4 c1
+                hex fb 7b fb 80 f4 4d e5 3b 9b 5b 1b fb 80 f4 81 fb
+                hex 7b 80 f4 e0 3b 7b fb 80 f4 81 fb f7 81 f4 e8 a2
+                hex fd de d1 a1 41 81 01 02 d0 3f 7f ff 82 7e fe 80
+                hex fe 80 45 88 fe ff 0f ff ad aa 8a a4 0f ff df af
+                hex b8 0e ff 9d ad 0f 80 9c 86 83 07 61 3c 1c a4 07
+                hex f9 00 3a 07 e0 70 37 07 1f 00 c0 07 df c1 c0 a4
+                hex 06 9f d0 06 9f 03 07 80 00 7e c7 01 00 7c 06 3e
+                hex 52 ab 3f 80 c0 e0 f0 f8 fc 1f 01 03 07 0f 1f e0
+                hex 3f 7f ff 80 ee 80 d1 52 fa 80 80 80 7e 80 bb 80
+                hex 45 fa 9d 91 87 9b 9d ff fa 83 f1 d9 0d bf ff a4
+                hex fa f8 ff f0 fc 30 00 70 fe ff 00 d8 fe 06 fe 00
+                hex f8 78 0d 4f e4 00 a2 54 fa 38 9c cc 7c 66 00 1f
+                hex f0 06 07 03 00 d7 18 f8 18 f8 f0 00 b2 57 c0 01
+                hex 00 f8 f3 f9 fc fe ff fc e7 cf 9f 3f 7f ff 80 d1  ; $9c01
+                hex 60 bf 3f b2 d5 80 45 08 fe bb b5 8e ff 00 60 62
+                hex fb a5 ad 6d ff 00 e0 7c fb 5b 6b 68 ff 00 18 f8
+                hex 58 b8 28 a8 00 ff fa a4 94 93 00 ff 01 fb b5 a5
+                hex 24 00 ff 0f 87 fb 06 27 c3 00 ff 0f c7 59 9f 6f
+                hex ef cf 0c 08 09 9f 09 08 0c 1f 3f 7f ff 18 8c c6
+                hex 63 31 98 cc 66 ff b3 66 cc 98 31 63 c6 8c b2 a5
+                hex 80 d1 80 45 60 8e b5 72 6d ad a9 a5 58 77 97 94
+                hex a4 c4 c7 a4 61 90 10 28 75 93 94 a4 c4 a4 72 24
+                hex a5 ad b5 52 a2 7e c3 27 26 20 60 00 75 f0 f8 18
+                hex f8 18 7f 01 03 07 0f 1f 3f 7f b2 5f ff 20 90 48
+                hex 24 92 c9 64 32 ff 02 04 09 12 24 49 93 26 80 d1
+                hex 3c bf 3f 7f ff 80 45 d9 fe ff fe ff fe 59 80 91
+                hex bf 91 31 63 c6 8c 18 30 f0 60 c0 80 00 e0 fd fe
+                hex ff a3 7d 01 01 39 00 ff 00 ff e0 4c 99 ff e7 00
+                hex ff 00 ff 00 ff 81 ff 05 80 05 a2 5d ff 09 12 24
+                hex 49 93 26 4c 99 ff 33 67 ce 9c 39 73 e7 cf 80 d1  ; $9d01
+                hex 87 3f 7f bf 3f 07 01 02 04 93 bf 63 ff 00 03 04
+                hex a0 0b 17 a0 fc f8 80 17 80 f8 80 17 87 f8 f9 fa
+                hex fc 8d 80 17 e0 fa f9 f8 81 17 0b 81 f8 fc f1 0b
+                hex 04 03 00 ff c0 fc ff 3a 60 e0 f0 f8 30 7f ff 32
+                hex 8b 87 05 3b c7 df 87 d0 ee f1 fc 81 00 80 c0 fc
+                hex fe 02 7d 01 0f 80 05 81 07 ff 80 d0 81 f0 ff 01
+                hex f8 4d 07 01 03 02 01 01 80 02 f8 0d 3d 7d 6d 4d
+                hex 80 02 80 4d 80 02 87 4d 6d 7d 3d 83 ea e0 0d 01
+                hex 00 d8 0f 03 01 00 14 c0 00 5f fe 22 62 f2 de 9c
+                hex 28 66 00 08 d3 3e 63 03 0f 00 c1 3e 63 00 c1 3f
+                hex 30 00 c7 3f 0c 1c 0c 00 08 1f 62 12 67 32 00 d0
+                hex 30 18 00 fb 3c 06 03 3f 63 3e 00 db 3e 63 3e 63
+                hex 3e 00 09 7d 30 38 2c 26 fe 20 77 4c de 92 96 f4
+                hex 60 53 fe 22 3e 1c 7b 38 7c c6 82 c6 44 09 7b 78
+                hex fc 96 92 f2 60 53 fe 92 fe 6c 3c 80 ec 6c 00 52
+                hex fe 10 fe 09 2a 02 fe 02 2a 82 fe 82 7f f8 fc 26  ; $9e01
+                hex 22 26 fc f8 5e fe 70 38 70 fe 03 a8 51 fe 12 02
+                hex 5e fe 1c 38 1c fe 41 10 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 03 2a 57 fe 82 c6 7c 38 73 7c fe 82 fe 7c
+                hex 5e fe 1c 38 70 fe 09 5f fe 30 78 ec c6 82 51 fe
+                hex 92 82 3b 0e 1e f0 1e 0e 7e 38 7c c6 82 92 f2 09
+                hex 7b 60 e0 80 82 fe 7e 5f fe 22 62 f2 de 9c 14 c0
+                hex 00 5e fe 1c 38 1c fe 83 ab 7f f8 fc 26 22 26 fc
+                hex f8 2a 02 fe 02 52 fe 10 fe 07 08 1c 3c 3a c0 f0
+                hex f8 fc 03 fd 90 80 40 80 fc 80 40 80 fc 83 40 80
+                hex 00 80 fc 97 fc f8 f0 c0 00 92 6f 80 3f da 45 42
+                hex 41 40 20 9e ff 3f c0 3f 00 a0 aa ff 8e ff 00 ff
+                hex 00 e0 af df ff 9d 80 f4 7f 7f bf 7f ff 7f bf 7f
+                hex 80 f4 61 0f 2f ef 80 f4 c3 0f cf 0f af 80 f4 a7
+                hex af 4f 0f ef 0f 4d ac fb 1b fb 7b 80 f4 b0 7b fb
+                hex db 80
+                hex f4 b1 1b fb db fb 80 f4 b9 1b fb 1b 3b 5b 80 f4  ; $9f03
+                hex 4d f8 5b bb fb 7b 3b 80 f4 c1 fb 7b fb 80 f4 e5
+                hex 3b 9b 5b 1b fb 80 f4 81 fb 7b 80 f4 9d 80 f4 e0
+                hex cf 8f 0f 81 f4 e8 81 0f 1f fb e8 90 60 80 00 03
+                hex fc e0 1f 7f ff c1 03 ff 00 01 00 a2 d5 80 45 88
+                hex fe ff 0f ff ad aa 8a 0f ff df af b8 0f ff da aa
+                hex b8 a4 0f 80 9c 86 83 07 61 3c 1c 07 f9 00 3a 07
+                hex e0 70 37 a4 07 1f 00 c0 07 df c1 c0 06 9f d0 06
+                hex 9f 03 58 87 ff 7f ff 81 c7 fe ff 83 f9 c1 3f 80
+                hex c0 e0 f0 f8 fc 1f 01 03 07 0f 1f 52 bf e0 3f 7f
+                hex ff 80 ee 80 d1 80 80 80 7e 80 bb 80 45 58 f0 a7
+                hex 9f 9e ff f0 e5 9e e4 ff f0 a2 60 b3 ff fc 1a f8
+                hex fa d5 f8 ff a2 51 fc 7b 73 2c 7f f8 00 fc d4 d0
+                hex 6a fe d0 00 c0 01 00 b2 5f f8 f3 f9 fc fe ff fc
+                hex e7 cf 9f 3f 7f ff 80 d1 60 bf 3f 80 45 08 fe 58
+                hex 08 ff e8 12 1e 00 ff eb 13 1c 00 ff fa f0 fb 20
+                hex e1 01 00 ff ae 14 58 5b 80 00 ff 13 23 78 01 03  ; $a003
+                hex 07 ff ff 66 33 19 8c c6 63 31 18 ff b3 66 cc 98
+                hex 31 63 c6 8c b2 a1 80 d1 80 45 3d e1 ed 8c bf 8c
+                hex 58 0d bf a0 bf 3d 1c 13 d3 48 d3 7d 01 e1 20 2f
+                hex 48 2f 5d 80 00 f0 10 f0 b2 57 7f fe fc f8 f0 e0
+                hex c0 80 ff 20 90 48 24 92 c9 64 32 ff 02 04 09 12
+                hex 24 49 93 26 80 d1 3c bf 3f 7f ff b3 d5 e7 00 ff
+                hex 00 ff 00 ff 01 6e 80 6e bf 6e ce 9c 39 73 e7 cf
+                hex f0 9f 3f 7f ff a2 5f 03 80 40 01 01 80 d1 ff 7f
+                hex bf 3f 7f ff bf 3f 7f 80 45 87 fe ff fe ff a2 57
+                hex 07 ff 00 ff ff 09 12 24 49 93 26 4c 99 ff 33 67
+                hex ce 9c 39 73 e7 cf 80 d1 87 3f 7f bf 3f b3 6f 87
+                hex 00 01 02 04 e3 00 ff 00 03 04 a0 0b 17 a0 fc f8
+                hex 80 17 80 f8 8d 80 17 87 f8 f9 fa fc 80 17 e0 fa
+                hex f9 f8 81 17 0b 81 f8 fc f1 0b 04 03 00 ff c0 fc
+                hex ff 32 e2 9c 00 30 3c 3f c0 1f 3f 87 05 3b c7 df
+                hex 87 d0 ee f1 fc 02 df 01 80 c0 fc fe 01 0f 80 05  ; $a103
+                hex 81 07 ff 80 d0 81 f0 ff 43 7f 84 01 00 07 01 03
+                hex 02 01 01 80 02 f8 0d 3d 7d 6d 4d 80 02 80 4d 02
+                hex fa 03 ff 00 78 fe 07 03 ff 03 e0 30 0b 80 e0 f0
+                hex 55 30 00 30 00 e7 1e 33 60 33 1e 00 09 53 fe 92
+                hex fe 6c 3a 80 84 fe 80 7f c4 e6 f2 b2 ba 9e 8c 7f
+                hex 04 1e 04 00 1e 08 10 09 3c 80 e0 60 00 77 0c 9e
+                hex 92 d2 7e 3c 73 6c fe 92 fe 6c 7f 40 c2 92 9a 9e
+                hex f6 62 09 77 4c de 92 96 f4 60 53 fe 22 3e 1c 7b
+                hex 78 fc 96 92 f2 60 3c 80 ec 6c 00 08 c1 3e 63 00
+                hex c3 3f 0c 3f 00 c1 3f 30 00 0d 60 30 00 03 a8 5e
+                hex fe 70 38 70 fe 7f 1e 3e 70 e0 70 3e 1e 51 fe 12
+                hex 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 03 2a 7e 38
+                hex 7c c6 82 92 f2 73 7c fe 82 fe 7c 28 fe 80 83 bf
+                hex 51 fe 12 02 07 08 1c 3c 3a c0 f0 f8 fc 90 7c bc
+                hex 80 fc 80 bc
+                hex 80 fc 12 de e0 02 fc 00 02 00 ae fe fc f8 e0 00  ; $a207
+                hex 80 3f 80 3f da ba bd be bf df 9d a0 e8 f4 7f 3f
+                hex ff 3f ff 3f ff 3f 80 f4 78 7f bf 7f ff 80 f4 6e
+                hex 7f bf ff 3f bf 80 f4 61 0f 2f ef 4d c3 fb 3b fb
+                hex 5b 80 f4 a7 5b bb fb 1b fb 80 f4 ac fb 1b fb 7b
+                hex 80 f4 b0 7b fb db 80 f4 4d b1 1b fb db fb 80 f4
+                hex b9 1b fb 1b 3b 5b 80 f4 f8 5b bb fb 7b 3b 80 f4
+                hex c1 fb 7b fb 80 f4 4d e5 3b 9b 5b 1b fb 80 f4 81
+                hex fb 7b 80 f4 e0 3b 7b fb 80 f4 81 fb f7 81 f4 e8
+                hex a2 fd de d1 a1 41 81 01 02 d0 3f 7f ff 82 7e fe
+                hex 80 fe 80 45 88 fe ff 0f ff ad aa 8a a4 0f ff df
+                hex af b8 0f ff cb ab b9 0f 80 9c 86 83 07 61 3c 1c
+                hex a4 07 f9 00 3a 07 e0 70 37 07 1f 00 c0 07 df c1
+                hex c0 a4 06 9f d0 06 9f 03 07 80 00 7e c7 01 00 7c
+                hex 06 3e 52 ab 3f 80 c0 e0 f0 f8 fc 1f 01 03 07 0f
+                hex 1f e0 3f 7f ff 80 ee 80 d1 a2 f1 80 7e 80 fe 80
+                hex 45 80 fe c9 1f 00 0f 00 58 cb 07 c7 07 0f d7 91  ; $a307
+                hex c8 e4 ec ad 0f 8f bf fe ff f4 c1 e1 f8 fc 00 b2
+                hex 57 c0 01 00 f8 f3 f9 fc fe ff fc e7 cf 9f 3f 7f
+                hex ff 80 d1 60 bf 3f b2 d5 80 45 08 fe 08 00 0b 00
+                hex 0f 1f fa 4a 32 87 ff 00 f8 59 ff 6f af ac 6e cf
+                hex 0c ec 2c e7 ec 0e 0f ef 2f af fa af ac ec 0c 0e
+                hex 0f 87 0f 1f 3f 7f b2 5a ff 99 cc e6 73 39 9c ce
+                hex e7 ff 4c 99 33 67 ce 9c 39 73 80 d1 80 45 52 2a
+                hex 76 78 cd b5 a5 bd 70 f3 9a 6a 79 f7 15 f5 85 84
+                hex 58 03 e0 20 7f 01 03 07 0f 1f 3f 7f ff df 6f b7
+                hex db 6d 36 9b cd ff fd fb f6 ed db b6 6c d9 b3 f5
+                hex 39 00 ff 00 ff e0 e7 cf ff e7 00 ff 00 ff 00 ff
+                hex 01 6e 80 6e bf 6e ce 9c 39 73 e7 cf a3 57 f0 9f
+                hex 3f 7f ff e0 02 01 00 01 01 39 00 ff 00 ff e0 4c
+                hex 99 ff a2 d5 80 45 87 fe ff fe ff 07 ff 00 ff ff
+                hex 09 12 24 49 93 26 4c 99 ff 33 67 ce 9c 39 73 e7
+                hex cf b2 db 80 d1 87 3f 7f bf 3f 87 00 01 02 04 86  ; $a407
+                hex 40 41 42 9e 00 3f c0 3f ff 06 c0 00 4d 80 ef 80
+                hex 17 87 ef ee ed eb 80 17 e0 ed ee ef 80 17 81 ef
+                hex f7 81 17 0b 32 f8 8e fe 7e be de 02 7f 9c 00 30
+                hex 3c 3f c0 1f 3f 87 05 3b c7 df 12 b7 87 d0 ee f1
+                hex fc 01 80 c0 fc fe 81 00 0f 80 05 81 07 ff 02 df
+                hex 80 d0 81 f0 ff 01 f8 03 03 06 03 03 07 03 ff 00
+                hex 78 3f 70 60 ff 03 fe 80 02 80 4f 80 02 87 4f 6f
+                hex 7f 3f b8 02 03 01 00 d8 0f 03 01 00 57 fe 82 c6
+                hex 7c 38 09 14 c0 00 5f fe 22 62 f2 de 9c 28 66 00
+                hex 5e fe 1c 38 1c fe 08 b7 63 7f 63 36 1c 00 99 0c
+                hex 1e 33 00 c7 3f 0c 1c 0c 00 1f 62 12 67 32 00 09
+                hex 3c 80 e0 60 00 77 0c 9e 92 d2 7e 3c 73 6c fe 92
+                hex fe 6c 7d 30 38 2c 26 fe 20 09 77 4c de 92 96 f4
+                hex 60 53 fe 22 3e 1c 51 fe 92 82 7b 38 7c c6 82 c6
+                hex 44 09 7b 78 fc 96 92 f2 60 5f fe 30 78 ec c6 82
+                hex 53 fe 92 fe 6c 3c 80 ec 6c 00 09 52 fe 10 fe 2a  ; $a507
+                hex 02 fe 02 2a 82 fe 82 5e fe 70 38 70 fe 02 a8 0d
+                hex 60 30 00 ff 63 67 6f 7f 7b 73 63 00 c1 3e 63 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 03 2a 7e 38
+                hex 7c c6 82 92 f2 73 7c fe 82 fe 7c 5e fe 1c 38 1c
+                hex fe 09 5f fe 30 78 ec c6 82 73 7e fe 80 fe 7e 5e
+                hex fe 1c 38 70 fe 7f f8 fc 26 22 26 fc f8 83 ab 5f
+                hex fe 22 62 f2 de 9c 53 fe 92 fe 6c 51 fe 92 82 07
+                hex 08 1c 3c 3a c0 f0 f8 fc 03 fd 90 80 40 80 fc 80
+                hex 40 80 fc 83 40 80 00 80 fc 97 fc f8 f0 c0 00 82
+                hex 7f 80 3f da 44 42 41 40 20 c0 fe ff ae 55 00 c0
+                hex 3f 00 18 c0 ff e6 50 20 00 ff 00 08 ff 0d ef 0b
+                hex 8b 4b 0b 8b 4b 8b 80 0f e1 0b fb db 1b 80 0f c3
+                hex fb 3b fb 5b 80 0f a7 5b bb fb 1b fb 80 0f 0d ac
+                hex fb 1b fb 7b 80 0f b0 7b fb db 80 0f b1 1b fb db
+                hex fb 80 0f b9 1b fb 1b 3b 5b 80 0f 0d f8 5b bb fb  ; $a607
+                hex 7b 3b 80 0f c1 fb 7b fb 80 0f e5 3b 9b 5b 1b fb
+                hex 80 0f 81 fb 7b 80 0f 1d e0 3b 7b fb 80 0f 81 fb
+                hex f7 81 0f 1f fb f7 ef 9f 7f ff fc 03 e0 1f 7f ff
+                hex c0 fc 00 01 00 22 ea 88 bb ba 80 fe 0f 00 52 55
+                hex 75 0f 00 20 50 47 0f 00 32 55 45 28 0f 7f 63 79
+                hex 7c 07 9e c3 e3 07 06 ff c5 07 1f 8f c8 28 07 e0
+                hex ff 3f 07 20 3e 3f 06 60 2f 06 60 fc 08 87 ff 7f
+                hex ff 81 c7 fe ff 83 f9 c1 3f 80 c0 e0 f0 f8 fc 1f
+                hex 01 03 07 0f 1f 02 bf e0 3f 7f ff 80 ee 80 3f 80
+                hex 80 80 fe 80 bb 80 fe 08 fa 80 ed 81 e7 80 ff f2
+                hex b9 81 b9 81 ff fe 43 06 b6 02 13 df ff fe 03 70
+                hex 00 46 1f 0f ff 09 fc e7 c7 8f 17 33 ff 6f fe 16
+                hex 4e 5e 02 7e ff 0e 7e fe 86 ae b6 de 02 f0 b6 fe
+                hex 00 ff 23 2a 01 7f 8f 00 80 c0 60 30 fc 18 30 60
+                hex c0 80 00 02 fa e0 2e 6e ee 80 3f 88 ba bb 80 fe
+                hex f9 42 4a 31 00 ff 80 f9 5b 51 91 00 ff 81 08 b9  ; $a707
+                hex 4a 32 00 ff e7 d9 92 52 00 ff 0f f8 d4 94 93 00
+                hex ff bb a5 38 00 ff 00 7f 09 bd 2d cd 0d ed 2d cd
+                hex f4 0d ed 2c 2f 0f 87 0f 1f 3f 7f ff 18 8c c6 63
+                hex 31 98 cc 66 02 be ff b3 66 cc 98 31 63 c6 8c 80
+                hex 2e 80 3f 80 ba 80 fe 66 31 4a 5a 42 08 72 91 51
+                hex 55 5b 65 32 4a 4b 4a 75 4c 52 92 12 92 53 94 b4
+                hex d7 d4 08 43 a5 b9 a5 63 2e 29 ee 29 63 78 40 70
+                hex 40 7f 01 03 07 0f 1f 3f 7f 02 af ff df 6f b7 db
+                hex 6d 36 9b cd ff fd fb f6 ed db b6 6c d9 bc 2e 6e
+                hex ee ae 2e 80 3f d9 bb ba bb ba bb 80 fe 09 80 91
+                hex bf 91 31 63 c6 8c 18 30 f0 60 c0 80 00 e0 fd fe
+                hex ff 23 be 01 fe f9 b3 66 ff 00 ff 00 20 ff 67 00
+                hex ff 00 ff fa 81 ff 00 80 fa 22 ae ff f6 ed db b6
+                hex 6c d9 b3 66 ff cc 98 31 63 c6 8c 18 30 87 ee ae
+                hex 6e ee 80 3f 07 fe fd fb 33 bf 63 00 ff fc fb a0
+                hex f7 ef a0 fc f8 80 ef 80 f8 87 ef ee ed eb 80 f8  ; $a807
+                hex 0d e0 ed ee ef 80 f8 81 ef f7 81 f8 fc f1 f7 fb
+                hex fc ff 00 c0 fc ff 2a 1f 0f 07 30 7f ff 32 8b 87
+                hex 05 3b c7 df 87 d0 ee f1 fc 81 00 80 c0 fc fe 02
+                hex 7d 01 0f 80 05 81 07 ff 80 d0 81 f0 ff 01 f8 4d
+                hex 07 01 03 02 01 01 80 02 f8 0d 3d 7d 6d 4d 80 02
+                hex 80 4d 80 02 87 4d 6d 7d 3d 83 ea e0 0d 01 00 d8
+                hex 0f 03 01 00 57 fe 82 c6 7c 38 14 c0 00 28 66 00
+                hex 09 77 4c de 92 96 f4 60 2a 02 fe 02 7f c4 e6 f2
+                hex b2 ba 9e 8c 5f 06 e2 f2 1a 0e 06 08 1f 25 26 74
+                hex 24 00 d0 30 18 00 c7 3f 0c 1c 0c 00 fb 3c 06 03
+                hex 3f 63 3e 00 09 73 6c fe 92 fe 6c 7f 40 c2 92 9a
+                hex 9e f6 62 53 fe 22 3e 1c 7b 38 7c c6 82 c6 44 09
+                hex 3c 80 ec 6c 00 7b 78 fc 96 92 f2 60 52 fe 10 fe
+                hex 51 fe 12 02 09 2a 82 fe 82 41 10 00 28 fe 80 3b
+                hex 0e 1e f0 1e 0e 02 a0 f9 08 1c 3e 77 63 00 ed 63
+                hex 77 7f 6b 63 00 00 00 00 00 00 00 00 00 00 00 00  ; $a907
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 03 2a
+                hex 5e fe 1c 38 1c fe 7f f8 fc 26 22 26 fc f8 52 fe
+                hex 10 fe 09 41 10 00 7b 60 e0 80 82 fe 7e 73 7c fe
+                hex 82 fe 7c 5e fe 1c 38 70 fe 83 bf 7e 38 7c c6 82
+                hex 92 f2 07 08 1c 3c 3a c0 f0 f8 fc 90 7c bc 80 fc
+                hex 80 bc 80 fc 12 de e0 02 fc 00 02 00 ae fe fc f8
+                hex e0 00 80 3f 80 3f da ba bd be bf df 9d a0 e8 f4
+                hex 7f 3f ff 3f ff 3f ff 3f 80 f4 78 7f bf 7f ff 80
+                hex f4 79 3f 7f 3f ff 3f 80 f4 61 0f 2f ef 4d c3 fb
+                hex 3b fb 5b 80 f4 a7 5b bb fb 1b fb 80 f4 ac fb 1b
+                hex fb 7b 80 f4 b0 7b fb db 80 f4 4d b1 1b fb db fb
+                hex 80 f4 b9 1b fb 1b 3b 5b 80 f4 f8 5b bb fb 7b 3b
+                hex 80 f4 c1 fb 7b fb 80 f4 4d e5 3b 9b 5b 1b fb 80
+                hex f4 81 fb 7b 80 f4 e0 3b 7b fb 80 f4 81 fb f7 81
+                hex f4 e8 a2 fd de d1 a1 41 81 01 02 d0 3f 7f ff 82
+                hex 7e fe 80 fe 80 45 88 fe ff 0f ff ad aa 8a 58 6f  ; $aa07
+                hex e7 ff 00 20 50 47 8f ff 00 52 55 51 ef e5 fe ff
+                hex 7f 63 79 7c c7 bf ff 9e c3 e3 a4 07 f9 00 3a 07
+                hex e0 70 37 07 1f 00 c0 07 df c1 c0 a4 06 9f d0 06
+                hex 9f 03 07 80 00 7e c7 01 00 7c 06 3e 52 ab 3f 80
+                hex c0 e0 f0 f8 fc 1f 01 03 07 0f 1f e0 3f 7f ff 80
+                hex ee 80 d1 a2 f1 80 7e 80 fe 80 45 80 fe ef df fe
+                hex d6 df 7f de 77 a5 1f 3d ff fa 7f ff f0 fe 49 09
+                hex 00 01 80 8f ff 7f 3f 9f cf b2 7d fc e7 cf 9f 3f
+                hex 7f ff 80 d1 60 bf 3f 80 45 08 fe e8 fc fe ff 00
+                hex 58 fa 39 ad e7 00 ff 69 f8 5a 66 3c 00 ff ba b4
+                hex fc 00 ff e0 0a ff 1f 58 f8 2a 2b 39 00 ff f8 d5
+                hex 35 e7 00 ff f8 ab ac e7 00 ff f8 40 c1 83 07 ff
+                hex b2 5a ff 99 cc e6 73 39 9c ce e7 ff 4c 99 33 67
+                hex ce 9c 39 73 80 d1 80 45 58 7f 70 58 6c 36 1b 0d
+                hex 06 6f e7 a5 b5 9d ad b5 63 7e 5a 42 5a 67 fc b4
+                hex b5 85 b5 58 27 01 fd 04 fc 76 f1 9b 6a ea 2a 72  ; $ab07
+                hex e7 35 d5 d4 7e e7 ac ab 2b 2a ab 59 e0 63 3f 00
+                hex 7f 01 03 07 0f 1f 3f 7f ff b3 d9 6c b6 db ed f6
+                hex fb ff fd fb f6 ed db b6 6c d9 b3 f5 39 00 ff 00
+                hex ff e0 e7 cf ff e7 00 ff 00 ff 00 ff 01 6e 80 6e
+                hex bf 6e ce 9c 39 73 e7 cf a3 57 f0 9f 3f 7f ff e0
+                hex 02 01 00 01 01 39 00 ff 00 ff e0 4c 99 ff a2 d5
+                hex 80 45 87 fe ff fe ff 07 ff 00 ff ff 09 12 24 49
+                hex 93 26 4c 99 ff 33 67 ce 9c 39 73 e7 cf b2 db 80
+                hex d1 87 3f 7f bf 3f 87 00 01 02 04 86 40 41 42 9e
+                hex 00 3f c0 3f ff 06 c0 00 4d 80 ef 80 17 87 ef ee
+                hex ed eb 80 17 e0 ed ee ef 80 17 81 ef f7 81 17 0b
+                hex 32 f8 8e fe 7e be de 02 7f 9c 00 30 3c 3f c0 1f
+                hex 3f 87 05 3b c7 df 12 b7 87 d0 ee f1 fc 01 80 c0
+                hex fc fe 81 00 0f 80 05 81 07 ff 02 df 80 d0 81 f0
+                hex ff 01 f8 03 03 06 03 03 07 03 ff 00 78 3f 70 60
+                hex ff 03 fe 80 02 80 4f 80 02 87 4f 6f 7f 3f b8 02  ; $ac07
+                hex 03 01 00 d8 0f 03 01 00 57 fe 82 c6 7c 38 09 14
+                hex c0 00 5f fe 22 62 f2 de 9c 28 66 00 73 7e fe 80
+                hex fe 7e 09 77 4c de 92 96 f4 60 2a 02 fe 02 7f c4
+                hex e6 f2 b2 ba 9e 8c 5f 06 e2 f2 1a 0e 06 08 1f 25
+                hex 26 74 24 00 d0 30 18 00 c7 3f 0c 1c 0c 00 fb 3c
+                hex 06 03 3f 63 3e 00 09 73 6c fe 92 fe 6c 7f 40 c2
+                hex 92 9a 9e f6 62 53 fe 22 3e 1c 51 fe 92 82 09 7b
+                hex 38 7c c6 82 c6 44 7b 78 fc 96 92 f2 60 5f fe 30
+                hex 78 ec c6 82 53 fe 92 fe 6c 09 3c 80 ec 6c 00 51
+                hex fe 12 02 2a 82 fe 82 28 fe 80 02 a8 99 0c 1e 33
+                hex 00 f9 08 1c 3e 77 63 00 ed 63 77 7f 6b 63 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 03 2a 5e fe 1c 38 1c
+                hex fe 7f f8 fc 26 22 26 fc f8 5f fe 22 62 f2 de 9c
+                hex 09 2a 82 fe 82 73 7c fe 82 fe 7c 53 fe 92 fe 6c
+                hex 77 4c de 92 96 f4 60 83 bf 14 c0 00 07 08 1c 3c  ; $ad07
+                hex 3a c0 f0 f8 fc 90 7c bc 80 fc 80 bc 80 fc 12 de
+                hex e0 02 fc 00 02 00 ae fe fc f8 e0 00 80 3f 80 3f
+                hex da ba bd be bf df ac 1e 3f c0 3f 00 a0 aa ff 0e
+                hex 00 ff 00 e0 af df ff 0e 00 ff 00 e0 8a ad ff 0e
+                hex 00 ff 00 b8 81 bf 80 ff 4d c3 fb 3b fb 5b 80 f4
+                hex a7 5b bb fb 1b fb 80 f4 ac fb 1b fb 7b 80 f4 b0
+                hex 7b fb db 80 f4 4d b1 1b fb db fb 80 f4 b9 1b fb
+                hex 1b 3b 5b 80 f4 f8 5b bb fb 7b 3b 80 f4 c1 fb 7b
+                hex fb 80 f4 4d e5 3b 9b 5b 1b fb 80 f4 81 fb 7b 80
+                hex f4 e0 3b 7b fb 80 f4 81 fb f7 81 f4 e8 a2 fd de
+                hex d1 a1 41 81 01 02 d0 3f 7f ff 82 7e fe 80 fe 80
+                hex 45 88 fe ff 0f ff ad aa 8a a4 0f ff df af b8 0d
+                hex ff aa a8 0f 80 9c 86 83 07 61 3c 1c a4 07 f9 00
+                hex 3a 07 e0 70 37 07 1f 00 c0 07 df c1 c0 a4 06 9f
+                hex d0 06 9f 03 07 80 00 7e c7 01 00 7c 06 3e 52 ab
+                hex 3f 80 c0 e0 f0 f8 fc 1f 01 03 07 0f 1f e0 3f 7f  ; $ae07
+                hex ff 80 ee 80 d1 52 fa 80 80 80 7e 80 bb 80 45 f4
+                hex e3 c1 fd 80 ff ec f3 bb ba bb ff 58 ec 0f 8f 03
+                hex ef ff b4 f3 f9 01 ff fc f3 03 02 06 07 ff fc 2f
+                hex 2c 00 27 6f ff a3 51 87 60 00 18 98 b8 f8 88 08
+                hex 00 01 80 b2 5f f8 f3 f9 fc fe ff fc e7 cf 9f 3f
+                hex 7f ff 80 d1 60 bf 3f 80 45 08 fe 58 eb 03 01 00
+                hex ff f3 e3 fb 39 ad e7 00 ff 87 82 fb 55 6d 39 00
+                hex ff ef 2f fb 55 35 e7 00 ff 8f c7 58 fb 54 6c 38
+                hex 00 ff 8f 87 fb 55 4d 79 00 ff 9f 8f fb 55 36 e3
+                hex 00 ff fd f8 fb 55 db 8e 00 ff df 8f b2 56 78 fe
+                hex fc f8 00 ff 99 cc e6 73 39 9c ce e7 ff 4c 99 33
+                hex 67 ce 9c 39 73 80 d1 b2 95 80 45 7f 8f a7 93 c9
+                hex e4 f2 f9 6f 18 5a 4a 62 52 4a 63 82 aa ba aa 58
+                hex 63 f7 55 35 55 70 38 6c 54 73 79 4d 55 4d 55 73
+                hex f3 56 55 35 55 58 7f 8e db 55 5d 4d 5b 57 78 70
+                hex 50 70 00 7f 01 03 07 0f 1f 3f 7f ff df 6f b7 db  ; $af07
+                hex 6d 36 9b cd b3 7d ff 02 04 09 12 24 49 93 26 39
+                hex 00 ff 00 ff e0 e7 cf ff e7 00 ff 00 ff 00 ff 01
+                hex 6e 80 6e a4 ff 33 e7 ce 1c f9 f3 e7 0f f0 9f 3f
+                hex 7f ff 03 80 40 01 01 b3 f5 39 00 ff 00 ff e0 4c
+                hex 99 ff e7 00 ff 00 ff 00 ff 01 05 80 05 ff 09 12
+                hex 24 49 93 26 4c 99 b2 76 ff 33 67 ce 9c 39 73 e7
+                hex cf 80 d1 87 3f 7f bf 3f 87 00 01 02 04 86 40 41
+                hex 42 4d a0 f7 ef a0 0b 17 80 ef 80 17 87 ef ee ed
+                hex eb 80 17 e0 ed ee ef 80 17 12 fe 9c ff 01 fe ff
+                hex 06 01 00 8e fe 7e be de 02 7f 1c 30 3c 3f c0 1f
+                hex 3f 87 05 3b c7 df 12 ad 80 ff 87 d0 ee f1 fc 01
+                hex 80 c0 fc fe 81 00 0f 42 f7 80 05 81 02 fa 80 d0
+                hex 81 20 2f 01 f8 03 03 06 01 01 4d 80 02 f8 0d 3d
+                hex 7d 6d 4d 80 02 80 4d 80 02 87 4d 6d 7d 3d b8 02
+                hex 03 01 00 e0 0d 01 00 09 57 fe 82 c6 7c 38 28 66
+                hex 00 51 fe 92 82 53 fe 22 3e 1c 08 83 0c 3f 00 fb  ; $b007
+                hex 3c 06 03 3f 63 3e 00 1f 25 26 74 24 00 d0 30 18
+                hex 00 09 3a 80 84 fe 80 73 6c fe 92 fe 6c 7f 40 c2
+                hex 92 9a 9e f6 62 7b 38 7c c6 82 c6 44 09 7b 78 fc
+                hex 96 92 f2 60 5f fe 30 78 ec c6 82 7e 38 7c c6 82
+                hex 92 f2 3c 80 ec 6c 00 09 52 fe 10 fe 51 fe 12 02
+                hex 5e fe 1c 38 70 fe 78 08 0e 06 00 09 73 7e fe 80
+                hex fe 7e 28 fe 80 7f c2 e2 f2 ba 9e 8e 86 5e fe 70
+                hex 38 70 fe 02 80 99 0c 1e 33 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 03 2a 53 fe 22 3e 1c 54 82 fe 82 5e fe
+                hex 1c 38 70 fe 83 ab 53 fe 92 fe 6c 7f f8 fc 26 22
+                hex 26 fc f8 28 fe 80 07 08 1c 3c 3a c0 f0 f8 fc 03
+                hex fd 90 80 40 80 fc 80 40 80 fc 83 40 80 00 80 fc
+                hex 97 fc f8 f0 c0 00 82 7f 80 3f da 47 43 41 40 20
+                hex d0 fc fe ff a6 aa ff 3f 00 0c c0 ff e2 af df ff
+                hex 00 04 ff 8c e2 aa 98 ff 00 04 ff 86 80 ff 00 dc  ; $b107
+                hex 7c 7e 40 7f ff 06 ff 00 f8 e3 82 83 fe ff 06 ff
+                hex 00 f8 c5 3d c5 3d ff 9d 80 04 2c 0f ff 3f 80 04
+                hex b0 3f ff ef 80 04 b1 0f ff ef ff 80 04 b9 0f ff
+                hex 0f 9f af 9d 80 04 fa af df ff bf 9f 1f 80 04 41
+                hex 3f ff 80 04 e5 9f cf 2f 0f ff 81 04 84 01 7f 13
+                hex eb 80 fb e0 3f 7f ff 81 fb f7 fb f7 ef 9f 7f ff
+                hex fc 03 c0 fc 00 01 00 3c 80 bb 08 fc c7 fc ff ad
+                hex aa 8a c8 fc ff 00 c7 f9 ff df af b8 c8 f9 ff 00
+                hex 05 ba 9a 08 00 62 ea c3 fe ff e3 f9 08 80 c3 57
+                hex ff 9e c3 03 06 ff 03 1f 8f 68 03 e0 ff 03 20 3e
+                hex 03 60 2f 03 60 fc 62 b5 03 7f ff 03 83 f9 c0 01
+                hex 00 bf ff 7f 3f 1f 0f 07 03 9f ff fe fc f8 f0 e0
+                hex 32 6e e0 3f 7f ff 80 ee 80 80 80 fe 80 bb 48 80
+                hex fc cf 01 ff 03 07 c7 f9 ff 81 e0 f8 fc ef cf 87
+                hex 8f e9 e6 e2 72 20 7e 68 fd 67 47 4f 4c 04 07 7f
+                hex 14 00 ff f0 98 88 89 c9 bc 3f 1f 9f bf ff 33 15  ; $b207
+                hex 01 7f 8f 00 80 c0 60 30 fc 18 30 60 c0 80 00 0c
+                hex 80 ee e0 3f 7f ff 80 bb 88 fc ff f1 4a 7a 02 ff
+                hex fe 09 ff fe f1 ad a9 20 ff 01 09 ff 01 8c f8 52
+                hex 5c 41 ff 00 0b ff 9f 87 f8 a5 99 c3 ff 00 0b ff
+                hex fe e6 b8 5e 1e ff 00 0b ff 7f 67 b8 bf 3f ff 00
+                hex 08 ff 72 d5 03 b9 98 08 00 08 00 78 fe fc f8 00
+                hex ff 99 cc e6 73 39 9c ce e7 22 7e ff b3 66 cc 98
+                hex 31 63 c6 8c 80 ee 80 1f 80 bb 80 fc 63 1e 5e 42
+                hex 7a 28 72 20 a9 ab ad 73 41 5c 52 5c 52 63 81 a5
+                hex bd a5 78 02 7a 42 5e 22 85 78 07 f7 87 bf 7f 01
+                hex 03 07 0f 1f 3f 7f ff df 6f b7 db 6d 36 9b cd 33
+                hex 7d ff fd fb f6 ed db b6 6c d9 19 00 ff 00 f0 18
+                hex 30 60 ff 66 00 ff 00 ff 02 91 80 91 34 ff cc 18
+                hex 31 e3 06 0c 18 f0 f0 60 c0 80 00 03 7f bf 01 fe
+                hex 33 f5 19 00 ff 00 f0 b3 66 cc ff 66 00 ff 00 ff
+                hex 02 fa 80 fa ff f6 ed db b6 6c d9 b3 66 32 76 ff  ; $b307
+                hex cc 98 31 63 c6 8c 18 30 80 ee 0f df bf 7f df 07
+                hex fe fd fb 86 bf be bd 13 af a0 f7 ef 80 ef 80 ef
+                hex 07 fe fd fb 80 ef e0 fd fe ff 12 ae 9c ff 01 fe
+                hex ff 8e fe 7e be de 1c 30 3c 3f c0 1f 3f 87 05 3b
+                hex c7 df 12 b7 87 d0 ee f1 fc 01 80 c0 fc fe 81 00
+                hex 0f 80 05 81 07 ff 02 df 80 d0 81 f0 ff 01 f8 03
+                hex 03 06 03 03 07 03 ff 00 78 3f 70 60 ff 03 fe 80
+                hex 02 80 4f 80 02 87 4f 6f 7f 3f b8 02 03 01 00 d8
+                hex 0f 03 01 00 57 fe 82 c6 7c 38 09 14 c0 00 73 7c
+                hex fe 82 fe 7c 5f fe 22 62 f2 de 9c 28 66 00 09 51
+                hex fe 12 02 51 fe 92 82 73 7e fe 80 fe 7e 3b 0e 1e
+                hex f0 1e 0e 08 ff 7f 70 3c 1e 07 63 3e 00 1f 53 55
+                hex 63 41 00 d0 30 18 00 c7 3f 0c 1c 0c 00 09 77 0c
+                hex 9e 92 d2 7e 3c 73 6c fe 92 fe 6c 7d 30 38 2c 26
+                hex fe 20 77 4c de 92 96 f4 60 09 7b 38 7c c6 82 c6
+                hex 44 7b 78 fc 96 92 f2 60 5f fe 30 78 ec c6 82 7e  ; $b407
+                hex 38 7c c6 82 92 f2 09 3c 80 ec 6c 00 52 fe 10 fe
+                hex 2a 02 fe 02 2a 82 fe 82 09 7f c6 ee 7c 38 7c ee
+                hex c6 5e fe 70 38 70 fe 5e fe 1c 38 1c fe 78 08 0e
+                hex 06 00 02 a0 f9 08 1c 3e 77 63 00 e7 1c 32 63 26
+                hex 1c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 03 2a 53 fe 22
+                hex 3e 1c 73 7c fe 82 fe 7c 51 fe 92 82 83 bf 3b 0e
+                hex 1e f0 1e 0e 07 08 1c 3c 3a c0 f0 f8 fc 90 7c bc
+                hex 80 fc 80 bc 80 fc 12 de e0 02 fc 00 02 00 ae fe
+                hex fc f8 e0 00 80 3f 80 3f da ba bd be bf df ac 1e
+                hex 3f c0 3f 00 a0 aa ff 0e 00 ff 00 e0 af df ff 0e
+                hex 00 ff 00 e0 aa 99 ff 0e 00 ff 00 b8 81 bf 80 ff
+                hex 4d c3 fb 3b fb 5b 80 f4 a7 5b bb fb 1b fb 80 f4
+                hex ac fb 1b fb 7b 80 f4 b0 7b fb db 80 f4 4d b1 1b
+                hex fb db fb 80 f4 b9 1b fb 1b 3b 5b 80 f4 f8 5b bb
+                hex fb 7b 3b 80 f4 c1 fb 7b fb 80 f4 4d e5 3b 9b 5b  ; $b507
+                hex 1b fb 80 f4 81 fb 7b 80 f4 e0 3b 7b fb 80 f4 81
+                hex fb f7 81 f4 e8 a2 fd de d1 a1 41 81 01 02 d0 3f
+                hex 7f ff 82 7e fe 80 fe 80 45 88 fe ff bf 0b 02 00
+                hex ff ad aa 8a a4 cf 0d 00 ff df af b8 cd 80 00 ff
+                hex bb 99 df 38 10 00 80 9c 86 83 07 61 3c 1c a4 07
+                hex f9 00 3a 07 e0 70 37 07 1f 00 c0 07 df c1 c0 a4
+                hex 06 9f d0 06 9f 03 07 80 00 7e c7 01 00 7c 06 3e
+                hex 52 ab 3f 80 c0 e0 f0 f8 fc 1f 01 03 07 0f 1f e0
+                hex 3f 7f ff 80 ee 80 d1 52 fa 80 80 80 7e 80 bb 80
+                hex 45 bc 84 81 c1 e7 80 a0 e7 f2 a2 51 bc c0 80 81
+                hex 83 80 8a 60 e0 70 c0 01 00 b2 5f f8 f3 f9 fc fe
+                hex ff fc e7 cf 9f 3f 7f ff 80 d1 60 bf 3f 80 45 08
+                hex fe 58 fb 5a 42 7e 00 ff e7 b4 fa b5 85 fd 00 ff
+                hex e7 fa 6a 0a fb 00 ff 3f fa f5 15 f7 00 ff 9f 58
+                hex f8 55 54 77 00 ff f8 e0 20 e0 00 ff 08 ff 78 01
+                hex 03 07 ff b2 5a ff 99 cc e6 73 39 9c ce e7 ff 4c  ; $b607
+                hex 99 33 67 ce 9c 39 73 80 d1 80 45 58 63 70 50 5e
+                hex 42 70 fd 85 b5 63 c3 42 7a 0a 7f f1 11 f1 81 83
+                hex f6 15 53 a2 ff 43 7d 06 03 00 7f 40 5e b0 52 73
+                hex 00 7f 01 03 07 0f 1f 3f 7f b2 5f ff 20 90 48 24
+                hex 92 c9 64 32 ff 02 04 09 12 24 49 93 26 80 d1 3c
+                hex bf 3f 7f ff 80 45 d9 fe ff fe ff fe 59 80 91 bf
+                hex 91 31 63 c6 8c 18 30 f0 60 c0 80 00 e0 fd fe ff
+                hex a3 7d 01 01 39 00 ff 00 ff e0 4c 99 ff e7 00 ff
+                hex 00 ff 00 ff 81 ff 05 80 05 a2 5d ff 09 12 24 49
+                hex 93 26 4c 99 ff 33 67 ce 9c 39 73 e7 cf 80 d1 87
+                hex 3f 7f bf 3f 07 01 02 04 93 bf 63 ff 00 03 04 a0
+                hex 0b 17 a0 fc f8 80 17 80 f8 80 17 87 f8 f9 fa fc
+                hex 8d 80 17 e0 fa f9 f8 81 17 0b 81 f8 fc f1 0b 04
+                hex 03 00 ff c0 fc ff 3a 60 e0 f0 f8 30 7f ff 32 8b
+                hex 87 05 3b c7 df 87 d0 ee f1 fc 81 00 80 c0 fc fe
+                hex 02 7d 01 0f 80 05 81 07 ff 80 d0 81 f0 ff 01 f8  ; $b707
+                hex 4d 07 01 03 02 01 01 80 02 f8 0d 3d 7d 6d 4d 80
+                hex 02 80 4d 80 02 87 4d 6d 7d 3d 02 ea 03 e0 30 0b
+                hex 80 e0 f0 e7 7c 66 63 66 7c 00 a0 18 00 fb 67 6e
+                hex 7c 67 63 7e 00 08 55 30 00 30 00 d3 3e 63 03 0f
+                hex 00 c1 3e 63 00 c1 3f 30 00 08 c7 3f 0c 1c 0c 00
+                hex ef 3e 63 03 7e 60 7e 00 1f 25 26 74 24 00 d0 30
+                hex 18 00 09 77 0c 9e 92 d2 7e 3c 73 6c fe 92 fe 6c
+                hex 7f 40 c2 92 9a 9e f6 62 77 4c de 92 96 f4 60 09
+                hex 7b 38 7c c6 82 c6 44 7b 78 fc 96 92 f2 60 5f fe
+                hex 30 78 ec c6 82 53 fe 92 fe 6c 09 7e 38 7c c6 82
+                hex 92 f2 3c 80 ec 6c 00 52 fe 10 fe 7f f8 fc 26 22
+                hex 26 fc f8 09 2a 02 fe 02 51 fe 12 02 5e fe 1c 38
+                hex 70 fe 2a 82 fe 82 09 78 08 0e 06 00 5e fe 1c 38
+                hex 1c fe 7f c4 e6 f2 b2 ba 9e 8c 5e fe 70 38 70 fe
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 03 2a 53 fe 22  ; $b807
+                hex 3e 1c 73 7c fe 82 fe 7c 51 fe 92 82 09 3b 0e 1e
+                hex f0 1e 0e 5e fe 1c 38 70 fe 7e 38 7c c6 82 92 f2
+                hex 28 fe 80 83 ab 2a 82 fe 82 77 4c de 92 96 f4 60
+                hex 52 fe 10 fe 07 08 1c 3c 3a c0 f0 f8 fc 03 fd 90
+                hex 80 40 80 fc 80 40 80 fc 83 40 80 00 80 fc 97 fc
+                hex f8 f0 c0 00 92 6f 80 3f da 45 42 41 40 20 9e ff
+                hex 3f c0 3f 00 a0 aa ff 8e ff 00 ff 00 e0 af df ff
+                hex 9d 80 f4 6f 3f bf ff 3f bf 3f 80 f4 61 0f 2f ef
+                hex 80 f4 c3 0f cf 0f af 80 f4 a7 af 4f 0f ef 0f 4d
+                hex ac fb 1b fb 7b 80 f4 b0 7b fb db 80 f4 b1 1b fb
+                hex db fb 80 f4 b9 1b fb 1b 3b 5b 80 f4 4d f8 5b bb
+                hex fb 7b 3b 80 f4 c1 fb 7b fb 80 f4 e5 3b 9b 5b 1b
+                hex fb 80 f4 81 fb 7b 80 f4 9d 80 f4 e0 cf 8f 0f 81
+                hex f4 e8 81 0f 1f fb e8 90 60 80 00 03 fc e0 1f 7f
+                hex ff c1 03 ff 00 01 00 a2 d5 80 45 88 fe ff 0f ff
+                hex ad aa 8a 0f ff df af b8 cf 07 00 ff 8a ba 9a 58  ; $b907
+                hex cf 08 ff 7f 63 79 7c c7 0d ff 9e c3 e3 c7 02 ff
+                hex 06 ff c5 c7 4f ff 1f 8f c8 a4 07 1f 00 c0 07 df
+                hex c1 c0 06 9f d0 06 9f 03 58 87 ff 7f ff 81 c7 fe
+                hex ff 83 f9 c1 3f 80 c0 e0 f0 f8 fc 1f 01 03 07 0f
+                hex 1f 52 bf e0 3f 7f ff 80 ee 80 d1 80 80 80 7e 80
+                hex bb 80 45 a4 4a 7b 79 00 7e 89 bd 99 9c 8c 00 f4
+                hex 07 ef a7 e7 07 ff f7 f0 f6 f2 f3 c6 f7 f2 a2 54
+                hex ff d3 73 71 73 f7 70 e3 73 ff fd ed 9d fd ed 7c
+                hex f8 fd fe b0 38 10 18 9c 1e fc b2 57 c0 01 00 f8
+                hex f3 f9 fc fe ff fc e7 cf 9f 3f 7f ff 80 d1 60 bf
+                hex 3f b2 d5 80 45 08 fe f8 a1 bd 81 ff 00 f8 6a 4a
+                hex 03 ff 00 fb 95 65 0c ff 00 06 07 58 bb 85 87 00
+                hex ff 98 08 fb 5a 66 3c 00 ff 1d 0c ba b4 fc 00 ff
+                hex 03 0a ff 1f 58 08 ff 78 01 03 07 ff ff 66 33 19
+                hex 8c c6 63 31 18 ff b3 66 cc 98 31 63 c6 8c b2 a5
+                hex 80 d1 80 45 7b 81 bd a1 af a1 bd 72 03 4a 5a 6a  ; $ba07
+                hex 58 76 f3 9a 6a 4a 7a 78 f7 15 f5 85 7f 3c 66 5a
+                hex 7a 3a 66 5e 63 fc b4 84 b4 52 2a 7f 01 03 07 0f
+                hex 1f 3f 7f ff df 6f b7 db 6d 36 9b cd ff fd fb f6
+                hex ed db b6 6c d9 b3 f5 39 00 ff 00 ff e0 e7 cf ff
+                hex e7 00 ff 00 ff 00 ff 01 6e 80 6e bf 6e ce 9c 39
+                hex 73 e7 cf a3 57 f0 9f 3f 7f ff e0 02 01 00 01 01
+                hex 39 00 ff 00 ff e0 4c 99 ff a2 d5 80 45 87 fe ff
+                hex fe ff 07 ff 00 ff ff 09 12 24 49 93 26 4c 99 ff
+                hex 33 67 ce 9c 39 73 e7 cf b2 db 80 d1 87 3f 7f bf
+                hex 3f 87 00 01 02 04 86 40 41 42 9e 00 3f c0 3f ff
+                hex 06 c0 00 4d 80 ef 80 17 87 ef ee ed eb 80 17 e0
+                hex ed ee ef 80 17 81 ef f7 81 17 0b 32 f8 8e fe 7e
+                hex be de 02 7f 9c 00 30 3c 3f c0 1f 3f 87 05 3b c7
+                hex df 12 b7 87 d0 ee f1 fc 01 80 c0 fc fe 81 00 0f
+                hex 80 05 81 07 ff 02 df 80 d0 81 f0 ff 01 f8 03 03
+                hex 06 03 03 07 03 ff 00 78 3f 70 60 ff 03 fe 80 02  ; $bb07
+                hex 80 4f 80 02 87 4f 6f 7f 3f b8 02 03 01 00 d8 0f
+                hex 03 01 00 57 fe 82 c6 7c 38 09 14 c0 00 5f fe 22
+                hex 62 f2 de 9c 28 66 00 7f 1e 3e 70 e0 70 3e 1e 09
+                hex 5e fe 1c 38 1c fe 53 fe 92 fe 6c 7f c4 e6 f2 b2
+                hex ba 9e 8c 7f 1e 04 18 00 08 14 1e 09 3c 80 e0 60
+                hex 00 3a 80 84 fe 80 77 0c 9e 92 d2 7e 3c 73 6c fe
+                hex 92 fe 6c 09 7f 40 c2 92 9a 9e f6 62 7b 38 7c c6
+                hex 82 c6 44 7b 78 fc 96 92 f2 60 5f fe 30 78 ec c6
+                hex 82 09 3c 80 ec 6c 00 2a 02 fe 02 51 fe 12 02 73
+                hex 7e fe 80 fe 7e 02 a8 b7 63 7f 63 36 1c 00 ed 63
+                hex 77 7f 6b 63 00 0d 60 30 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 03 2a 2a 02 fe 02 51 fe 92 82 5e fe 1c
+                hex 38 70 fe 83 af 2a 82 fe 82 77 4c de 92 96 f4 60
+                hex 07 08 1c 3c 3a c0 f0 f8 fc 90 7c bc 80 fc 03 f7
+                hex 80 40 80 fc 83 40 80 00 80 fc 97 fc f8 f0 c0 00  ; $bc07
+                hex 20 ff 20 ff b2 bf da 45 42 41 40 20 1e 3f c0 3f
+                hex 00 a0 aa ff 0e 00 ff 00 e0 af df ff 0e 00 ff 00
+                hex e0 db 88 ff 9d 80 f4 61 0f 2f ef 80 f4 c3 0f cf
+                hex 0f af 80 f4 a7 af 4f 0f ef 0f 80 f4 ac 0f ef 0f
+                hex 8f 4d b0 7b fb db 80 f4 b1 1b fb db fb 80 f4 b9
+                hex 1b fb 1b 3b 5b 80 f4 f8 5b bb fb 7b 3b 80 f4 4d
+                hex c1 fb 7b fb 80 f4 e5 3b 9b 5b 1b fb 80 f4 81 fb
+                hex 7b 80 f4 e0 3b 7b fb 80 f4 2c 0e fe 01 ff 18 01
+                hex ff de ee de be 7e fe fd d0 3f 7f ff 82 80 00 80
+                hex fe 88 bb ba 88 fe ff 58 af e0 ff 00 52 55 75 af
+                hex 3f ff 00 20 50 47 cf f8 ff 00 27 24 26 cf 07 ff
+                hex 7f 63 79 7c a4 a7 01 00 61 3c 1c a7 fc 00 f9 00
+                hex 3a 07 e0 70 37 07 1f 00 c0 a4 07 df c1 c0 06 9f
+                hex d0 06 9f 03 07 80 00 7e 58 c7 fe ff 83 f9 c1 3f
+                hex 80 c0 e0 f0 f8 fc 1f 01 03 07 0f 1f e0 3f 7f ff
+                hex 52 fe 80 ee 80 d1 80 80 80 7e 80 bb 80 45 ca f1  ; $bd07
+                hex f8 80 ff a5 90 0c 00 0c c0 c1 86 c1 c0 00 01 81
+                hex a2 45 fd ef fe 7c 38 18 0c fc c0 01 00 f8 f3 f9
+                hex fc fe ff b2 7d fc e7 cf 9f 3f 7f ff 80 d1 60 bf
+                hex 3f 80 45 08 fe fb 88 be 80 ff 00 18 1c 58 f8 5e
+                hex 42 7e 00 ff f8 95 b5 fd 00 ff f8 2a 6a fb 00 ff
+                hex fa ad b3 9e 00 ff fc 58 0a ff 7c 0a ff 7f 08 ff
+                hex 78 01 03 07 ff b2 5a ff 99 cc e6 73 39 9c ce e7
+                hex ff 4c 99 33 67 ce 9c 39 73 80 d1 80 45 58 60 1c
+                hex 14 7b 7e 42 5e 50 5e 42 72 fd b5 a5 95 72 fb 6a
+                hex 4a 2a 52 8a 7f 9e b3 ad bd 9d b3 af 7f 01 03 07
+                hex 0f 1f 3f 7f ff df 6f b7 db 6d 36 9b cd b3 7d ff
+                hex 02 04 09 12 24 49 93 26 39 00 ff 00 ff e0 e7 cf
+                hex ff e7 00 ff 00 ff 00 ff 01 6e 80 6e a4 ff 33 e7
+                hex ce 1c f9 f3 e7 0f f0 9f 3f 7f ff 03 80 40 01 01
+                hex b3 f5 39 00 ff 00 ff e0 4c 99 ff e7 00 ff 00 ff
+                hex 00 ff 01 05 80 05 ff 09 12 24 49 93 26 4c 99 b2  ; $be07
+                hex 76 ff 33 67 ce 9c 39 73 e7 cf 80 d1 87 3f 7f bf
+                hex 3f 87 00 01 02 04 86 40 41 42 4d a0 f7 ef a0 0b
+                hex 17 80 ef 80 17 87 ef ee ed eb 80 17 e0 ed ee ef
+                hex 80 17 12 fe 9c ff 01 fe ff 06 01 00 8e fe 7e be
+                hex de 02 7f 1c 30 3c 3f c0 1f 3f 87 05 3b c7 df 12
+                hex ad 80 ff 87 d0 ee f1 fc 01 80 c0 fc fe 81 00 0f
+                hex 42 f7 80 05 81 02 fa 80 d0 81 20 2f 01 f8 03 03
+                hex 06 01 01 4d 80 02 f8 0d 3d 7d 6d 4d 80 02 80 4d
+                hex 80 02 87 4d 6d 7d 3d b8 02 03 01 00 e0 0d 01 00
+                hex 09 57 fe 82 c6 7c 38 14 c0 00 73 7c fe 82 fe 7c
+                hex 5f fe 22 62 f2 de 9c 08 55 30 00 30 00 d3 3e 63
+                hex 03 0f 00 b7 63 7f 63 36 1c 00 c1 3e 63 00 08 99
+                hex 0c 1e 33 00 c7 3f 0c 1c 0c 00 bf 06 7f 66 36 1e
+                hex 0e 00 1f 25 26 74 24 00 09 3c 80 e0 60 00 77 0c
+                hex 9e 92 d2 7e 3c 73 6c fe 92 fe 6c 53 fe 22 3e 1c
+                hex 09 7b 38 7c c6 82 c6 44 7b 78 fc 96 92 f2 60 5f  ; $bf07
+                hex fe 30 78 ec c6 82 53 fe 92 fe 6c 09 7e 38 7c c6
+                hex 82 92 f2 3c 80 ec 6c 00 52 fe 10 fe 5e fe 1c 38
+                hex 1c fe 09 28 fe 80 51 fe 12 02 5e fe 70 38 70 fe
+                hex 78 08 0e 06 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
                 pad $c000, $00
 
