@@ -3251,86 +3251,46 @@ dat12           hex 00 00 00 00 00 00 00 00  ; $8b72 (unaccessed)
 
                 ; unaccessed chunk
                 ;
-                hex d6 5a 6b b5 d6 5a ab b5    ; $c000
-                hex d6 5a ad b5 d6 6a ad b5
-                hex 5a 6b ad d5 5a 6b ad d6
-                hex 5a 6b b5 d6 5a ab b5 d6
-                hex 0a 00 00 00 6b ad b5 5a
-                hex 6b ad d5 5a 6b ad d6 5a
-                hex ab b5 d6 5a ad b5 d6 6a
-                hex ad b5 56 6b ad b5 5a 6b
-                hex ad 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex b6 d6 5a 6b 6b ad b5 d6
-                hex d6 5a 6b ad ad b5 d6 5a
-                hex 5b 6b ad b5 b6 d6 5a 6b
-                hex 6d ad b5 d6 02 00 00 a0
-                hex ad b5 d6 5a 5b 6b ad b5
-                hex b6 d6 5a 6b 6d ad b5 d6
-                hex da 5a 6b ad b5 b5 d6 5a
-                hex 6b 6b ad b5 b6 d6 5a 6b
-                hex 6d ad b5 d6 da 5a 6b ad
-                hex b5 b5 d6 5a 6b 6b ad b5
-                hex d6 d6 5a 6b 2d 00 00 00
-                hex da 5a 6b ad b5 b5 d6 5a
-                hex 6b 6b ad b5 d6 d6 5a 6b
-                hex ad ad b5 d6 5a 5b 6b ad
-                hex b5 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex b6 b6 d6 d6 d6 da da 5a
-                hex 5b 5b 6b 6b 6b 6d 6d ad
-                hex ad ad b5 b5 b5 b6 b6 d6
-                hex d6 02 00 00 50 5b 5b 6b
-                hex 6b 6b 6d 6d ad ad ad b5
-                hex b5 b5 b6 b6 d6 d6 d6 da
-                hex da 5a 5b 5b 6b 6b 6b 6d
-                hex 6d ad ad ad b5 b5 b5 b6
-                hex b6 d6 d6 d6 da da 5a 5b
-                hex 5b 6b 6b 2b 00 00 00 ad
-                hex ad b5 b5 b5 b6 b6 d6 d6
-                hex da da 5a 5b 5b 6b 6b 6b
-                hex 6d 6d ad ad ad b5 b5 b5
-                hex b6 b6 d6 d6 d6 da da 5a
-                hex 5b 5b 6b 6b 6b 6d 6d ad
-                hex ad ad b5 b5 b5 b6 00 00
-                hex 00 d4 da da 5a 5b 5b 6b
-                hex 6b 6b 6d 6d ad ad ad b5
-                hex b5 b5 b6 b6 d6 d6 d6 da
-                hex da 5a 5b 5b 6b 6b 6b 6d
-                hex 6d ad ad ad b5 b5 b5 b6
-                hex b6 d6 d6 d6 da da 5a 5b
-                hex 0b 00 00 40 6d ad ad ad
-                hex b5 b5 b5 b6 b6 d6 d6 d6
-                hex da da 5a 5b 5b 6b 6b 6b
-                hex 6d 6d ad ad ad b5 b5 b5
-                hex b6 b6 d6 d6 d6 da da 5a
-                hex 5b 5b 6b 6b 6b 6d 6d ad
-                hex ad ad b5 00 00 00 b4 d6
-                hex d6 d6 da da 5a 5b 5b 6b
-                hex 6b 6b 6d 6d ad ad ad b5
-                hex b5 b5 b6 b6 d6 d6 d6 da
-                hex da 5a 5b 5b 6b 6b 6b 6d
-                hex ad ad ad b5 b5 b5 b6 b6
-                hex d6 d6 d6 da da 02 00 00
-                hex 60 6b 6b 6d 6d ad ad ad
-                hex b5 b5 b5 b6 b6 d6 d6 d6
-                hex da da 5a 5b 5b 6b 6b 6b
-                hex 6d 6d ad ad ad b5 b5 b5
-                hex b6 b6 d6 d6 d6 da da 5a
-                hex 5b 5b 6b 6b 6b 6d 6d 2d
-                hex 00 00 00 b5 b5 b6 b6 d6
-                hex d6 d6 da da 5a 5b 5b 6b
-                hex 6b 6b 6d 6d ad ad ad b5
-                hex b5 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
-                hex 55 55 55 55 55 55 55 55
+                hex d6 5a 6b b5 d6 5a ab b5 d6 5a ad b5 d6 6a ad b5  ; $c000
+                hex 5a 6b ad d5 5a 6b ad d6 5a 6b b5 d6 5a ab b5 d6
+                hex 0a 00 00 00 6b ad b5 5a 6b ad d5 5a 6b ad d6 5a
+                hex ab b5 d6 5a ad b5 d6 6a ad b5 56 6b ad b5 5a 6b
+                hex ad 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+                hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+                hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+                hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+                hex b6 d6 5a 6b 6b ad b5 d6 d6 5a 6b ad ad b5 d6 5a
+                hex 5b 6b ad b5 b6 d6 5a 6b 6d ad b5 d6 02 00 00 a0
+                hex ad b5 d6 5a 5b 6b ad b5 b6 d6 5a 6b 6d ad b5 d6
+                hex da 5a 6b ad b5 b5 d6 5a 6b 6b ad b5 b6 d6 5a 6b
+                hex 6d ad b5 d6 da 5a 6b ad b5 b5 d6 5a 6b 6b ad b5
+                hex d6 d6 5a 6b 2d 00 00 00 da 5a 6b ad b5 b5 d6 5a
+                hex 6b 6b ad b5 d6 d6 5a 6b ad ad b5 d6 5a 5b 6b ad
+                hex b5 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+                hex b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b 6d 6d ad  ; $c100
+                hex ad ad b5 b5 b5 b6 b6 d6 d6 02 00 00 50 5b 5b 6b
+                hex 6b 6b 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da
+                hex da 5a 5b 5b 6b 6b 6b 6d 6d ad ad ad b5 b5 b5 b6
+                hex b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 2b 00 00 00 ad
+                hex ad b5 b5 b5 b6 b6 d6 d6 da da 5a 5b 5b 6b 6b 6b
+                hex 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da da 5a
+                hex 5b 5b 6b 6b 6b 6d 6d ad ad ad b5 b5 b5 b6 00 00
+                hex 00 d4 da da 5a 5b 5b 6b 6b 6b 6d 6d ad ad ad b5
+                hex b5 b5 b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b 6d
+                hex 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da da 5a 5b
+                hex 0b 00 00 40 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6
+                hex da da 5a 5b 5b 6b 6b 6b 6d 6d ad ad ad b5 b5 b5
+                hex b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b 6d 6d ad
+                hex ad ad b5 00 00 00 b4 d6 d6 d6 da da 5a 5b 5b 6b
+                hex 6b 6b 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da
+                hex da 5a 5b 5b 6b 6b 6b 6d ad ad ad b5 b5 b5 b6 b6  ; $c200
+                hex d6 d6 d6 da da 02 00 00 60 6b 6b 6d 6d ad ad ad
+                hex b5 b5 b5 b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b
+                hex 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da da 5a
+                hex 5b 5b 6b 6b 6b 6d 6d 2d 00 00 00 b5 b5 b6 b6 d6
+                hex d6 d6 da da 5a 5b 5b 6b 6b 6b 6d 6d ad ad ad b5
+                hex b5 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
+                hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
 
                 hex 01 93 c2 8f c2 14 c3 bf  ; $c280
                 hex c3 3f c4 2a c5 3d c5
@@ -3358,501 +3318,460 @@ dat12           hex 00 00 00 00 00 00 00 00  ; $8b72 (unaccessed)
                 hex 7f                       ; $c2fd
                 hex 00 00 00                 ; $c2fe (unaccessed)
 
-                hex c0 02 cf 00 03 00 c0 be  ; $c301
-                hex bd bd be bf c1 c2 c3 c3  ; $c309
-                hex c2 00 01 fb 12 78 69 01  ; $c311
-                hex 80 11 81 15 81 21 81 22  ; $c319
-                hex 81 11 81 1d 81 11 81 1f  ; $c321
-                hex 81 1d 81 11 81 18 81 15  ; $c329
-                hex 81 11 81 16 81 15 81 11  ; $c331
-                hex 81 ff 1c 1a c3 11 81 15  ; $c339
-                hex 81 69 01 ff 20 1a c3 ff  ; $c341
-                hex 1c 1a c3 11 81 15 81 69  ; $c349
-                hex 01 ff 20 1a c3 ff 1c 1a  ; $c351
-                hex c3 11 81 15 81 69 01 ff  ; $c359
-                hex 20 1a c3 ff 1c 1a c3 11  ; $c361
-                hex 81 15 81 69 01 11 81 16  ; $c369
-                hex 81 19 81 20 81 0c 81 11  ; $c371
-                hex 81 15 81 1d 81 0f 81 13  ; $c379
-                hex 81 16 81 22 81 0a 81 0f  ; $c381
-                hex 81 11 81 16 81 ff 20 6e  ; $c389
-                hex c3 69 01 ff 20 1a c3 ff  ; $c391
-                hex 1c 1a c3 11 81 15 81 69  ; $c399
-                hex 01 ff 20 1a c3 ff 1c 1a  ; $c3a1
-                hex c3 11 81 15 81 69 01 ff  ; $c3a9
-                hex 20 1a c3 ff 1c 1a c3 11  ; $c3b1
-                hex 81 15 81 fd 16 c3 81 74  ; $c3b9
-                hex 68 fd 69 03 ff 20 19 c3  ; $c3c1
-                hex ff 1c 1a c3 11 81 15 81  ; $c3c9
-                hex 68 fd 69 03 ff 20 1a c3  ; $c3d1
-                hex ff 1c 1a c3 11 81 15 81  ; $c3d9
-                hex 68 fd 69 03 ff 20 1a c3  ; $c3e1
-                hex ff 1c 1a c3 11 81 15 81  ; $c3e9
-                hex 68 fd 69 03 ff 20 1a c3  ; $c3f1
-                hex ff 1c 1a c3 11 81 15 81  ; $c3f9
-                hex 68 fd 69 03 ff 20 6e c3  ; $c401
-                hex ff 20 6e c3 68 fd 69 03  ; $c409
-                hex ff 20 1a c3 ff 1c 1a c3  ; $c411
-                hex 11 81 15 81 68 fd 69 03  ; $c419
-                hex ff 20 1a c3 ff 1c 1a c3  ; $c421
-                hex 11 81 15 81 68 fd 69 03  ; $c429
-                hex ff 20 1a c3 ff 1c 1a c3  ; $c431
-                hex 11 81 15 fd bf c3 70 f7  ; $c439
-                hex 87 f7 87 7f 63 f8 c2 64  ; $c441
-                hex 82 35 81 63 06 c3 8b 63  ; $c449
-                hex f8 c2 64 37 81 63 06 c3  ; $c451
-                hex 8b 63 f8 c2 64 3f 81 63  ; $c459
-                hex 06 c3 87 63 f8 c2 64 3e  ; $c461
-                hex 3d 3c 81 63 06 c3 8b 63  ; $c469
-                hex f8 c2 64 41 81 63 06 c3  ; $c471
-                hex 8b 63 f8 c2 64 3c 81 63  ; $c479
-                hex 06 c3 87 63 f8 c2 64 3d  ; $c481
-                hex 3e 3f 81 63 06 c3 8b 63  ; $c489
-                hex f8 c2 64 41 81 63 06 c3  ; $c491
-                hex 8b 63 f8 c2 64 ff 1c 4a  ; $c499
-                hex c4 63 f8 c2 64 41 81 63  ; $c4a1
-                hex 06 c3 87 63 f8 c2 64 3c  ; $c4a9
-                hex 81 63 f8 c2 64 3c 81 63  ; $c4b1
-                hex 06 c3 85 3b 81 63 f8 c2  ; $c4b9
-                hex 64 3a 63 f8 c2 64 3a 81  ; $c4c1
-                hex 63 06 c3 87 63 f8 c2 64  ; $c4c9
-                hex 35 81 63 06 c3 37 81 63  ; $c4d1
-                hex f8 c2 64 38 81 63 06 c3  ; $c4d9
-                hex 37 81 63 f8 c2 64 3c 81  ; $c4e1
-                hex ff 16 a2 c4 63 f8 c2 64  ; $c4e9
-                hex 33 81 63 f8 c2 64 ff 1c  ; $c4f1
-                hex 4a c4 29 24 29 24 29 24  ; $c4f9
-                hex 29 24 29 24 29 24 29 24  ; $c501
-                hex 29 24 29 22 29 22 29 22  ; $c509
-                hex 29 22 29 1f 29 1f 29 1f  ; $c511
-                hex 29 1f ff 20 fb c4 ff 20  ; $c519
-                hex fb c4 ff 20 fb c4 fd 3f  ; $c521
-                hex c4 f7 87 f7 87 f7 87 f7  ; $c529
-                hex 87 f7 87 f7 87 f7 87 f7  ; $c531
-                hex 87 fd 2a c5 6a 02 05 8d  ; $c539
-                hex 6a 02 0c 8d 6a 02 0a 8d  ; $c541
-                hex 6a 02 07 8d 6a 02 11 8d  ; $c549
-                hex 6a 02 0c 8d 6a 02 0a 8d  ; $c551
-                hex 6a 02 07 8d ff 10 3d c5  ; $c559
-                hex ff 10 3d c5 ff 10 3d c5  ; $c561
-                hex 6a 02 05 8d 6a 02 0c 8d  ; $c569
-                hex 6a 02 0f 8d 6a 02 0a 8d  ; $c571
-                hex 6a 02 11 8d 6a 02 0c 8d  ; $c579
-                hex 6a 02 0f 8d 6a 02 0a 8d  ; $c581
-                hex ff 10 3d c5 ff 10 3d c5  ; $c589
-                hex ff 10 3d c5 fd 3d c5     ; $c591
+                hex c0 02 cf 00 03 00 c0 be bd bd be bf c1 c2 c3 c3  ; $c301
+                hex c2 00 01 fb 12 78 69 01 80 11 81 15 81 21 81 22
+                hex 81 11 81 1d 81 11 81 1f 81 1d 81 11 81 18 81 15
+                hex 81 11 81 16 81 15 81 11 81 ff 1c 1a c3 11 81 15
+                hex 81 69 01 ff 20 1a c3 ff 1c 1a c3 11 81 15 81 69
+                hex 01 ff 20 1a c3 ff 1c 1a c3 11 81 15 81 69 01 ff
+                hex 20 1a c3 ff 1c 1a c3 11 81 15 81 69 01 11 81 16
+                hex 81 19 81 20 81 0c 81 11 81 15 81 1d 81 0f 81 13
+                hex 81 16 81 22 81 0a 81 0f 81 11 81 16 81 ff 20 6e
+                hex c3 69 01 ff 20 1a c3 ff 1c 1a c3 11 81 15 81 69
+                hex 01 ff 20 1a c3 ff 1c 1a c3 11 81 15 81 69 01 ff
+                hex 20 1a c3 ff 1c 1a c3 11 81 15 81 fd 16 c3 81 74
+                hex 68 fd 69 03 ff 20 19 c3 ff 1c 1a c3 11 81 15 81
+                hex 68 fd 69 03 ff 20 1a c3 ff 1c 1a c3 11 81 15 81
+                hex 68 fd 69 03 ff 20 1a c3 ff 1c 1a c3 11 81 15 81
+                hex 68 fd 69 03 ff 20 1a c3 ff 1c 1a c3 11 81 15 81
+                hex 68 fd 69 03 ff 20 6e c3 ff 20 6e c3 68 fd 69 03  ; $c401
+                hex ff 20 1a c3 ff 1c 1a c3 11 81 15 81 68 fd 69 03
+                hex ff 20 1a c3 ff 1c 1a c3 11 81 15 81 68 fd 69 03
+                hex ff 20 1a c3 ff 1c 1a c3 11 81 15 fd bf c3 70 f7
+                hex 87 f7 87 7f 63 f8 c2 64 82 35 81 63 06 c3 8b 63
+                hex f8 c2 64 37 81 63 06 c3 8b 63 f8 c2 64 3f 81 63
+                hex 06 c3 87 63 f8 c2 64 3e 3d 3c 81 63 06 c3 8b 63
+                hex f8 c2 64 41 81 63 06 c3 8b 63 f8 c2 64 3c 81 63
+                hex 06 c3 87 63 f8 c2 64 3d 3e 3f 81 63 06 c3 8b 63
+                hex f8 c2 64 41 81 63 06 c3 8b 63 f8 c2 64 ff 1c 4a
+                hex c4 63 f8 c2 64 41 81 63 06 c3 87 63 f8 c2 64 3c
+                hex 81 63 f8 c2 64 3c 81 63 06 c3 85 3b 81 63 f8 c2
+                hex 64 3a 63 f8 c2 64 3a 81 63 06 c3 87 63 f8 c2 64
+                hex 35 81 63 06 c3 37 81 63 f8 c2 64 38 81 63 06 c3
+                hex 37 81 63 f8 c2 64 3c 81 ff 16 a2 c4 63 f8 c2 64
+                hex 33 81 63 f8 c2 64 ff 1c 4a c4 29 24 29 24 29 24
+                hex 29 24 29 24 29 24 29 24 29 24 29 22 29 22 29 22  ; $c501
+                hex 29 22 29 1f 29 1f 29 1f 29 1f ff 20 fb c4 ff 20
+                hex fb c4 ff 20 fb c4 fd 3f c4 f7 87 f7 87 f7 87 f7
+                hex 87 f7 87 f7 87 f7 87 f7 87 fd 2a c5 6a 02 05 8d
+                hex 6a 02 0c 8d 6a 02 0a 8d 6a 02 07 8d 6a 02 11 8d
+                hex 6a 02 0c 8d 6a 02 0a 8d 6a 02 07 8d ff 10 3d c5
+                hex ff 10 3d c5 ff 10 3d c5 6a 02 05 8d 6a 02 0c 8d
+                hex 6a 02 0f 8d 6a 02 0a 8d 6a 02 11 8d 6a 02 0c 8d
+                hex 6a 02 0f 8d 6a 02 0a 8d ff 10 3d c5 ff 10 3d c5
+                hex ff 10 3d c5 fd 3d c5
 
-nmi             inc ptr1+0                   ; $c598: e6 00
-                pha                          ; $c59a: push A, Y, X
+nmi             inc ptr1+0              ; $c598
+                pha                     ; push A, Y, X
                 tya
                 pha
                 txa
                 pha
-                lda ram31                    ; c59f: a5 a7
-                beq +++                     ; c5a1: f0 72
-                lda ram30                    ; c5a3: a5 a6
-                pha                          ; c5a5: 48
-                lda ram11                    ; c5a6: a5 59
-                bpl ++                        ; c5a8: 10 5d
-                lda #$18                     ; c5aa: a9 18
-                sta ppu_mask                 ; c5ac: 8d 01 20
-                lda ram12                    ; c5af: a5 73
-                ora #%00000100               ; c5b1: 09 04
-                sta ppu_ctrl                 ; c5b3: 8d 00 20
-                ldy ram19                    ; c5b6: a4 7b
-                cpy #$20                     ; c5b8: c0 20
-                bcs +                        ; c5ba: b0 12
-                lda #$20                     ; c5bc: a9 20
-                sta ppu_addr                 ; c5be: 8d 06 20
-                sty ppu_addr                 ; c5c1: 8c 06 20
-                ldy #$1d                     ; c5c4: a0 1d
-                lda ram20                    ; c5c6: a5 7c
--               sta ppu_data                 ; c5c8: 8d 07 20
-                dey                          ; c5cb: 88
-                bpl -                        ; c5cc: 10 fa
-+               ldy ram21                    ; c5ce: a4 7d
-                cpy #$20                     ; c5d0: c0 20
-                bcs +                        ; c5d2: b0 17
-                lda #$20                     ; c5d4: a9 20
-                sta ppu_addr                 ; c5d6: 8d 06 20
-                lda ram21                    ; c5d9: a5 7d
-                sta ppu_addr                 ; c5db: 8d 06 20
-                ldy #0                     ; c5de: a0 00
--               lda arr1,y                   ; c5e0: b9 7e 00
-                sta ppu_data                 ; c5e3: 8d 07 20
-                iny                          ; c5e6: c8
-                cpy #$1e                     ; c5e7: c0 1e
-                bne -                        ; c5e9: d0 f5
-+               jsr sub31                    ; c5eb: 20 a2 d5
+                lda ram31
+                beq +++
+                lda ram30
+                pha
+                lda ram11
+                bpl ++
+                lda #$18
+                sta ppu_mask
+                lda ram12
+                ora #%00000100
+                sta ppu_ctrl
+                ldy ram19
+                cpy #$20
+                bcs +
+                lda #$20
+                sta ppu_addr
+                sty ppu_addr
+                ldy #$1d
+                lda ram20
+-               sta ppu_data
+                dey
+                bpl -
++               ldy ram21
+                cpy #$20
+                bcs +
+                lda #$20
+                sta ppu_addr
+                lda ram21
+                sta ppu_addr
+                ldy #0
+-               lda arr1,y
+                sta ppu_data
+                iny
+                cpy #$1e
+                bne -
++               jsr sub31
                 ;
-                lda #$00                     ; do OAM DMA
+                lda #$00                ; do OAM DMA
                 sta oam_addr
                 lda #>sprite_data
                 sta oam_dma
                 ;
-                lda ram12                    ; c5f8: a5 73
-                sta ppu_ctrl                 ; c5fa: 8d 00 20
-                lda ram9                    ; c5fd: a5 3f
-                sta ppu_scroll               ; c5ff: 8d 05 20
-                lda ram10                    ; c602: a5 53
-                sta ppu_scroll               ; c604: 8d 05 20
-++              lda #$02                     ; c607: a9 02
-                jsr sub25                    ; c609: 20 3f d5
-                jsr sub7                    ; c60c: 20 1b 82
-                pla                          ; c60f: 68
-                sta ram30                    ; c610: 85 a6
-                jsr sub25                    ; c612: 20 3f d5
+                lda ram12
+                sta ppu_ctrl
+                lda ram9
+                sta ppu_scroll
+                lda ram10
+                sta ppu_scroll
+++              lda #$02
+                jsr sub25
+                jsr sub7
+                pla
+                sta ram30
+                jsr sub25
                 ;
-+++             pla                          ; pull X, Y, A
++++             pla                     ; pull X, Y, A
                 tax
                 pla
                 tay
                 pla
                 rti
 
-irq             rti                             ; $c61b (unaccessed)
+irq             rti                     ; $c61b (unaccessed)
 
                 ; unaccessed chunk
-                hex 0f 01 02 04 08 10 20        ; $c61c
-                hex 40 80 00 10 20 30 40 50
-                hex 60 70 80 90 a0 b0 c0 d0
-                hex e0 f0
+                hex 0f 01 02 04 08 10 20 40  ; $c61c
+                hex 80 00 10 20 30 40 50 60
+                hex 70 80 90 a0 b0 c0 d0 e0
+                hex f0
 
-sub15           lda ram1                     ; $c635
-                sta ram2                     ; c637: 85 03
-                lda ram4                     ; c639: a5 05
-                sta ram5                     ; c63b: 85 06
-                lda #$01                     ; c63d: a9 01
-                sta ram1                     ; c63f: 85 02
-                sta ptr3+0                   ; c641: 85 0e
-                sta ram4                     ; c643: 85 05
-                sta ptr3+1                    ; c645: 85 0f
-                sta joypad1                  ; c647: 8d 16 40
-                lsr a                        ; c64a: 4a
-                sta joypad1                  ; c64b: 8d 16 40
--               lda joypad1                  ; c64e: ad 16 40
-                and #%00000011               ; c651: 29 03
-                cmp #$01                     ; c653: c9 01
-                rol ram1                     ; c655: 26 02
-                lda joypad2                  ; c657: ad 17 40
-                and #%00000011               ; c65a: 29 03
-                cmp #$01                     ; c65c: c9 01
-                rol ram4                     ; c65e: 26 05
-                bcc -                        ; c660: 90 ec
-                lda #$01                     ; c662: a9 01
-                sta joypad1                  ; c664: 8d 16 40
-                lsr a                        ; c667: 4a
-                sta joypad1                  ; c668: 8d 16 40
--               lda joypad1                  ; c66b: ad 16 40
-                and #%00000011               ; c66e: 29 03
-                cmp #$01                     ; c670: c9 01
-                rol ptr3+0                   ; c672: 26 0e
-                lda joypad2                  ; c674: ad 17 40
-                and #%00000011               ; c677: 29 03
-                cmp #$01                     ; c679: c9 01
-                rol ptr3+1                    ; c67b: 26 0f
-                bcc -                        ; c67d: 90 ec
-                lda ptr3+0                     ; c67f: a5 0e
-                cmp ram1                     ; c681: c5 02
-                beq +                        ; c683: f0 04
-                lda ram2                     ; c685: a5 03    (unaccessed)
-                sta ram1                     ; c687: 85 02    (unaccessed)
-+               lda ptr3+1                    ; c689: a5 0f
-                cmp ram4                     ; c68b: c5 05
-                beq +                        ; c68d: f0 04
-                lda ram5                     ; c68f: a5 06    (unaccessed)
-                sta ram4                     ; c691: 85 05    (unaccessed)
-+               lda ram1                     ; c693: a5 02
-                and #%00000011               ; c695: 29 03
-                cmp #$03                     ; c697: c9 03
-                bne +                        ; c699: d0 04
-                eor ram1                     ; c69b: 45 02    (unaccessed)
-                sta ram1                     ; c69d: 85 02    (unaccessed)
-+               lda ram1                     ; c69f: a5 02
-                and #%00001100               ; c6a1: 29 0c
-                cmp #$0c                     ; c6a3: c9 0c
-                bne +                        ; c6a5: d0 04
-                eor ram1                     ; c6a7: 45 02    (unaccessed)
-                sta ram1                     ; c6a9: 85 02    (unaccessed)
-+               lda ram4                     ; c6ab: a5 05
-                and #%00000011               ; c6ad: 29 03
-                cmp #$03                     ; c6af: c9 03
-                bne +                        ; c6b1: d0 04
-                eor ram4                     ; c6b3: 45 05    (unaccessed)
-                sta ram4                     ; c6b5: 85 05    (unaccessed)
-+               lda ram4                     ; c6b7: a5 05
-                and #%00001100               ; c6b9: 29 0c
-                cmp #$0c                     ; c6bb: c9 0c
-                bne +                        ; c6bd: d0 04
-                eor ram4                     ; c6bf: 45 05    (unaccessed)
-                sta ram4                     ; c6c1: 85 05    (unaccessed)
-+               lda ram1                     ; c6c3: a5 02
-                ora ram2                     ; c6c5: 05 03
-                eor ram2                     ; c6c7: 45 03
-                sta ram3                     ; c6c9: 85 04
-                lda ram4                     ; c6cb: a5 05
-                ora ram5                     ; c6cd: 05 06
-                eor ram5                     ; c6cf: 45 06
-                sta ram6                     ; c6d1: 85 07
-                rts                          ; c6d3: 60
+sub15           lda ram1                ; $c635
+                sta ram2
+                lda ram4
+                sta ram5
+                lda #$01
+                sta ram1
+                sta ptr3+0
+                sta ram4
+                sta ptr3+1
+                sta joypad1
+                lsr a
+                sta joypad1
+-               lda joypad1
+                and #%00000011
+                cmp #$01
+                rol ram1
+                lda joypad2
+                and #%00000011
+                cmp #$01
+                rol ram4
+                bcc -
+                lda #$01
+                sta joypad1
+                lsr a
+                sta joypad1
+-               lda joypad1
+                and #%00000011
+                cmp #$01
+                rol ptr3+0
+                lda joypad2
+                and #%00000011
+                cmp #$01
+                rol ptr3+1
+                bcc -
+                lda ptr3+0
+                cmp ram1
+                beq +
+                lda ram2                ; $c685 (unaccessed)
+                sta ram1                ; (unaccessed)
++               lda ptr3+1
+                cmp ram4
+                beq +
+                lda ram5                ; $c68f (unaccessed)
+                sta ram4                ; (unaccessed)
++               lda ram1
+                and #%00000011
+                cmp #$03
+                bne +
+                eor ram1                ; $c69b (unaccessed)
+                sta ram1                ; (unaccessed)
++               lda ram1
+                and #%00001100
+                cmp #$0c
+                bne +
+                eor ram1                ; $c6a7 (unaccessed)
+                sta ram1                ; (unaccessed)
++               lda ram4
+                and #%00000011
+                cmp #$03
+                bne +
+                eor ram4                ; $c6b3 (unaccessed)
+                sta ram4                ; (unaccessed)
++               lda ram4
+                and #%00001100
+                cmp #$0c
+                bne +
+                eor ram4                ; $c6bf (unaccessed)
+                sta ram4                ; (unaccessed)
++               lda ram1
+                ora ram2
+                eor ram2
+                sta ram3
+                lda ram4
+                ora ram5
+                eor ram5
+                sta ram6
+                rts
 
-reset           sei                          ; c6d4: 78
-                ldx #$00                     ; c6d5: a2 00
-                stx ppu_ctrl                 ; c6d7: 8e 00 20
-                stx ppu_mask                 ; c6da: 8e 01 20
-                cld                          ; c6dd: d8
-                lda #$40                     ; c6de: a9 40
-                sta joypad2                  ; c6e0: 8d 17 40
-                stx dmc_freq                 ; c6e3: 8e 10 40
-                stx snd_chn                  ; c6e6: 8e 15 40
-                bit ppu_status               ; c6e9: 2c 02 20
--               bit ppu_status               ; c6ec: 2c 02 20
-                bpl -                        ; c6ef: 10 fb
-                txa                          ; c6f1: 8a
-                ldy #$07                     ; c6f2: a0 07
-                sty ptr1+1                     ; c6f4: 84 01
-                tay                          ; c6f6: a8
-                sta ptr1+0                     ; c6f7: 85 00
--               sta (ptr1),y                 ; c6f9: 91 00
-                iny                          ; c6fb: c8
-                bne -                        ; c6fc: d0 fb
-                dec ptr1+1                     ; c6fe: c6 01
-                bpl -                        ; c700: 10 f7
-                sta ptr1+1                     ; c702: 85 01
-                ldx #$f0                     ; c704: a2 f0
-                txs                          ; c706: 9a
--               bit ppu_status               ; c707: 2c 02 20
-                bpl -                        ; c70a: 10 fb
-                lda #$21                     ; c70c: a9 21
-                sta ram19                    ; c70e: 85 7b
-                sta ram21                    ; c710: 85 7d
-                lda #$cf                     ; c712: a9 cf
-                sta ram18                    ; c714: 85 7a
-                lda #$00                     ; c716: a9 00
-                sta ram11                    ; c718: 85 59
-                sta ram31                    ; c71a: 85 a7
-                ldy #$88                     ; c71c: a0 88
-                sty ram12                    ; c71e: 84 73
-                sty ppu_ctrl                 ; c720: 8c 00 20
-                jsr sub34                    ; c723: 20 d0 ff
-                tay                          ; c726: a8
-                lda dat26,y                  ; c727: b9 ef ff
-                sta ptr3+0                     ; c72a: 85 0e
-                sta ram49                    ; c72c: 85 ff
-                lda #$02                     ; c72e: a9 02
-                jsr sub25                    ; c730: 20 3f d5
-                ldx #$80                     ; c733: a2 80
-                ldy #$c2                     ; c735: a0 c2
-                lda ptr3+0                     ; c737: a5 0e
-                jsr sub1                     ; c739: 20 00 80
-                lda #$01                     ; c73c: a9 01
-                sta ram31                    ; c73e: 85 a7
-                lda #$00                     ; c740: a9 00
-                sta ram22                    ; c742: 85 9e
-                sta ram11                    ; c744: 85 59
-                sta ram13                    ; c746: 85 75
-                sta ram9                    ; c748: 85 3f
-                sta ram10                    ; c74a: 85 53
-                jsr sub3                     ; c74c: 20 dd 80
-                jsr sub16                     ; c74f: 20 67 c8
-                lda #$20                     ; c752: a9 20
-                sta ptr3+0                     ; c754: 85 0e
-                lda #$00                     ; c756: a9 00
-                sta ptr3+1                    ; c758: 85 0f
-                lda #$ad                     ; c75a: a9 ad
-                sta ptr2+0                     ; c75c: 85 08
-                lda #$cd                     ; c75e: a9 cd
-                sta ptr2+1                     ; c760: 85 09
-                ldy ram13                    ; c762: a4 75
-                lda dat15,y                   ; c764: b9 2c c9
-                jsr sub25                    ; c767: 20 3f d5
-                jsr sub17                     ; c76a: 20 8e c9
-                jsr sub29                    ; c76d: 20 80 d5
-                lda #$3f                     ; c770: a9 3f
-                sta ppu_addr                 ; c772: 8d 06 20
-                lda #$00                     ; c775: a9 00
-                sta ppu_addr                 ; c777: 8d 06 20
-                lda #$bd                     ; c77a: a9 bd
-                sta ptr2+0                     ; c77c: 85 08
-                lda #$d1                     ; c77e: a9 d1
-                sta ptr2+1                     ; c780: 85 09
-                ldy #0                     ; c782: a0 00
--               lda (ptr2),y                 ; c784: b1 08
-                sta arr2,y                   ; c786: 99 a8 00
-                iny                          ; c789: c8
-                cpy #$10                     ; c78a: c0 10
-                bcc -                        ; c78c: 90 f6
-                lda #$3f                     ; c78e: a9 3f
-                sta ppu_addr                 ; c790: 8d 06 20
-                lda #$11                     ; c793: a9 11
-                sta ppu_addr                 ; c795: 8d 06 20
-                lda #$00                     ; c798: a9 00
-                sta ppu_data                 ; c79a: 8d 07 20
-                lda #$10                     ; c79d: a9 10
-                sta ppu_data                 ; c79f: 8d 07 20
-                lda #$20                     ; c7a2: a9 20
-                sta ppu_data                 ; c7a4: 8d 07 20
-                lda #$10                     ; c7a7: a9 10
-                sta ppu_addr                 ; c7a9: 8d 06 20
-                lda #$00                     ; c7ac: a9 00
-                sta ppu_addr                 ; c7ae: 8d 06 20
-                ldy #$00                     ; c7b1: a0 00
-                sty ram11                    ; c7b3: 84 59
--               lda dat22,y                  ; c7b5: b9 8d d2
-                sta ppu_data                 ; c7b8: 8d 07 20
-                iny                          ; c7bb: c8
-                cpy #$70                     ; c7bc: c0 70
-                bcc -                        ; c7be: 90 f5
-                lda #$28                     ; c7c0: a9 28
-                sta ptr3+0                     ; c7c2: 85 0e
-                lda #$00                     ; c7c4: a9 00
-                sta ptr3+1                    ; c7c6: 85 0f
-                lda #$ad                     ; c7c8: a9 ad
-                sta ptr2+0                     ; c7ca: 85 08
-                lda #$c9                     ; c7cc: a9 c9
-                sta ptr2+1                     ; c7ce: 85 09
-                jsr sub17                     ; c7d0: 20 8e c9
-                lda ram12                    ; c7d3: a5 73
-                and #%11111100               ; c7d5: 29 fc
-                ora #%00000010               ; c7d7: 09 02
-                sta ram12                    ; c7d9: 85 73
-                sta ppu_ctrl                 ; c7db: 8d 00 20
-                lda #$00                     ; c7de: a9 00
-                sta ppu_scroll               ; c7e0: 8d 05 20
-                sta ppu_scroll               ; c7e3: 8d 05 20
-                lda #$a5                     ; c7e6: a9 a5
-                sta ram15                    ; c7e8: 85 77
-                jsr sub18                     ; c7ea: 20 fd d2
-                lda #$ff                     ; c7ed: a9 ff
-                sta ram11                    ; c7ef: 85 59
--               jsr sub29                    ; c7f1: 20 80 d5
-                jsr sub22                     ; c7f4: 20 05 d4
-                lda #$00                     ; c7f7: a9 00
-                sta ram11                    ; c7f9: 85 59
-                jsr sub19                     ; c7fb: 20 0b d3
-                lda #$ff                     ; c7fe: a9 ff
-                sta ram11                    ; c800: 85 59
-                jsr sub15                     ; c802: 20 35 c6
-                lda ram3                     ; c805: a5 04
-                and #%10010000               ; c807: 29 90
-                beq -                        ; c809: f0 e6
--               jsr sub29                    ; c80b: 20 80 d5
-                lda #$00                     ; c80e: a9 00
-                sta ram11                    ; c810: 85 59
-                lda ram10                    ; c812: a5 53
+reset           sei                     ; $c6d4
+                ldx #$00
+                stx ppu_ctrl
+                stx ppu_mask
+                cld
+                lda #$40
+                sta joypad2
+                stx dmc_freq
+                stx snd_chn
+                bit ppu_status
+-               bit ppu_status
+                bpl -
+                txa
+                ldy #$07
+                sty ptr1+1
+                tay
+                sta ptr1+0
+-               sta (ptr1),y
+                iny
+                bne -
+                dec ptr1+1
+                bpl -
+                sta ptr1+1
+                ldx #$f0
+                txs
+-               bit ppu_status
+                bpl -
+                lda #$21
+                sta ram19
+                sta ram21
+                lda #$cf
+                sta ram18
+                lda #$00
+                sta ram11
+                sta ram31
+                ldy #$88
+                sty ram12
+                sty ppu_ctrl
+                jsr sub34
+                tay
+                lda dat26,y
+                sta ptr3+0
+                sta ram49
+                lda #$02
+                jsr sub25
+                ldx #$80
+                ldy #$c2
+                lda ptr3+0
+                jsr sub1
+                lda #$01
+                sta ram31
+                lda #$00
+                sta ram22
+                sta ram11
+                sta ram13
+                sta ram9
+                sta ram10
+                jsr sub3
+                jsr sub16
+                lda #$20
+                sta ptr3+0
+                lda #$00
+                sta ptr3+1
+                lda #$ad
+                sta ptr2+0
+                lda #$cd
+                sta ptr2+1
+                ldy ram13
+                lda dat15,y
+                jsr sub25
+                jsr sub17
+                jsr sub29
+                lda #$3f
+                sta ppu_addr
+                lda #$00
+                sta ppu_addr
+                lda #$bd
+                sta ptr2+0
+                lda #$d1
+                sta ptr2+1
+                ldy #0
+-               lda (ptr2),y
+                sta arr2,y
+                iny
+                cpy #$10
+                bcc -
+                lda #$3f
+                sta ppu_addr
+                lda #$11
+                sta ppu_addr
+                lda #$00
+                sta ppu_data
+                lda #$10
+                sta ppu_data
+                lda #$20
+                sta ppu_data
+                lda #$10
+                sta ppu_addr
+                lda #$00
+                sta ppu_addr
+                ldy #$00
+                sty ram11
+-               lda dat22,y
+                sta ppu_data
+                iny
+                cpy #$70
+                bcc -
+                lda #$28
+                sta ptr3+0
+                lda #$00
+                sta ptr3+1
+                lda #$ad
+                sta ptr2+0
+                lda #$c9
+                sta ptr2+1
+                jsr sub17
+                lda ram12
+                and #%11111100
+                ora #%00000010
+                sta ram12
+                sta ppu_ctrl
+                lda #$00
+                sta ppu_scroll
+                sta ppu_scroll
+                lda #$a5
+                sta ram15
+                jsr sub18
+                lda #$ff
+                sta ram11
+-               jsr sub29
+                jsr sub22
+                lda #$00
+                sta ram11
+                jsr sub19
+                lda #$ff
+                sta ram11
+                jsr sub15
+                lda ram3
+                and #%10010000
+                beq -
+-               jsr sub29
+                lda #$00
+                sta ram11
+                lda ram10
                 add #$04
-                cmp #$f0                     ; c817: c9 f0
-                bcs +                        ; c819: b0 0b
-                sta ram10                    ; c81b: 85 53
-                jsr sub19                     ; c81d: 20 0b d3
-                lda #$ff                     ; c820: a9 ff
-                sta ram11                    ; c822: 85 59
-                bne -                        ; c824: d0 e5
-+               jsr sub18                     ; c826: 20 fd d2
-                jsr sub21                     ; c829: 20 db d3
-                lda #$00                     ; c82c: a9 00
-                sta ram10                    ; c82e: 85 53
-                lda ram12                    ; c830: a5 73
-                and #%11111100               ; c832: 29 fc
-                sta ram12                    ; c834: 85 73
--               jsr sub29                    ; c836: 20 80 d5
-                jsr sub22                     ; c839: 20 05 d4
-                lda #$00                     ; c83c: a9 00
-                sta ram22                    ; c83e: 85 9e
-                jsr sub15                     ; c840: 20 35 c6
-                lda #$00                     ; c843: a9 00
-                sta ram11                    ; c845: 85 59
-                jsr sub20                     ; c847: 20 6a d3
-                jsr sub26                    ; c84a: 20 4a d5
-                lda ram3                     ; c84d: a5 04
-                and #%00000011               ; c84f: 29 03
-                beq ++                     ; c851: f0 0d
-                and #%00000010               ; c853: 29 02
-                bne +                        ; c855: d0 06
-                jsr sub23                     ; c857: 20 0f d4
-                jmp ++                     ; c85a: 4c 60 c8
-+               jsr sub24                    ; c85d: 20 ab d4
-++              lda #$ff                     ; c860: a9 ff
-                sta ram11                    ; c862: 85 59
-                jmp -                     ; c864: 4c 36 c8
+                cmp #$f0
+                bcs +
+                sta ram10
+                jsr sub19
+                lda #$ff
+                sta ram11
+                bne -
++               jsr sub18
+                jsr sub21
+                lda #$00
+                sta ram10
+                lda ram12
+                and #%11111100
+                sta ram12
+-               jsr sub29
+                jsr sub22
+                lda #$00
+                sta ram22
+                jsr sub15
+                lda #$00
+                sta ram11
+                jsr sub20
+                jsr sub26
+                lda ram3
+                and #%00000011
+                beq ++
+                and #%00000010
+                bne +
+                jsr sub23
+                jmp ++
++               jsr sub24
+++              lda #$ff
+                sta ram11
+                jmp -
 
-sub16           lda #$00                     ; $c867
-                sta ppu_mask                 ; c869: 8d 01 20
-                jsr sub29                    ; c86c: 20 80 d5
-                ldy ram13                    ; c86f: a4 75
-                lda dat13,y                   ; c871: b9 10 c9
-                sta ram20                    ; c874: 85 7c
-                tya                          ; c876: 98
-                asl a                        ; c877: 0a
-                tay                          ; c878: a8
-                lda dat20,y                   ; c879: b9 72 c9
-                sta ptr2+0                     ; c87c: 85 08
-                lda dat21,y                   ; c87e: b9 73 c9
-                sta ptr2+1                     ; c881: 85 09
-                ldy #0                     ; c883: a0 00
--               lda (ptr2),y                 ; c885: b1 08
-                sta arr2,y                   ; c887: 99 a8 00
-                iny                          ; c88a: c8
-                cpy #$10                     ; c88b: c0 10
-                bcc -                        ; c88d: 90 f6
-                lda #$00                     ; c88f: a9 00
-                sta ppu_addr                 ; c891: 8d 06 20
-                lda #$00                     ; c894: a9 00
-                sta ppu_addr                 ; c896: 8d 06 20
-                ldy ram13                    ; c899: a4 75
-                lda dat14,y                   ; c89b: b9 1e c9
-                jsr sub25                    ; c89e: 20 3f d5
-                lda ram13                    ; c8a1: a5 75
-                asl a                        ; c8a3: 0a
-                tax                          ; c8a4: aa
-                lda dat16,x                   ; c8a5: bd 3a c9
-                sta ram48                    ; c8a8: 85 f1
-                lda dat17,x                   ; c8aa: bd 3b c9
-                sta ram47                    ; c8ad: 85 f0
-                lda ram47                    ; c8af: a5 f0
-                ldy ram48                    ; c8b1: a4 f1
-                ldx #$40                     ; c8b3: a2 40
-                jsr sub33                    ; c8b5: 20 cc d6
-                lda #$20                     ; c8b8: a9 20
-                sta ppu_addr                 ; c8ba: 8d 06 20
-                lda #$00                     ; c8bd: a9 00
-                sta ppu_addr                 ; c8bf: 8d 06 20
-                ldy #$00                     ; c8c2: a0 00
-                ldx #$04                     ; c8c4: a2 04
-                lda ram20                    ; c8c6: a5 7c
--               sta ppu_data                 ; c8c8: 8d 07 20
-                dey                          ; c8cb: 88
-                bne -                        ; c8cc: d0 fa
-                dex                          ; c8ce: ca
-                bne -                        ; c8cf: d0 f7
-                ldy ram13                    ; c8d1: a4 75
-                lda dat15,y                   ; c8d3: b9 2c c9
-                jsr sub25                    ; c8d6: 20 3f d5
-                lda #$23                     ; c8d9: a9 23
-                sta ppu_addr                 ; c8db: 8d 06 20
-                lda #$c0                     ; c8de: a9 c0
-                sta ppu_addr                 ; c8e0: 8d 06 20
-                lda ram13                    ; c8e3: a5 75
-                asl a                        ; c8e5: 0a
-                tay                          ; c8e6: a8
-                lda dat18,y                   ; c8e7: b9 56 c9
+sub16           lda #$00                ; $c867
+                sta ppu_mask
+                jsr sub29
+                ldy ram13
+                lda dat13,y
+                sta ram20
+                tya
+                asl a
+                tay
+                lda dat20,y
+                sta ptr2+0
+                lda dat21,y
+                sta ptr2+1
+                ldy #0
+-               lda (ptr2),y
+                sta arr2,y
+                iny
+                cpy #$10
+                bcc -
+                lda #$00
+                sta ppu_addr
+                lda #$00
+                sta ppu_addr
+                ldy ram13
+                lda dat14,y
+                jsr sub25
+                lda ram13
+                asl a
+                tax
+                lda dat16,x
+                sta ram48
+                lda dat17,x
+                sta ram47
+                lda ram47
+                ldy ram48
+                ldx #$40
+                jsr sub33
+                lda #$20
+                sta ppu_addr
+                lda #$00
+                sta ppu_addr
+                ldy #$00
+                ldx #$04
+                lda ram20
+-               sta ppu_data
+                dey
+                bne -
+                dex
+                bne -
+                ldy ram13
+                lda dat15,y
+                jsr sub25
+                lda #$23
+                sta ppu_addr
+                lda #$c0
+                sta ppu_addr
+                lda ram13
+                asl a
+                tay
+                lda dat18,y
                 add #$c0
-                sta ptr2+0                     ; c8ed: 85 08
-                lda dat19,y                   ; c8ef: b9 57 c9
-                adc #$03                     ; c8f2: 69 03
-                sta ptr2+1                     ; c8f4: 85 09
-                ldy #0                     ; c8f6: a0 00
--               lda (ptr2),y                 ; c8f8: b1 08
-                sta ppu_data                 ; c8fa: 8d 07 20
-                iny                          ; c8fd: c8
-                cpy #$40                     ; c8fe: c0 40
-                bcc -                        ; c900: 90 f6
-                lda ram12                    ; c902: a5 73
-                sta ppu_ctrl                 ; c904: 8d 00 20
-                lda #$00                     ; c907: a9 00
-                sta ppu_scroll               ; c909: 8d 05 20
-                sta ppu_scroll               ; c90c: 8d 05 20
-                rts                          ; c90f: 60
+                sta ptr2+0
+                lda dat19,y
+                adc #$03
+                sta ptr2+1
+                ldy #0
+-               lda (ptr2),y
+                sta ppu_data
+                iny
+                cpy #$40
+                bcc -
+                lda ram12
+                sta ppu_ctrl
+                lda #$00
+                sta ppu_scroll
+                sta ppu_scroll
+                rts
 
 dat13           hex cd 00 00 00 00 00 00 00  ; $c910
                 hex 00 00 00 00 00 97
@@ -3876,860 +3795,721 @@ dat21           hex d1 dd d1 4d d2 0d d2 1d  ; $c973
                 hex d1 6d d2 3d d2 fd d1 cd
                 hex d1 7d d2
 
-sub17           bit ppu_status               ; $c98e
-                lda ptr3+0                     ; c991: a5 0e
-                sta ppu_addr                 ; c993: 8d 06 20
-                lda ptr3+1                    ; c996: a5 0f
-                sta ppu_addr                 ; c998: 8d 06 20
-                ldx #$03                     ; c99b: a2 03
-                ldy #0                     ; c99d: a0 00
--               lda (ptr2),y                 ; c99f: b1 08
-                sta ppu_data                 ; c9a1: 8d 07 20
-                iny                          ; c9a4: c8
-                bne -                        ; c9a5: d0 f8
-                inc ptr2+1                     ; c9a7: e6 09
-                dex                          ; c9a9: ca
-                bpl -                        ; c9aa: 10 f3
-                rts                          ; c9ac: 60
+sub17           bit ppu_status          ; $c98e
+                lda ptr3+0
+                sta ppu_addr
+                lda ptr3+1
+                sta ppu_addr
+                ldx #$03
+                ldy #0
+-               lda (ptr2),y
+                sta ppu_data
+                iny
+                bne -
+                inc ptr2+1
+                dex
+                bpl -
+                rts
 
-                hex 52 52 52 52 52 52 52 52  ; c9ad
-                hex 52 52 52 52 52 52 52 52  ; c9b5
-                hex 52 52 52 52 52 52 52 52  ; c9bd
-                hex 52 52 52 52 52 52 52 52  ; c9c5
-                hex 57 57 57 57 57 57 57 57  ; c9cd
-                hex 57 57 57 57 57 57 57 57  ; c9d5
-                hex 57 57 57 57 57 57 57 57  ; c9dd
-                hex 57 57 57 57 57 57 57 57  ; c9e5
-                hex 57 57 57 57 57 56 a9 a9  ; c9ed
-                hex a9 a9 a9 a9 a9 a9 a9 a9  ; c9f5
-                hex a9 a9 a9 a9 a9 a9 a9 a9  ; c9fd
-                hex a9 a9 53 57 57 57 57 57  ; ca05
-                hex 55 55 55 55 55 54 b7 b7  ; ca0d
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; ca15
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; ca1d
-                hex b7 b7 6d 55 55 55 55 55  ; ca25
-                hex 46 46 46 46 46 54 b7 b7  ; ca2d
-                hex b7 b6 74 99 98 b7 b6 74  ; ca35
-                hex 99 98 b7 b6 74 99 98 b7  ; ca3d
-                hex b7 b7 6d 46 46 46 46 46  ; ca45
-                hex 6a 6a 6a 6a 6a 54 b7 b7  ; ca4d
-                hex aa b4 b7 b7 97 b5 b4 b7  ; ca55
-                hex b7 97 b5 b4 b7 b7 97 96  ; ca5d
-                hex b7 b7 6d 6a 6a 6a 6a 6a  ; ca65
-                hex 6a 6a 6a 6a 6a 54 b7 b7  ; ca6d
-                hex 91 b7 ac ab b7 95 b7 92  ; ca75
-                hex 8c b7 95 b7 ae ad b7 8e  ; ca7d
-                hex b7 b7 6d 6a 6a 6a 6a 6a  ; ca85
-                hex 69 69 69 69 69 54 b7 b7  ; ca8d
-                hex 90 93 b7 b7 8f 94 93 b7  ; ca95
-                hex b7 8f 94 93 b7 b7 8f 8d  ; ca9d
-                hex b7 b7 6d 69 69 69 69 69  ; caa5
-                hex 6c 6c 6c 6c 6c 54 b7 b7  ; caad
-                hex b7 51 50 72 71 b7 51 50  ; cab5
-                hex 72 71 b7 51 50 72 71 b7  ; cabd
-                hex b7 b7 6d 6c 6c 6c 6c 6c  ; cac5
-                hex 6b 6b 6b 6b 6b 54 b7 b7  ; cacd
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cad5
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cadd
-                hex b7 b7 6d 6b 6b 6b 6b 6b  ; cae5
-                hex 6b 6b 6b 6b 6b 48 8a 8a  ; caed
-                hex 8a 8a 8a 8a 8a 8a 8a 8a  ; caf5
-                hex 8a 8a 8a 8a 8a 8a 8a 8a  ; cafd
-                hex 8a 8a 4c 6b 6b 6b 6b 6b  ; cb05
-                hex 4a 4a 4a 4a 4a 47 1e 1d  ; cb0d
-                hex 79 78 7b 7a 7d 7c 7f 7e  ; cb15
-                hex 81 80 83 82 85 84 87 86  ; cb1d
-                hex 1f 1e 4b 4a 4a 4a 4a 4a  ; cb25
-                hex 4a 4a 4a 4a 4a 4a 4a 4a  ; cb2d
-                hex 4a 4a 4a 4a 4a 4a 4a 4a  ; cb35
-                hex 4a 4a 4a 4a 4a 4a 4a 4a  ; cb3d
-                hex 4a 4a 4a 4a 4a 4a 4a 4a  ; cb45
-                hex 49 49 49 49 49 49 49 49  ; cb4d
-                hex 49 49 49 49 49 49 49 49  ; cb55
-                hex 49 49 49 49 49 49 49 49  ; cb5d
-                hex 49 49 49 49 49 49 49 49  ; cb65
-                hex cf cf cf cf cf cf cf cf  ; cb6d
-                hex cf cf cf cf cf cf cf cf  ; cb75
-                hex cf cf cf cf cf cf cf cf  ; cb7d
-                hex cf cf cf cf cf cf cf cf  ; cb85
-                hex cf cf cf cf cf cf cf cf  ; cb8d
-                hex cf cf cf cf cf cf cf cf  ; cb95
-                hex cf cf cf cf cf cf cf cf  ; cb9d
-                hex cf cf cf cf cf cf cf cf  ; cba5
-                hex d1 d1 d1 d1 d1 d1 d1 d1  ; cbad
-                hex d1 d1 d1 d1 d1 d1 d1 d1  ; cbb5
-                hex d1 d1 d1 d1 d1 d1 d1 d1  ; cbbd
-                hex d1 d1 d1 d1 d1 d1 d1 d1  ; cbc5
-                hex d0 d0 d0 d0 d0 d0 d0 d0  ; cbcd
-                hex d0 d0 d0 d0 d0 d0 d0 d0  ; cbd5
-                hex d0 d0 d0 d0 d0 d0 d0 d0  ; cbdd
-                hex d0 d0 d0 d0 d0 d0 d0 d0  ; cbe5
-                hex 17 17 17 17 17 17 17 17  ; cbed
-                hex 17 17 17 17 17 17 17 17  ; cbf5
-                hex 17 17 17 17 17 17 17 14  ; cbfd
-                hex 18 17 17 17 17 17 17 17  ; cc05
-                hex 12 12 12 12 12 12 12 12  ; cc0d
-                hex 12 12 12 12 12 12 12 12  ; cc15
-                hex 12 12 12 12 12 12 13 19  ; cc1d
-                hex 16 15 12 12 12 12 12 12  ; cc25
-                hex 31 31 31 31 31 31 31 31  ; cc2d
-                hex 31 31 31 31 31 31 31 31  ; cc35
-                hex 31 31 31 31 31 21 19 22  ; cc3d
-                hex 00 16 32 31 31 31 31 31  ; cc45
-                hex 2f 2f 2f 2f 2f 2f 2f 2f  ; cc4d
-                hex 2f 2f 2f 2f 2f 2f 2f 2f  ; cc55
-                hex 2f 2f 2e 2d 20 23 22 25  ; cc5d
-                hex 01 00 30 2f 2f 2f 2f 2f  ; cc65
-                hex 8a 8a 8a 8a 8a 8a 8a 8a  ; cc6d
-                hex 8a 8a 8a 8a 8a 8a 8a 8a  ; cc75
-                hex 8a 8a d5 d4 23 22 25 24  ; cc7d
-                hex 02 01 8b 8a 8a 8a 8a 8a  ; cc85
-                hex 88 88 88 88 88 88 88 88  ; cc8d
-                hex 88 88 88 88 88 88 88 88  ; cc95
-                hex 88 88 d3 d2 22 25 24 cd  ; cc9d
-                hex cd 02 89 88 88 88 88 88  ; cca5
-                hex cd cd cd cd cd cd cd cd  ; ccad
-                hex cd cd cd cd cd cd cd cd  ; ccb5
-                hex cd cd c6 c5 25 24 cd cd  ; ccbd
-                hex cd cd cd cd cd cd cd cd  ; ccc5
-                hex cd cd cb c4 c3 cd 9a bd  ; cccd
-                hex cd c4 cc c3 c4 ce be bf  ; ccd5
-                hex ba cb cd c6 24 cd cd cd  ; ccdd
-                hex cd cd cd cd cd cd cd cd  ; cce5
-                hex cd cd a4 ce bb cc cd 9a  ; cced
-                hex bd cd ba cb c0 4d a8 bf  ; ccf5
-                hex cd cd cd cd cd cd cd cd  ; ccfd
-                hex cd cd cd cd cd cd cd cd  ; cd05
-                hex cd cd a8 4d c0 bf a4 cd  ; cd0d
-                hex 9a bd cd b9 cc c4 c0 4d  ; cd15
-                hex be cc cd cd be cc c0 bb  ; cd1d
-                hex cc c7 4f 4e 4f 4f cd cd  ; cd25
-                hex cd cd cd cd cd cd cd cd  ; cd2d
-                hex cd cd cd cd cd cd cd cd  ; cd35
-                hex cd cd cd cd cd cd cd cd  ; cd3d
-                hex cd cd cd cd cd cd cd cd  ; cd45
-                hex cd cd cd cd cd cd cd cd  ; cd4d
-                hex cd cd cd cd cd cd cd cd  ; cd55
-                hex cd cd cd cd cd cd cd cd  ; cd5d
-                hex cd cd cd cd cd cd cd cd  ; cd65
-                hex 00 00 00 00 00 00 00 00  ; cd6d
-                hex 00 00 00 00 00 00 00 00  ; cd75
-                hex 00 00 00 00 00 00 00 00  ; cd7d
-                hex 00 00 00 00 00 00 00 00  ; cd85
-                hex 00 00 00 00 00 00 00 00  ; cd8d
-                hex 00 00 00 00 00 00 00 00  ; cd95
-                hex 00 00 00 00 00 50 10 00  ; cd9d
-                hex 00 00 00 00 00 00 00 00  ; cda5
-                hex cd cd cd cd cd cd cd cd  ; cdad
-                hex cd cd cd cd cd cd cd cd  ; cdb5
-                hex cd cd cd cd cd cd cd cd  ; cdbd
-                hex cd cd cd cd cd cd cd cd  ; cdc5
-                hex cd cd cd cd cd cd cd cd  ; cdcd
-                hex cd cd cd cd cd cd cd cd  ; cdd5
-                hex cd cd cd cd cd cd cd cd  ; cddd
-                hex cd cd cd cd cd cd cd cd  ; cde5
-                hex cd cd cd cd cd cd cd cd  ; cded
-                hex cd cd bb ce be ba cc bd  ; cdf5
-                hex cd ba ce be 9f cd cd cd  ; cdfd
-                hex cd cd cd cd cd cd cd cd  ; ce05
-                hex cd cd cd cd cd cd cd cd  ; ce0d
-                hex cd cd cd cd cd cd cd cd  ; ce15
-                hex cd cd cd cd cd cd cd cd  ; ce1d
-                hex cd cd cd cd cd cd cd cd  ; ce25
-                hex cd cd cd cd cd cd 3d 3c  ; ce2d
-                hex 68 68 68 68 68 68 68 68  ; ce35
-                hex 68 68 68 68 68 68 68 68  ; ce3d
-                hex d9 d8 cd cd cd cd cd cd  ; ce45
-                hex cd cd cd cd cd cd 45 3b  ; ce4d
-                hex 59 58 5b 5a 5d 5c 5f 5e  ; ce55
-                hex 61 60 63 62 65 64 67 66  ; ce5d
-                hex d7 d6 cd cd cd cd cd cd  ; ce65
-                hex cd cd cd cd cd cd 45 3e  ; ce6d
-                hex dd dc e1 e0 e5 e4 e9 e8  ; ce75
-                hex b0 af 27 26 28 2b 04 03  ; ce7d
-                hex 3a 39 cd cd cd cd cd cd  ; ce85
-                hex cd cd cd cd cd cd 45 44  ; ce8d
-                hex db da df de e3 e2 e7 e6  ; ce95
-                hex b7 b7 b7 2c 2b 2a 05 04  ; ce9d
-                hex 33 39 cd cd cd cd cd cd  ; cea5
-                hex cd cd cd cd cd cd 45 40  ; cead
-                hex ed ec f1 f0 f5 f4 b3 b2  ; ceb5
-                hex 0f b7 2c 2b 2a 29 06 05  ; cebd
-                hex 35 39 cd cd cd cd cd cd  ; cec5
-                hex cd cd cd cd cd cd 45 3f  ; cecd
-                hex eb ea ef ee f3 f2 b1 b7  ; ced5
-                hex 0e 0d 2b 2a 29 77 10 06  ; cedd
-                hex 34 39 cd cd cd cd cd cd  ; cee5
-                hex cd cd cd cd cd cd 45 42  ; ceed
-                hex f7 f7 f7 f7 f7 f7 f7 f7  ; cef5
-                hex 09 08 2a 29 77 76 11 10  ; cefd
-                hex 37 39 cd cd cd cd cd cd  ; cf05
-                hex cd cd cd cd cd cd 45 41  ; cf0d
-                hex f6 f6 f6 f6 f6 f6 f6 f6  ; cf15
-                hex 0b 07 29 77 76 b7 b7 11  ; cf1d
-                hex 36 39 cd cd cd cd cd cd  ; cf25
-                hex cd cd cd cd cd cd 45 44  ; cf2d
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cf35
-                hex 0c 0b 77 76 b7 b7 b7 b7  ; cf3d
-                hex 3a 39 cd cd cd cd cd cd  ; cf45
-                hex cd cd cd cd cd cd 45 43  ; cf4d
-                hex 9b 9d 9d 9d 9d 9d 9d 9d  ; cf55
-                hex 9d 0a 75 9d 9d 9d 9d 9c  ; cf5d
-                hex 38 39 cd cd cd cd cd cd  ; cf65
-                hex cd cd cd cd cd cd fb fa  ; cf6d
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cf75
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cf7d
-                hex ff fe cd cd cd cd cd cd  ; cf85
-                hex cd cd cd cd cd cd f9 f8  ; cf8d
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cf95
-                hex b7 b7 b7 b7 b7 b7 b7 b7  ; cf9d
-                hex fd fc cd cd cd cd cd cd  ; cfa5
-                hex cd cd cd cd cd cd cd c8  ; cfad
-                hex 6e 70 70 70 70 70 70 70  ; cfb5
-                hex 70 70 70 70 70 70 70 6f  ; cfbd
-                hex c9 cd cd cd cd cd cd cd  ; cfc5
-                hex cd cd cd cd cd cd cd cd  ; cfcd
-                hex cd cd cd cd cd cd cd cd  ; cfd5
-                hex cd cd cd cd cd cd cd cd  ; cfdd
-                hex cd cd cd cd cd cd cd cd  ; cfe5
-                hex cd cd cd bb c2 ce c2 c4  ; cfed
-                hex c2 c1 cd a2 4d a0 bd cd  ; cff5
-                hex a5 9e 1b 1c a5 73 a6 a3  ; cffd
-                hex cd cd cd cd cd cd cd cd  ; d005
-                hex cd cd cd c0 b9 cc a4 c0  ; d00d
-                hex c1 cd a5 a1 ba 9a cd b9  ; d015
-                hex c4 9f cd 1a cd cd a6 ba  ; d01d
-                hex 9a cd a4 bc c4 cd cd cd  ; d025
-                hex cd cd cd cd cd cd cd cd  ; d02d
-                hex cd cd cd cd cd cd cd cd  ; d035
-                hex cd cd cd cd cd cd cd cd  ; d03d
-                hex cd cd cd cd cd cd cd cd  ; d045
-                hex cd cd cd cb cd b9 ce c4  ; d04d
-                hex c3 cd ce a7 cd be bf be  ; d055
-                hex c3 cc be bb ce ca c0 cd  ; d05d
-                hex bc bf c3 cd cd cd cd cd  ; d065
-                hex cd cd cd cb c4 a4 cb bb  ; d06d
-                hex cc cd 9f cb a8 cc cd a7  ; d075
-                hex c4 ce a8 cd a5 73 a6 a5  ; d07d
-                hex c2 cd cd cd cd cd cd cd  ; d085
-                hex cd cd cd c3 bc cc cd c3  ; d08d
-                hex c4 cb be c0 bf c3 bf ce  ; d095
-                hex be cd a7 c4 ce a8 cd a4  ; d09d
-                hex cb 9a cd cd cd cd cd cd  ; d0a5
-                hex cd cd cd c3 ce cd a4 ce  ; d0ad
-                hex be c0 ce a0 cc cd b8 cb  ; d0b5
-                hex c0 cd a0 cb c4 9f cc a0  ; d0bd
-                hex bd cd cd cd cd cd cd cd  ; d0c5
-                hex cd cd cd c0 cc cb a8 a0  ; d0cd
-                hex cc c0 c0 1c cd a8 cb ba  ; d0d5
-                hex bf be 9f cd bf c3 cd c3  ; d0dd
-                hex bc cc cd cd cd cd cd cd  ; d0e5
-                hex cd cd cd 9a cc c0 c3 cd  ; d0ed
-                hex cb c4 a4 cb bb cc cd b9  ; d0f5
-                hex ce c4 c3 cd cb c3 cd c3  ; d0fd
-                hex bc cc cd cd cd cd cd cd  ; d105
-                hex cd cd cd c3 bf a8 cc c2  ; d10d
-                hex cd cd cd cd cd cd cd cd  ; d115
-                hex cd cd cd cd cd cd cd cd  ; d11d
-                hex cd cd cd cd cd cd cd cd  ; d125
-                hex cd cd cd cd cd cd cd cd  ; d12d
-                hex cd cd cd cd cd cd cd cd  ; d135
-                hex cd cd cd cd cd cd cd cd  ; d13d
-                hex cd cd cd cd cd cd cd cd  ; d145
-                hex cd cd cd cd cd cd cd cd  ; d14d
-                hex cd cd cd cd cd cd cd cd  ; d155
-                hex cd cd cd cd cd cd cd cd  ; d15d
-                hex cd cd cd cd cd cd cd cd  ; d165
-                hex 00 00 00 00 00 00 00 00  ; d16d
-                hex 00 00 00 00 00 00 00 00  ; d175
-                hex 00 00 00 08 00 00 00 00  ; d17d
-                hex 00 00 50 50 50 50 00 00  ; d185
-                hex 00 00 00 00 00 00 00 00  ; d18d
-                hex 00 00 00 00 00 00 00 00  ; d195
-                hex 00 00 00 00 00 00 00 00  ; d19d
-                hex 00 00 00 00 00 00 00 00  ; d1a5
-                hex 0f 30 03 23 0f 0f 0f 0f  ; d1ad
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d1b5
-                hex 0f 16 26 20 0f 20 16 26  ; d1bd
-                hex 0f 20 26 16 0f 16 20 26  ; d1c5
-                hex 0f 30 06 16 0f 0f 0f 0f  ; d1cd
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d1d5
-                hex 0f 30 10 22 0f 0f 0f 0f  ; d1dd
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d1e5
-                hex 0f 30 12 22 0f 0f 0f 0f  ; d1ed
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d1f5
-                hex 0f 30 2c 3c 0f 0f 0f 0f  ; d1fd
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d205
-                hex 0f 30 2d 00 0f 0f 0f 0f  ; d20d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d215
-                hex 0f 30 0b 1b 0f 0f 0f 0f  ; d21d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d225
-                hex 0f 30 17 27 0f 0f 0f 0f  ; d22d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d235
-                hex 0f 30 28 38 0f 0f 0f 0f  ; d23d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d245
-                hex 0f 30 1a 2a 0f 0f 0f 0f  ; d24d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d255
-                hex 0f 30 27 37 0f 0f 0f 0f  ; d25d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d265
-                hex 0f 30 04 14 0f 0f 0f 0f  ; d26d
-                hex 0f 0f 0f 0f 0f 0f 0f 0f  ; d275
-                hex 0f 0c 1c 20 0f 0c 1c 26  ; d27d
-                hex 0f 20 26 0f 0f 0f 0f 0f  ; d285
-dat22           hex 00 00 00 18 18 00 00 00  ; d28d
-                hex 00 00 00 18 18 00 00 00  ; d295
-                hex 00 00 10 38 10 00 00 00  ; d29d
-                hex 00 10 10 7c 10 10 00 00  ; d2a5
-                hex 80 04 10 38 10 40 02 00  ; d2ad
-                hex 00 40 38 38 38 04 00 00  ; d2b5
-                hex 10 00 38 38 38 00 10 00  ; d2bd
-                hex 00 10 10 7c 10 10 00 00  ; d2c5
-                hex 02 40 10 38 10 04 80 00  ; d2cd
-                hex 00 04 38 38 38 40 00 00  ; d2d5
-                hex 00 00 38 ba 38 00 00 00  ; d2dd
-                hex 00 10 10 7c 10 10 00 00  ; d2e5
-                hex cc aa 00 00 00 00 00 00  ; d2ed
-                hex cc aa 00 00 00 00 00 00  ; d2f5
+                hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52  ; $c9ad
+                hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52
+                hex 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57
+                hex 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57
+                hex 57 57 57 57 57 56 a9 a9 a9 a9 a9 a9 a9 a9 a9 a9
+                hex a9 a9 a9 a9 a9 a9 a9 a9
+                hex a9 a9 53 57 57 57 57 57 55 55 55 55 55 54 b7 b7  ; $ca05
+                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
+                hex b7 b7 6d 55 55 55 55 55 46 46 46 46 46 54 b7 b7
+                hex b7 b6 74 99 98 b7 b6 74 99 98 b7 b6 74 99 98 b7
+                hex b7 b7 6d 46 46 46 46 46 6a 6a 6a 6a 6a 54 b7 b7
+                hex aa b4 b7 b7 97 b5 b4 b7 b7 97 b5 b4 b7 b7 97 96
+                hex b7 b7 6d 6a 6a 6a 6a 6a 6a 6a 6a 6a 6a 54 b7 b7
+                hex 91 b7 ac ab b7 95 b7 92 8c b7 95 b7 ae ad b7 8e
+                hex b7 b7 6d 6a 6a 6a 6a 6a 69 69 69 69 69 54 b7 b7
+                hex 90 93 b7 b7 8f 94 93 b7 b7 8f 94 93 b7 b7 8f 8d
+                hex b7 b7 6d 69 69 69 69 69 6c 6c 6c 6c 6c 54 b7 b7
+                hex b7 51 50 72 71 b7 51 50 72 71 b7 51 50 72 71 b7
+                hex b7 b7 6d 6c 6c 6c 6c 6c 6b 6b 6b 6b 6b 54 b7 b7
+                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
+                hex b7 b7 6d 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 48 8a 8a
+                hex 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a
+                hex 8a 8a 4c 6b 6b 6b 6b 6b 4a 4a 4a 4a 4a 47 1e 1d  ; $cb05
+                hex 79 78 7b 7a 7d 7c 7f 7e 81 80 83 82 85 84 87 86
+                hex 1f 1e 4b 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a
+                hex 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a 4a
+                hex 4a 4a 4a 4a 4a 4a 4a 4a 49 49 49 49 49 49 49 49
+                hex 49 49 49 49 49 49 49 49 49 49 49 49 49 49 49 49
+                hex 49 49 49 49 49 49 49 49 cf cf cf cf cf cf cf cf
+                hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
+                hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
+                hex cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf cf
+                hex cf cf cf cf cf cf cf cf d1 d1 d1 d1 d1 d1 d1 d1
+                hex d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1 d1
+                hex d1 d1 d1 d1 d1 d1 d1 d1 d0 d0 d0 d0 d0 d0 d0 d0
+                hex d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0 d0
+                hex d0 d0 d0 d0 d0 d0 d0 d0 17 17 17 17 17 17 17 17
+                hex 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 14
+                hex 18 17 17 17 17 17 17 17 12 12 12 12 12 12 12 12  ; $cc05
+                hex 12 12 12 12 12 12 12 12 12 12 12 12 12 12 13 19
+                hex 16 15 12 12 12 12 12 12 31 31 31 31 31 31 31 31
+                hex 31 31 31 31 31 31 31 31 31 31 31 31 31 21 19 22
+                hex 00 16 32 31 31 31 31 31 2f 2f 2f 2f 2f 2f 2f 2f
+                hex 2f 2f 2f 2f 2f 2f 2f 2f 2f 2f 2e 2d 20 23 22 25
+                hex 01 00 30 2f 2f 2f 2f 2f 8a 8a 8a 8a 8a 8a 8a 8a
+                hex 8a 8a 8a 8a 8a 8a 8a 8a 8a 8a d5 d4 23 22 25 24
+                hex 02 01 8b 8a 8a 8a 8a 8a 88 88 88 88 88 88 88 88
+                hex 88 88 88 88 88 88 88 88 88 88 d3 d2 22 25 24 cd
+                hex cd 02 89 88 88 88 88 88 cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd c6 c5 25 24 cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cb c4 c3 cd 9a bd
+                hex cd c4 cc c3 c4 ce be bf ba cb cd c6 24 cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd a4 ce bb cc cd 9a
+                hex bd cd ba cb c0 4d a8 bf cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd a8 4d c0 bf a4 cd  ; $cd05
+                hex 9a bd cd b9 cc c4 c0 4d be cc cd cd be cc c0 bb
+                hex cc c7 4f 4e 4f 4f cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 50 10 00
+                hex 00 00 00 00 00 00 00 00 cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd bb ce be ba cc bd cd ba ce be 9f cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ; $ce05
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd 3d 3c
+                hex 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68 68
+                hex d9 d8 cd cd cd cd cd cd cd cd cd cd cd cd 45 3b
+                hex 59 58 5b 5a 5d 5c 5f 5e 61 60 63 62 65 64 67 66
+                hex d7 d6 cd cd cd cd cd cd cd cd cd cd cd cd 45 3e
+                hex dd dc e1 e0 e5 e4 e9 e8 b0 af 27 26 28 2b 04 03
+                hex 3a 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 44
+                hex db da df de e3 e2 e7 e6 b7 b7 b7 2c 2b 2a 05 04
+                hex 33 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 40
+                hex ed ec f1 f0 f5 f4 b3 b2 0f b7 2c 2b 2a 29 06 05
+                hex 35 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 3f
+                hex eb ea ef ee f3 f2 b1 b7 0e 0d 2b 2a 29 77 10 06
+                hex 34 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 42
+                hex f7 f7 f7 f7 f7 f7 f7 f7 09 08 2a 29 77 76 11 10
+                hex 37 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 41  ; $cf05
+                hex f6 f6 f6 f6 f6 f6 f6 f6 0b 07 29 77 76 b7 b7 11
+                hex 36 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 44
+                hex b7 b7 b7 b7 b7 b7 b7 b7 0c 0b 77 76 b7 b7 b7 b7
+                hex 3a 39 cd cd cd cd cd cd cd cd cd cd cd cd 45 43
+                hex 9b 9d 9d 9d 9d 9d 9d 9d 9d 0a 75 9d 9d 9d 9d 9c
+                hex 38 39 cd cd cd cd cd cd cd cd cd cd cd cd fb fa
+                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
+                hex ff fe cd cd cd cd cd cd cd cd cd cd cd cd f9 f8
+                hex b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7 b7
+                hex fd fc cd cd cd cd cd cd cd cd cd cd cd cd cd c8
+                hex 6e 70 70 70 70 70 70 70 70 70 70 70 70 70 70 6f
+                hex c9 cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd bb c2 ce c2 c4
+                hex c2 c1 cd a2 4d a0 bd cd a5 9e 1b 1c a5 73 a6 a3
+                hex cd cd cd cd cd cd cd cd cd cd cd c0 b9 cc a4 c0  ; $d005
+                hex c1 cd a5 a1 ba 9a cd b9 c4 9f cd 1a cd cd a6 ba
+                hex 9a cd a4 bc c4 cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cb cd b9 ce c4
+                hex c3 cd ce a7 cd be bf be c3 cc be bb ce ca c0 cd
+                hex bc bf c3 cd cd cd cd cd cd cd cd cb c4 a4 cb bb
+                hex cc cd 9f cb a8 cc cd a7 c4 ce a8 cd a5 73 a6 a5
+                hex c2 cd cd cd cd cd cd cd cd cd cd c3 bc cc cd c3
+                hex c4 cb be c0 bf c3 bf ce be cd a7 c4 ce a8 cd a4
+                hex cb 9a cd cd cd cd cd cd cd cd cd c3 ce cd a4 ce
+                hex be c0 ce a0 cc cd b8 cb c0 cd a0 cb c4 9f cc a0
+                hex bd cd cd cd cd cd cd cd cd cd cd c0 cc cb a8 a0
+                hex cc c0 c0 1c cd a8 cb ba bf be 9f cd bf c3 cd c3
+                hex bc cc cd cd cd cd cd cd cd cd cd 9a cc c0 c3 cd
+                hex cb c4 a4 cb bb cc cd b9 ce c4 c3 cd cb c3 cd c3
+                hex bc cc cd cd cd cd cd cd cd cd cd c3 bf a8 cc c2  ; $d105
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+                hex cd cd cd cd cd cd cd cd 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00
+                hex 00 00 50 50 50 50 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00 0f 30 03 23 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 16 26 20 0f 20 16 26
+                hex 0f 20 26 16 0f 16 20 26 0f 30 06 16 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 10 22 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 12 22 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 2c 3c 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 2d 00 0f 0f 0f 0f  ; $d205
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 0b 1b 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 17 27 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 28 38 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 1a 2a 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 27 37 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 30 04 14 0f 0f 0f 0f
+                hex 0f 0f 0f 0f 0f 0f 0f 0f 0f 0c 1c 20 0f 0c 1c 26
+                hex 0f 20 26 0f 0f 0f 0f 0f
 
-sub18           ldy #0                     ; $d2fd
-                lda #$ff                     ; d2ff: a9 ff
--               sta sprite_data,y            ; d301: 99 00 07
-                iny                          ; d304: c8
-                iny                          ; d305: c8
-                iny                          ; d306: c8
-                iny                          ; d307: c8
-                bne -                        ; d308: d0 f7
-                rts                          ; d30a: 60
+dat22           hex 00 00 00 18 18 00 00 00  ; $d28d
+                hex 00 00 00 18 18 00 00 00
+                hex 00 00 10 38 10 00 00 00
+                hex 00 10 10 7c 10 10 00 00
+                hex 80 04 10 38 10 40 02 00
+                hex 00 40 38 38 38 04 00 00
+                hex 10 00 38 38 38 00 10 00
+                hex 00 10 10 7c 10 10 00 00
+                hex 02 40 10 38 10 04 80 00
+                hex 00 04 38 38 38 40 00 00
+                hex 00 00 38 ba 38 00 00 00
+                hex 00 10 10 7c 10 10 00 00
+                hex cc aa 00 00 00 00 00 00
+                hex cc aa 00 00 00 00 00 00
 
-sub19           lda ram14                    ; $d30b
+sub18           ldy #0                  ; $d2fd
+                lda #$ff
+-               sta sprite_data,y
+                iny
+                iny
+                iny
+                iny
+                bne -
+                rts
+
+sub19           lda ram14               ; $d30b
                 add #$01
-                cmp #$86                     ; d310: c9 86
-                bcc ++                     ; d312: 90 31
-                lda ram16                    ; d314: a5 78
-                cmp #$01                     ; d316: c9 01
-                beq +                        ; d318: f0 0b
-                lda #$01                     ; d31a: a9 01
-                sta ram16                    ; d31c: 85 78
-                lda #$00                     ; d31e: a9 00
-                sta ram17                    ; d320: 85 79
-                jmp +++                     ; d322: 4c 4a d3
-+               ldy ram17                    ; d325: a4 79
-                iny                          ; d327: c8
-                sty ram17                    ; d328: 84 79
-                cpy #$0a                     ; d32a: c0 0a
-                bcc +++                     ; d32c: 90 1c
-                lda #$ff                     ; d32e: a9 ff
-                sta ram15                    ; d330: 85 77
-                cpy #$40                     ; d332: c0 40
-                bcc +++                     ; d334: 90 14
-                lda #$00                     ; d336: a9 00
-                sta ram16                    ; d338: 85 78
-                sta ram17                    ; d33a: 85 79
-                sta ram14                    ; d33c: 85 76
-                lda #$a5                     ; d33e: a9 a5
-                sta ram15                    ; d340: 85 77
-                jmp +++                     ; d342: 4c 4a d3
-++              sta ram14                    ; d345: 85 76
-                jsr sub30                    ; d347: 20 87 d5
-+++             lda ram14                    ; d34a: a5 76
-                sta sprite_data+3             ; d34c: 8d 03 07
-                lda ram15                    ; d34f: a5 77
-                cmp #$f0                     ; d351: c9 f0
-                bcs +                        ; d353: b0 07
+                cmp #$86
+                bcc ++
+                lda ram16
+                cmp #$01
+                beq +
+                lda #$01
+                sta ram16
+                lda #$00
+                sta ram17
+                jmp +++
++               ldy ram17
+                iny
+                sty ram17
+                cpy #$0a
+                bcc +++
+                lda #$ff
+                sta ram15
+                cpy #$40
+                bcc +++
+                lda #$00
+                sta ram16
+                sta ram17
+                sta ram14
+                lda #$a5
+                sta ram15
+                jmp +++
+++              sta ram14
+                jsr sub30
++++             lda ram14
+                sta sprite_data+3
+                lda ram15
+                cmp #$f0
+                bcs +
                 sub ram10
-                bcs +                        ; d358: b0 02
-                lda #$ff                     ; d35a: a9 ff
-+               sta sprite_data+0             ; d35c: 8d 00 07
-                lda ram16                    ; d35f: a5 78
-                sta sprite_data+1             ; d361: 8d 01 07
-                lda #$00                     ; d364: a9 00
-                sta sprite_data+2            ; d366: 8d 02 07
-                rts                          ; d369: 60
+                bcs +
+                lda #$ff
++               sta sprite_data+0
+                lda ram16
+                sta sprite_data+1
+                lda #$00
+                sta sprite_data+2
+                rts
 
-sub20           lda ram22                    ; $d36a
-                beq +                        ; d36c: f0 0e
-                lda ram16                    ; d36e: a5 78
-                cmp #$06                     ; d370: c9 06
-                bcs +                        ; d372: b0 08
-                lda #$06                     ; d374: a9 06
-                sta ram16                    ; d376: 85 78
-                lda #$00                     ; d378: a9 00
-                sta ram17                    ; d37a: 85 79
-+               lda ram17                    ; d37c: a5 79
+sub20           lda ram22               ; $d36a
+                beq +
+                lda ram16
+                cmp #$06
+                bcs +
+                lda #$06
+                sta ram16
+                lda #$00
+                sta ram17
++               lda ram17
                 add #$01
-                sta ram17                    ; d381: 85 79
-                cmp #$06                     ; d383: c9 06
-                bcc ++                     ; d385: 90 27
-                lda #$00                     ; d387: a9 00
-                sta ram17                    ; d389: 85 79
-                lda ram16                    ; d38b: a5 78
+                sta ram17
+                cmp #$06
+                bcc ++
+                lda #$00
+                sta ram17
+                lda ram16
                 add #$01
-                cmp #$07                     ; d390: c9 07
-                bcc +                        ; d392: 90 18
-                lda #$ff                     ; d394: a9 ff
-                sta ram15                    ; d396: 85 77
-                jsr sub22                     ; d398: 20 05 d4
-                cmp #$40                     ; d39b: c9 40
-                bcs ++                     ; d39d: b0 0f
-                jsr sub22                     ; d39f: 20 05 d4
-                lda ram22                    ; d3a2: a5 9e
-                bne ++                     ; d3a4: d0 08
-                jsr sub21                     ; d3a6: 20 db d3
-                jmp ++                     ; d3a9: 4c ae d3
-+               sta ram16                    ; d3ac: 85 78
-++              lda ram14                    ; d3ae: a5 76
+                cmp #$07
+                bcc +
+                lda #$ff
+                sta ram15
+                jsr sub22
+                cmp #$40
+                bcs ++
+                jsr sub22
+                lda ram22
+                bne ++
+                jsr sub21
+                jmp ++
++               sta ram16
+++              lda ram14
                 add #$39
                 sub ram9
-                bcc ++                    ; d3b6: 90 1d
-                sta sprite_data+3             ; d3b8: 8d 03 07
-                lda ram15                    ; d3bb: a5 77
-                cmp #$ff                     ; d3bd: c9 ff
-                beq +                        ; d3bf: f0 03
+                bcc ++
+                sta sprite_data+3
+                lda ram15
+                cmp #$ff
+                beq +
                 add #$23
-+               sta sprite_data+0             ; d3c4: 8d 00 07
-                ldy ram16                    ; d3c7: a4 78
-                lda dat23,y                  ; d3c9: b9 fe d3
-                sta sprite_data+1            ; d3cc: 8d 01 07
-                lda #$00                     ; d3cf: a9 00
-                sta sprite_data+2                    ; d3d1: 8d 02 07
-                rts                          ; d3d4: 60
-++              lda #$ff                     ; d3d5: a9 ff
-                sta sprite_data+0            ; d3d7: 8d 00 07
-                rts                          ; d3da: 60
++               sta sprite_data+0
+                ldy ram16
+                lda dat23,y
+                sta sprite_data+1
+                lda #$00
+                sta sprite_data+2
+                rts
+++              lda #$ff
+                sta sprite_data+0
+                rts
 
-sub21           lda #$00                     ; $d3db
-                sta ram17                    ; d3dd: 85 79
-                sta ram16                    ; d3df: 85 78
-                jsr sub22                     ; d3e1: 20 05 d4
--               cmp #$90                     ; d3e4: c9 90
-                bcc +                        ; d3e6: 90 05
-                sbc #$90                     ; d3e8: e9 90
-                jmp -                        ; d3ea: 4c e4 d3
-+               sta ram14                    ; d3ed: 85 76
-                jsr sub22                     ; d3ef: 20 05 d4
--               cmp #$4c                     ; d3f2: c9 4c
-                bcc +                        ; d3f4: 90 05
-                sbc #$4c                     ; d3f6: e9 4c
-                jmp -                        ; d3f8: 4c f2 d3
-+               sta ram15                    ; d3fb: 85 77
-                rts                          ; d3fd: 60
+sub21           lda #$00                ; $d3db
+                sta ram17
+                sta ram16
+                jsr sub22
+-               cmp #$90
+                bcc +
+                sbc #$90
+                jmp -
++               sta ram14
+                jsr sub22
+-               cmp #$4c
+                bcc +
+                sbc #$4c
+                jmp -
++               sta ram15
+                rts
 
-dat23           hex 00 01 02 03 04 05 01     ; d3fe
+dat23           hex 00 01 02 03 04 05 01  ; $d3fe
 
-sub22           lda ram18                    ; $d405
-                asl a                        ; d407: 0a
-                bcc +                        ; d408: 90 02
-                eor #%11001111               ; d40a: 49 cf
-+               sta ram18                    ; d40c: 85 7a
-                rts                          ; d40e: 60
+sub22           lda ram18               ; $d405
+                asl a
+                bcc +
+                eor #%11001111
++               sta ram18
+                rts
 
-sub23           lda #$01                     ; $d40f
-                sta ram22                    ; d411: 85 9e
-                lda #$00                     ; d413: a9 00
-                sta ram9                    ; d415: 85 3f
--               jsr sub29                    ; d417: 20 80 d5
-                lda #$00                     ; d41a: a9 00
-                sta ram11                    ; d41c: 85 59
-                lda ram9                    ; d41e: a5 3f
+sub23           lda #$01                ; $d40f
+                sta ram22
+                lda #$00
+                sta ram9
+-               jsr sub29
+                lda #$00
+                sta ram11
+                lda ram9
                 add #$08
-                sta ram9                    ; d423: 85 3f
-                beq +                        ; d425: f0 15
+                sta ram9
+                beq +
                 sub #$08
-                lsr a                        ; d42a: 4a
-                lsr a                        ; d42b: 4a
-                lsr a                        ; d42c: 4a
-                sta ram19                    ; d42d: 85 7b
-                jsr sub20                     ; d42f: 20 6a d3
-                jsr sub27                    ; d432: 20 68 d5
-                lda #$ff                     ; d435: a9 ff
-                sta ram11                    ; d437: 85 59
-                jmp -                        ; d439: 4c 17 d4
-+               lda #$00                     ; d43c: a9 00
-                sta ram9                    ; d43e: 85 3f
-                ldy ram13                    ; d440: a4 75
-                iny                          ; d442: c8
-                cpy #$0e                     ; d443: c0 0e
-                bcc +                        ; d445: 90 02
-                ldy #$00                     ; d447: a0 00
-+               sty ram13                    ; d449: 84 75
-                jsr sub16                     ; d44b: 20 67 c8
-                lda #$00                     ; d44e: a9 00
-                sta ram9                    ; d450: 85 3f
-                lda #$ff                     ; d452: a9 ff
-                sta ram11                    ; d454: 85 59
-                sta ram21                    ; d456: 85 7d
-                sta ram19                    ; d458: 85 7b
---              jsr sub29                    ; d45a: 20 80 d5
-                lda #$00                     ; d45d: a9 00
-                sta ram11                    ; d45f: 85 59
-                lda ram9                    ; d461: a5 3f
+                lsr a
+                lsr a
+                lsr a
+                sta ram19
+                jsr sub20
+                jsr sub27
+                lda #$ff
+                sta ram11
+                jmp -
++               lda #$00
+                sta ram9
+                ldy ram13
+                iny
+                cpy #$0e
+                bcc +
+                ldy #$00
++               sty ram13
+                jsr sub16
+                lda #$00
+                sta ram9
+                lda #$ff
+                sta ram11
+                sta ram21
+                sta ram19
+--              jsr sub29
+                lda #$00
+                sta ram11
+                lda ram9
                 add #$08
-                sta ram9                    ; d466: 85 3f
-                beq +                        ; d468: f0 39
+                sta ram9
+                beq +
                 sub #$08
-                lsr a                        ; d46d: 4a
-                lsr a                        ; d46e: 4a
-                lsr a                        ; d46f: 4a
-                sta ram21                    ; d470: 85 7d
-                tay                          ; d472: a8
-                lda ram13                    ; d473: a5 75
-                asl a                        ; d475: 0a
-                tax                          ; d476: aa
-                lda dat18,x                   ; d477: bd 56 c9
-                sta ptr3+0                     ; d47a: 85 0e
-                lda dat19,x                   ; d47c: bd 57 c9
-                sta ptr3+1                    ; d47f: 85 0f
-                ldx #$00                     ; d481: a2 00
--               lda (ptr3),y                 ; d483: b1 0e
-                sta arr1,x                   ; d485: 95 7e
-                lda ptr3+0                     ; d487: a5 0e
+                lsr a
+                lsr a
+                lsr a
+                sta ram21
+                tay
+                lda ram13
+                asl a
+                tax
+                lda dat18,x
+                sta ptr3+0
+                lda dat19,x
+                sta ptr3+1
+                ldx #$00
+-               lda (ptr3),y
+                sta arr1,x
+                lda ptr3+0
                 add #$20
-                sta ptr3+0                     ; d48c: 85 0e
-                lda ptr3+1                    ; d48e: a5 0f
-                adc #$00                     ; d490: 69 00
-                sta ptr3+1                    ; d492: 85 0f
-                inx                          ; d494: e8
-                cpx #$1e                     ; d495: e0 1e
-                bcc -                        ; d497: 90 ea
-                jsr sub28                    ; d499: 20 71 d5
-                lda #$ff                     ; d49c: a9 ff
-                sta ram11                    ; d49e: 85 59
-                jmp --                    ; d4a0: 4c 5a d4
-+               jsr sub26                    ; d4a3: 20 4a d5
-                lda #$00                     ; d4a6: a9 00
-                sta ram22                    ; d4a8: 85 9e
-                rts                          ; d4aa: 60
+                sta ptr3+0
+                lda ptr3+1
+                adc #$00
+                sta ptr3+1
+                inx
+                cpx #$1e
+                bcc -
+                jsr sub28
+                lda #$ff
+                sta ram11
+                jmp --
++               jsr sub26
+                lda #$00
+                sta ram22
+                rts
 
-sub24           lda #$01                     ; $d4ab
-                sta ram22                    ; d4ad: 85 9e
-                lda #$00                     ; d4af: a9 00
-                sta ram9                    ; d4b1: 85 3f
--               jsr sub29                    ; d4b3: 20 80 d5
-                lda #$00                     ; d4b6: a9 00
-                sta ram11                    ; d4b8: 85 59
-                lda ram9                    ; d4ba: a5 3f
+sub24           lda #$01                ; $d4ab
+                sta ram22
+                lda #$00
+                sta ram9
+-               jsr sub29
+                lda #$00
+                sta ram11
+                lda ram9
                 sub #$08
-                sta ram9                    ; d4bf: 85 3f
-                beq +                        ; d4c1: f0 12
-                lsr a                        ; d4c3: 4a
-                lsr a                        ; d4c4: 4a
-                lsr a                        ; d4c5: 4a
-                sta ram19                    ; d4c6: 85 7b
-                jsr sub20                     ; d4c8: 20 6a d3
-                jsr sub28                    ; d4cb: 20 71 d5
-                lda #$ff                     ; d4ce: a9 ff
-                sta ram11                    ; d4d0: 85 59
-                jmp -                        ; d4d2: 4c b3 d4
-+               lda #$00                     ; d4d5: a9 00
-                sta ram9                    ; d4d7: 85 3f
-                ldy ram13                    ; d4d9: a4 75
-                dey                          ; d4db: 88
-                bpl +                        ; d4dc: 10 02
-                ldy #$0d                     ; d4de: a0 0d
-+               sty ram13                    ; d4e0: 84 75
-                jsr sub16                     ; d4e2: 20 67 c8
-                lda #$00                     ; d4e5: a9 00
-                sta ram9                    ; d4e7: 85 3f
-                lda #$ff                     ; d4e9: a9 ff
-                sta ram11                    ; d4eb: 85 59
-                sta ram21                    ; d4ed: 85 7d
-                sta ram19                    ; d4ef: 85 7b
---              jsr sub29                    ; d4f1: 20 80 d5
-                lda #$00                     ; d4f4: a9 00
-                sta ram11                    ; d4f6: 85 59
-                lda ram9                    ; d4f8: a5 3f
+                sta ram9
+                beq +
+                lsr a
+                lsr a
+                lsr a
+                sta ram19
+                jsr sub20
+                jsr sub28
+                lda #$ff
+                sta ram11
+                jmp -
++               lda #$00
+                sta ram9
+                ldy ram13
+                dey
+                bpl +
+                ldy #$0d
++               sty ram13
+                jsr sub16
+                lda #$00
+                sta ram9
+                lda #$ff
+                sta ram11
+                sta ram21
+                sta ram19
+--              jsr sub29
+                lda #$00
+                sta ram11
+                lda ram9
                 sub #$08
-                sta ram9                    ; d4fd: 85 3f
-                beq +                        ; d4ff: f0 36
-                lsr a                        ; d501: 4a
-                lsr a                        ; d502: 4a
-                lsr a                        ; d503: 4a
-                sta ram21                    ; d504: 85 7d
-                tay                          ; d506: a8
-                lda ram13                    ; d507: a5 75
-                asl a                        ; d509: 0a
-                tax                          ; d50a: aa
-                lda dat18,x                   ; d50b: bd 56 c9
-                sta ptr3+0                     ; d50e: 85 0e
-                lda dat19,x                   ; d510: bd 57 c9
-                sta ptr3+1                    ; d513: 85 0f
-                ldx #$00                     ; d515: a2 00
--               lda (ptr3),y                 ; d517: b1 0e
-                sta arr1,x                   ; d519: 95 7e
-                lda ptr3+0                     ; d51b: a5 0e
+                sta ram9
+                beq +
+                lsr a
+                lsr a
+                lsr a
+                sta ram21
+                tay
+                lda ram13
+                asl a
+                tax
+                lda dat18,x
+                sta ptr3+0
+                lda dat19,x
+                sta ptr3+1
+                ldx #$00
+-               lda (ptr3),y
+                sta arr1,x
+                lda ptr3+0
                 add #$20
-                sta ptr3+0                     ; d520: 85 0e
-                lda ptr3+1                    ; d522: a5 0f
-                adc #$00                     ; d524: 69 00
-                sta ptr3+1                    ; d526: 85 0f
-                inx                          ; d528: e8
-                cpx #$1e                     ; d529: e0 1e
-                bcc -                        ; d52b: 90 ea
-                jsr sub27                    ; d52d: 20 68 d5
-                lda #$ff                     ; d530: a9 ff
-                sta ram11                    ; d532: 85 59
-                jmp --                    ; d534: 4c f1 d4
-+               jsr sub26                    ; d537: 20 4a d5
-                lda #$00                     ; d53a: a9 00
-                sta ram22                    ; d53c: 85 9e
-                rts                          ; d53e: 60
+                sta ptr3+0
+                lda ptr3+1
+                adc #$00
+                sta ptr3+1
+                inx
+                cpx #$1e
+                bcc -
+                jsr sub27
+                lda #$ff
+                sta ram11
+                jmp --
++               jsr sub26
+                lda #$00
+                sta ram22
+                rts
 
-sub25           tay                          ; $d53f
-                sta ram30                    ; d540: 85 a6
-                sta dat24,y                  ; d542: 99 46 d5
-                rts                          ; d545: 60
+sub25           tay                     ; $d53f
+                sta ram30
+                sta dat24,y
+                rts
 
-dat24           hex 00 01 02 03              ; d546 (unaccessed)
+dat24           hex 00 01 02 03         ; $d546 (unaccessed)
 
-sub26           lda ram13                    ; $d54a
-                cmp #$0d                     ; d54c: c9 0d
-                bne +                    ; d54e: d0 2a
-                lda #$2d                     ; d550: a9 2d
-                sta sprite_data+4+0          ; d552: 8d 04 07
-                lda #$06                     ; d555: a9 06
-                sta sprite_data+4+1          ; d557: 8d 05 07
-                lda #$00                     ; d55a: a9 00
-                sta sprite_data+4+2          ; d55c: 8d 06 07
-                lda #$51                     ; d55f: a9 51
+sub26           lda ram13               ; $d54a
+                cmp #$0d
+                bne +
+                lda #$2d
+                sta sprite_data+4+0
+                lda #$06
+                sta sprite_data+4+1
+                lda #$00
+                sta sprite_data+4+2
+                lda #$51
                 sub ram9
-                sta sprite_data+4+3          ; d564: 8d 07 07
-                rts                          ; d567: 60
+                sta sprite_data+4+3
+                rts
 
-sub27           lda ram9                    ; $d568
-                cmp #$58                     ; d56a: c9 58
-                bcs +                    ; d56c: b0 0c
-                jmp sub26                    ; d56e: 4c 4a d5
-sub28           lda ram9                    ; $d571
-                cmp #$50                     ; d573: c9 50
-                bcc +                    ; d575: 90 03
-                jmp sub26                    ; d577: 4c 4a d5
-+               lda #$ff                     ; d57a: a9 ff
-                sta sprite_data+4+0          ; d57c: 8d 04 07
-                rts                          ; d57f: 60
+sub27           lda ram9                ; $d568
+                cmp #$58
+                bcs +
+                jmp sub26
+sub28           lda ram9
+                cmp #$50
+                bcc +
+                jmp sub26
++               lda #$ff
+                sta sprite_data+4+0
+                rts
 
-sub29           lda ptr1+0                     ; $d580
--               cmp ptr1+0                     ; d582: c5 00
-                beq -                        ; d584: f0 fc
-                rts                          ; d586: 60
+sub29           lda ptr1+0              ; $d580
+-               cmp ptr1+0
+                beq -
+                rts
 
-sub30           lda ram17                    ; $d587
+sub30           lda ram17               ; $d587
                 add #$01
-                cmp #$0a                     ; d58c: c9 0a
-                bcc ++                    ; d58e: 90 0f
-                lda ram16                    ; d590: a5 78
+                cmp #$0a
+                bcc ++
+                lda ram16
                 add #$01
-                cmp #$06                     ; d595: c9 06
-                bcc +                        ; d597: 90 02
-                lda #$02                     ; d599: a9 02
-+               sta ram16                    ; d59b: 85 78
-                lda #$00                     ; d59d: a9 00
-++              sta ram17                    ; d59f: 85 79
-                rts                          ; d5a1: 60
+                cmp #$06
+                bcc +
+                lda #$02
++               sta ram16
+                lda #$00
+++              sta ram17
+                rts
 
-sub31           lda ram19                    ; $d5a2
-                cmp #$20                     ; d5a4: c9 20
-                bcc +                        ; d5a6: 90 24
-                lda ram21                    ; d5a8: a5 7d
-                cmp #$20                     ; d5aa: c9 20
-                bcc +                        ; d5ac: 90 1e
-                lda ram12                    ; d5ae: a5 73
-                and #%11111011               ; d5b0: 29 fb
-                sta ppu_ctrl                 ; d5b2: 8d 00 20
-                lda #$3f                     ; d5b5: a9 3f
-                sta ppu_addr                 ; d5b7: 8d 06 20
-                lda #$00                     ; d5ba: a9 00
-                sta ppu_addr                 ; d5bc: 8d 06 20
-                ldy #0                     ; d5bf: a0 00
--               lda arr2,y                   ; d5c1: b9 a8 00
-                sta ppu_data                 ; d5c4: 8d 07 20
-                iny                          ; d5c7: c8
-                cpy #$10                     ; d5c8: c0 10
-                bcc -                        ; d5ca: 90 f5
-+               rts                          ; d5cc: 60
+sub31           lda ram19               ; $d5a2
+                cmp #$20
+                bcc +
+                lda ram21
+                cmp #$20
+                bcc +
+                lda ram12
+                and #%11111011
+                sta ppu_ctrl
+                lda #$3f
+                sta ppu_addr
+                lda #$00
+                sta ppu_addr
+                ldy #0
+-               lda arr2,y
+                sta ppu_data
+                iny
+                cpy #$10
+                bcc -
++               rts
 
-sub32           ldy #0                     ; $d5cd
-                txa                          ; d5cf: 8a
+sub32           ldy #0                  ; $d5cd
+                txa
                 add #$40
-                bcs +                        ; d5d3: b0 0f
-                sta ram43                    ; d5d5: 85 c4
-                lda (ptr6),y                ; d5d7: b1 c7
-                iny                          ; d5d9: c8
-                sta ram44                    ; d5da: 85 c5
-                cmp #$2a                     ; d5dc: c9 2a
-                beq cod20                    ; d5de: f0 0b
-                cmp #$c0                     ; d5e0: c9 c0
-                bcc ++                    ; d5e2: 90 14
-+               rts                          ; d5e4: 60       (unaccessed)
--               ror a                        ; d5e5: 6a
-                lda (ptr6),y                ; d5e6: b1 c7
-                iny                          ; d5e8: c8
-                bne +++                    ; d5e9: d0 1f
+                bcs +
+                sta ram43
+                lda (ptr6),y
+                iny
+                sta ram44
+                cmp #$2a
+                beq cod20
+                cmp #$c0
+                bcc ++
++               rts                     ; $d5e4 (unaccessed)
+-               ror a
+                lda (ptr6),y
+                iny
+                bne +++
 
-cod20           lda (ptr6),y                ; d5eb: b1 c7    (unaccessed)
-                iny                          ; d5ed: c8       (unaccessed)
-                sta arr4,x                  ; d5ee: 9d 00 01 (unaccessed)
-                inx                          ; d5f1: e8       (unaccessed)
-                cpy #$41                     ; d5f2: c0 41    (unaccessed)
-                bcc cod20                    ; d5f4: 90 f5    (unaccessed)
-                bcs cod23                    ; d5f6: b0 7f    (unaccessed)
+                ; unaccessed chunk
+cod20           lda (ptr6),y            ; $d5eb
+                iny
+                sta arr4,x
+                inx
+                cpy #$41
+                bcc cod20
+                bcs cod23
 
-++              stx ram41                    ; d5f8: 86 c2
-                and #%11011111               ; d5fa: 29 df
-                sta ram40                    ; d5fc: 85 c1
-                lsr a                        ; d5fe: 4a
-                ror ram45                    ; d5ff: 66 c6
-                lsr a                        ; d601: 4a
-                bcs -                    ; d602: b0 e1
-                and #%00000011               ; d604: 29 03
-                tax                          ; d606: aa
-                lda dat25,x                  ; d607: bd c8 d6
-+++             ror ram45                    ; d60a: 66 c6
-                sta ram42                    ; d60c: 85 c3
-                sty ram39                    ; d60e: 84 c0
-                clc                          ; d610: 18
-                lda ram41                    ; d611: a5 c2
-cod21           adc #$08                     ; d613: 69 08
-                sta ram41                    ; d615: 85 c2
-                lda ram40                    ; d617: a5 c1
-                eor ram44                    ; d619: 45 c5
-                sta ram40                    ; d61b: 85 c1
-                and #%00110000               ; d61d: 29 30
-                beq +                        ; d61f: f0 02
-                lda #$ff                     ; d621: a9 ff
-+               asl ram42                    ; d623: 06 c3
-                bcc cod24                    ; d625: 90 5f
-                ldy ram39                    ; d627: a4 c0
-                bit ram45                    ; d629: 24 c6
-                bpl +                        ; d62b: 10 02
-                ldy #$02                     ; d62d: a0 02    (unaccessed)
-+               tax                          ; d62f: aa
-                lda (ptr6),y                ; d630: b1 c7
-                iny                          ; d632: c8
-                sta ram39                    ; d633: 85 c0
-                txa                          ; d635: 8a
-                bvs cod25                    ; d636: 70 5b
-                ldx ram41                    ; d638: a6 c2
-                rol ram39                    ; d63a: 26 c0
--               bcc +                        ; d63c: 90 03
-                lda (ptr6),y                ; d63e: b1 c7
-                iny                          ; d640: c8
-+               dex                          ; d641: ca
-                sta arr4,x                  ; d642: 9d 00 01
-                asl ram39                    ; d645: 06 c0
-                bne -                        ; d647: d0 f3
-                sty ram39                    ; d649: 84 c0
-cod22           bit ram40                    ; d64b: 24 c1
-                bpl +                        ; d64d: 10 0f
-                ldy #$08                     ; d64f: a0 08
--               dex                          ; d651: ca
-                lda arr4,x                  ; d652: bd 00 01
-                eor arr5,x                  ; d655: 5d 08 01
-                sta arr4,x                  ; d658: 9d 00 01
-                dey                          ; d65b: 88
-                bne -                        ; d65c: d0 f3
-+               bvc +                        ; d65e: 50 0f
-                ldy #$08                     ; d660: a0 08
--               dex                          ; d662: ca
-                lda arr4,x                  ; d663: bd 00 01
-                eor arr5,x                  ; d666: 5d 08 01
-                sta arr5,x                  ; d669: 9d 08 01
-                dey                          ; d66c: 88
-                bne -                        ; d66d: d0 f3
-+               lda ram41                    ; d66f: a5 c2
-                cmp ram43                    ; d671: c5 c4
-                bcc cod21                    ; d673: 90 9e
+++              stx ram41               ; $d5f8
+                and #%11011111
+                sta ram40
+                lsr a
+                ror ram45
+                lsr a
+                bcs -
+                and #%00000011
+                tax
+                lda dat25,x
++++             ror ram45               ; $d60a
+                sta ram42
+                sty ram39
+                clc
+                lda ram41
+cod21           adc #$08                ; $d613
+                sta ram41
+                lda ram40
+                eor ram44
+                sta ram40
+                and #%00110000
+                beq +
+                lda #$ff
++               asl ram42
+                bcc cod24
+                ldy ram39
+                bit ram45
+                bpl +
+                ldy #$02                ; $d62d (unaccessed)
++               tax
+                lda (ptr6),y
+                iny
+                sta ram39
+                txa
+                bvs cod25
+                ldx ram41
+                rol ram39
+-               bcc +
+                lda (ptr6),y
+                iny
++               dex
+                sta arr4,x
+                asl ram39
+                bne -
+                sty ram39
+cod22           bit ram40               ; $d64b
+                bpl +
+                ldy #$08
+-               dex
+                lda arr4,x
+                eor arr5,x
+                sta arr4,x
+                dey
+                bne -
++               bvc +
+                ldy #$08
+-               dex
+                lda arr4,x
+                eor arr5,x
+                sta arr5,x
+                dey
+                bne -
++               lda ram41
+                cmp ram43
+                bcc cod21
+                ldy ram39
 
-                ldy ram39                    ; d675: a4 c0
-cod23           clc                          ; d677: 18
-                tya                          ; d678: 98
-                adc ptr6+0                    ; d679: 65 c7
-                sta ptr6+0                    ; d67b: 85 c7
-                bcc +                        ; d67d: 90 02
-                inc ptr6+1                    ; d67f: e6 c8
-+               ldx ram43                    ; d681: a6 c4
-                dec ram46                    ; d683: c6 c9
-                rts                          ; d685: 60
+cod23           clc                     ; $d677
+                tya
+                adc ptr6+0
+                sta ptr6+0
+                bcc +
+                inc ptr6+1
++               ldx ram43
+                dec ram46
+                rts
 
-cod24           ldx ram41                    ; d686: a6 c2
-                ldy #$08                     ; d688: a0 08
--               dex                          ; d68a: ca
-                sta arr4,x                  ; d68b: 9d 00 01
-                dey                          ; d68e: 88
-                bne -                        ; d68f: d0 f9
-                beq cod22                    ; d691: f0 b8
+cod24           ldx ram41               ; $d686
+                ldy #$08
+-               dex
+                sta arr4,x
+                dey
+                bne -
+                beq cod22
 
-cod25           ldx #$08                     ; d693: a2 08
--               asl ram39                    ; d695: 06 c0
-                bcc +                        ; d697: 90 03
-                lda (ptr6),y                ; d699: b1 c7
-                iny                          ; d69b: c8
-+               dex                          ; d69c: ca
-                sta arr3,x                   ; d69d: 95 b8
-                bne -                        ; d69f: d0 f4
-                sty ram39                    ; d6a1: 84 c0
-                ldy #$08                     ; d6a3: a0 08
-                ldx ram41                    ; d6a5: a6 c2
--               asl arr3                     ; d6a7: 06 b8
-                ror a                        ; d6a9: 6a
-                asl ram32                    ; d6aa: 06 b9
-                ror a                        ; d6ac: 6a
-                asl ram33                    ; d6ad: 06 ba
-                ror a                        ; d6af: 6a
-                asl ram34                    ; d6b0: 06 bb
-                ror a                        ; d6b2: 6a
-                asl ram35                    ; d6b3: 06 bc
-                ror a                        ; d6b5: 6a
-                asl ram36                    ; d6b6: 06 bd
-                ror a                        ; d6b8: 6a
-                asl ram37                    ; d6b9: 06 be
-                ror a                        ; d6bb: 6a
-                asl ram38                    ; d6bc: 06 bf
-                ror a                        ; d6be: 6a
-                dex                          ; d6bf: ca
-                sta arr4,x                  ; d6c0: 9d 00 01
-                dey                          ; d6c3: 88
-                bne -                        ; d6c4: d0 e1
-                beq cod22                    ; d6c6: f0 83
+cod25           ldx #$08                ; $d693
+-               asl ram39
+                bcc +
+                lda (ptr6),y
+                iny
++               dex
+                sta arr3,x
+                bne -
+                sty ram39
+                ldy #$08
+                ldx ram41
+-               asl arr3
+                ror a
+                asl ram32
+                ror a
+                asl ram33
+                ror a
+                asl ram34
+                ror a
+                asl ram35
+                ror a
+                asl ram36
+                ror a
+                asl ram37
+                ror a
+                asl ram38
+                ror a
+                dex
+                sta arr4,x
+                dey
+                bne -
+                beq cod22
 
-dat25           hex 00 55 aa ff              ; d6c8
+dat25           hex 00 55 aa ff         ; $d6c8
 
-sub33           sty ptr6+0                    ; $d6cc
-                sta ptr6+1                    ; d6ce: 85 c8
-                stx ram46                    ; d6d0: 86 c9
---              ldx #$40                     ; d6d2: a2 40
-                jsr sub32                    ; d6d4: 20 cd d5
-                cpx #$80                     ; d6d7: e0 80
-                bne +                        ; d6d9: d0 0f
-                ldx #$40                     ; d6db: a2 40
--               lda arr4,x                  ; d6dd: bd 00 01
-                sta ppu_data                 ; d6e0: 8d 07 20
-                inx                          ; d6e3: e8
-                bpl -                        ; d6e4: 10 f7
-                ldx ram46                    ; d6e6: a6 c9
-                bne --                    ; d6e8: d0 e8
-+               rts                          ; d6ea: 60
+sub33           sty ptr6+0              ; $d6cc
+                sta ptr6+1
+                stx ram46
+--              ldx #$40
+                jsr sub32
+                cpx #$80
+                bne +
+                ldx #$40
+-               lda arr4,x
+                sta ppu_data
+                inx
+                bpl -
+                ldx ram46
+                bne --
++               rts
 
                 pad $ffd0, $00
 
-sub34           ldx #$00                     ; $ffd0
-                ldy #$00                     ; ffd2: a0 00
-                lda ptr1+0                     ; ffd4: a5 00
--               cmp ptr1+0                     ; ffd6: c5 00
-                beq -                        ; ffd8: f0 fc
-                lda ptr1+0                     ; ffda: a5 00
--               inx                          ; ffdc: e8
-                bne +                        ; ffdd: d0 01
-                iny                          ; ffdf: c8
-+               cmp ptr1+0                     ; ffe0: c5 00
-                beq -                        ; ffe2: f0 f8
-                tya                          ; ffe4: 98
+sub34           ldx #$00                ; $ffd0
+                ldy #$00
+                lda ptr1+0
+-               cmp ptr1+0
+                beq -
+                lda ptr1+0
+-               inx
+                bne +
+                iny
++               cmp ptr1+0
+                beq -
+                tya
                 sub #$0a
-                cmp #$03                     ; ffe8: c9 03
-                bcc +                        ; ffea: 90 02
-                lda #$03                     ; ffec: a9 03    (unaccessed)
-+               rts                          ; ffee: 60
+                cmp #$03
+                bcc +
+                lda #$03                ; $ffec (unaccessed)
++               rts
 
-dat26           hex ff                       ; ffef
+dat26           hex ff                  ; $ffef
 
                 pad $fffa, $00
-                dw nmi, reset, irq          ; IRQ unaccessed
+                dw nmi, reset, irq      ; IRQ unaccessed
