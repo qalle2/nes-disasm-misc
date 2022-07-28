@@ -1,10 +1,6 @@
-; An unofficial disassembly of the PRG ROM of "BPM - Nintendo's Beginnings"
-; (BPM-1.1.nes) by retroadamshow,
-; https://retroadamshow.itch.io/bpm-nintendos-beginnings
+; An unofficial disassembly of "BPM - Nintendo's Beginnings" (BPM-1.1.nes)
+; by retroadamshow, https://retroadamshow.itch.io/bpm-nintendos-beginnings
 ; Disassembled by qalle. Assembles with ASM6.
-
-; Type of cartridge: UNROM (iNES mapper 2), 64 KiB PRG ROM, horizontal
-; name table mirroring, has extra RAM.
 
 ; Note: this disassembly is under construction.
 
@@ -52,8 +48,6 @@
 ;     00 3e 63 63 63 63 63 3e  00 00 00 00 00 00 00 00
 ;     ...
 ; Except for Devil World, compressed data always starts with $03 $2a.
-
-;incbin "bpm-hdr.tmp"  ; comment out or checksum won't match
 
 ; --- Constants ---------------------------------------------------------------
 
@@ -216,6 +210,14 @@ macro copy _src, _dst
                 lda _src
                 sta _dst
 endm
+
+; --- iNES header -------------------------------------------------------------
+
+                base $0000
+                db "NES", $1a
+                db 4, 0                  ; 64 KiB PRG ROM, 8 KiB CHR RAM
+                db %00100010, %00000000  ; mapper 2 (UxROM), horiz. mirroring,
+                pad $0010, $00           ; has extra RAM
 
 ; --- Bank 0 ------------------------------------------------------------------
 

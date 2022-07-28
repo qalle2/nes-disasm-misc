@@ -1,5 +1,5 @@
-; An unofficial disassembly of the PRG ROM of "DVD Screensaver for NES" by
-; Johnybot, https://johnybot.itch.io/nes-dvd-screensaver
+; An unofficial disassembly of "DVD Screensaver for NES" (dvd.nes) by Johnybot,
+; https://johnybot.itch.io/nes-dvd-screensaver
 ; Disassembled by qalle. Assembles with ASM6.
 
 ; --- Constants ---------------------------------------------------------------
@@ -44,6 +44,14 @@ endm
 macro incw _zp
                 db $ee, _zp, $00
 endm
+
+; --- iNES header -------------------------------------------------------------
+
+                base $0000
+                db "NES", $1a
+                db 1, 1                  ; 16 KiB PRG ROM, 8 KiB CHR ROM
+                db %00000000, %00001000  ; NROM, horizontal mirroring
+                pad $0010, $00
 
 ; --- Initialization ----------------------------------------------------------
 
@@ -313,3 +321,59 @@ colors          hex 11 15 19            ; logo colors (blue, red, green)
 
                 pad $fffa, $ff
                 dw nmi-$4000, reset-$4000, $0000  ; IRQ unaccessed
+
+; --- CHR ROM -----------------------------------------------------------------
+
+                base $0000
+
+                pad $1080, $00
+                hex ff ff ff ff ff ff f8 f8 ff ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff 00 00 ff ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff 00 00 ff ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff 0f 03 ff ff ff ff ff ff f7 ff
+                hex ff ff ff ff ff ff ff fe ff ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff 00 00 ff ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff 00 00 ff ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff 3f 2f ff ff ff ff ff ff ff df
+
+                pad $1180, $00
+                hex fc f8 ff f7 f8 f8 e0 e0 fb ff ff f8 f7 f7 ff ff
+                hex 00 01 ff df 7f 7f 3f 3f ff fe ff 3f bf bf ff ff
+                hex 00 80 c0 e0 c0 c0 e1 80 ff 7f bf df ff ff de ff
+                hex 03 07 41 01 03 60 c0 c1 ff fb bf ff fd df ff fe
+                hex fc fe fc f8 e0 d1 e2 c1 ff fd fb f7 ff ee dd bf
+                hex 00 00 3f 6f e0 70 f0 c0 ff ff df b0 7f ef ef ff
+                hex 00 03 ff bf 3f ff ff 7f ff fc ff 7f ff 7f 7f ff
+                hex 0b 01 03 c0 80 80 c3 03 f7 ff fd bf ff ff bd fd
+
+                pad $1280, $00
+                hex e0 f0 f0 c0 c0 e0 ff ff ff ef ef ff ff df ff ff
+                hex bf fd 0c 00 03 03 ff ff 7f 7e f3 ff fc ff ff ff
+                hex 43 07 0f 6f 3f ff ff ff bd fb f7 9f ff ff ff ff
+                hex f0 e0 e0 f8 f0 f4 fd f8 ef ff ff f7 ff fb fa ff
+                hex 03 0f 1f 3f 7f bf 7f ff ff f7 ef df bf 7f ff ff
+                hex c0 e1 e0 80 80 80 ff ff ff de df ff ff ff ff ff
+                hex 7e f9 18 00 06 07 ff ff ff fe e7 ff f9 ff ff ff
+                hex 87 0f 1f 5f 7f ff ff ff 7b f7 ef bf ff ff ff ff
+
+                pad $1380, $00
+                hex ff ff ff f3 b0 40 e0 ce ff ff ff fc cf bf 9f f1
+                hex ff ff 83 80 1f 0c 03 07 ff ff fc 7f ec f7 ff fb
+                hex ff f0 fe 00 ef 8f 4f 8f ff ff 01 ff d6 f6 b6 76
+                hex fd 00 18 02 76 7f 7a 7d ff ff e7 fd bf b3 b7 be
+                hex ff 00 1c 00 38 bc 30 3c ff ff e3 ff df 5f df df
+                hex ff ff fe 21 73 2d 2d 5e ff ff 01 de bf f3 f3 bf
+                hex ff ff 1f 1c 80 00 00 83 ff ff ff e3 7f ff ff 7c
+                hex ff ff ff 7f 5f 1f 2f 3f ff ff ff ff bf ef df ff
+
+                pad $1480, $00
+                hex fe ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                hex 3f fc ff ff ff ff ff ff c0 ff ff ff ff ff ff ff
+                hex 06 00 ff ff ff ff ff ff f9 ff ff ff ff ff ff ff
+                hex 3c 00 ff ff ff ff ff ff c3 ff ff ff ff ff ff ff
+                hex 1c 00 ff ff ff ff ff ff e3 ff ff ff ff ff ff ff
+                hex 33 03 ff ff ff ff ff ff cc ff ff ff ff ff ff ff
+                hex c3 ff ff ff ff ff ff ff 3f ff ff ff ff ff ff ff
+                hex ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+
+                pad $2000, $00
