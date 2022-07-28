@@ -1,0 +1,301 @@
+FCEUX code/data log for PRG ROM of bpm.nes
+Generated with cdl_summary.py from bpm.cdl
+Bank size: 16 KiB
+
+Columns: CPU start address (hexadecimal), length (hexadecimal), description
+("-" = unaccessed)
+
+--- Bank 0 (CPU $8000-$bfff) --------------------------------------------------
+
+8000 4000: -
+
+--- Bank 1 (CPU $8000-$bfff) --------------------------------------------------
+
+8000 37f4: indirect data
+b7f4  80c: -
+
+--- Bank 2 (CPU $8000-$bfff) --------------------------------------------------
+
+8000   5b: code
+805b    1: code & data
+805c   91: code
+80ed    1: -
+80ee   65: code
+8153   24: -
+8177   1c: code
+8193   17: -
+81aa   26: code
+81d0    7: -
+81d7    b: code
+81e2    1: code & data
+81e3    a: code
+81ed    b: -
+81f8   15: code
+820d    d: -
+821a    e: code
+8228    3: -
+822b   3b: code
+8266    1: code & data
+8267   27: code
+828e   39: -
+82c7    1: code & data
+82c8   22: code
+82ea    1: code & data
+82eb   18: code
+8303    1: code & data
+8304    6: code
+830a   1b: -
+8325    f: code
+8334    1: code & data
+8335    f: code
+8344   2b: -
+836f    a: code
+8379    3: -
+837c   55: code
+83d1    1: code & data
+83d2   32: code
+8404    1: code & data
+8405    c: code
+8411   49: -
+845a    1: code & data
+845b   ae: code
+8509    4: -
+850d   90: code
+859d    1: code & data
+859e   39: code
+85d7    2: indirect code
+85d9    a: code
+85e3    2: -
+85e5    8: code
+85ed    2: indirect code
+85ef    9: code
+85f8    2: indirect code
+85fa   2d: code
+8627    2: -
+8629    3: code
+862c   56: -
+8682    2: indirect code
+8684   1c: code
+86a0    2: -
+86a2    3: code
+86a5    2: indirect code
+86a7    7: code
+86ae    2: -
+86b0    3: code
+86b3   a1: -
+8754    1: code & data
+8755   20: code
+8775    8: -
+877d    1: code & data
+877e   15: code
+8793    2: -
+8795   49: code
+87de   24: -
+8802    3: code
+8805    1: code & data
+8806   16: code
+881c    1: code & data
+881d    a: code
+8827    3: -
+882a    2: data
+882c    3: -
+882f    3: data
+8832    6: -
+8838    2: data
+883a    3: -
+883d    3: data
+8840    4: -
+8844    1: code & data
+8845    5: code
+884a    5: -
+884f   38: code
+8887   6c: -
+88f3    5: code
+88f8    5: -
+88fd    6: code
+8903   c0: -
+89c3    9: indirect data
+89cc   6b: -
+8a37    1: data
+8a38    1: -
+8a39    1: data
+8a3a    2: -
+8a3c    1: data
+8a3d    1: -
+8a3e    1: data
+8a3f    1: -
+8a40    1: data
+8a41    1: -
+8a42    2: data
+8a44    1: -
+8a45    2: data
+8a47    3: -
+8a4a    1: data
+8a4b    1: -
+8a4c    4: data
+8a50    1: -
+8a51    1: data
+8a52    4: -
+8a56    1: data
+8a57    9: -
+8a60    1: data
+8a61    1: -
+8a62    1: data
+8a63    1: -
+8a64    2: data
+8a66    1: -
+8a67    6: data
+8a6d    1: -
+8a6e    1: data
+8a6f   8a: -
+8af9    1: data
+8afa    1: -
+8afb    1: data
+8afc    2: -
+8afe    1: data
+8aff    1: -
+8b00    1: data
+8b01    1: -
+8b02    1: data
+8b03    1: -
+8b04    2: data
+8b06    1: -
+8b07    2: data
+8b09    3: -
+8b0c    1: data
+8b0d    1: -
+8b0e    4: data
+8b12    1: -
+8b13    1: data
+8b14    4: -
+8b18    1: data
+8b19    9: -
+8b22    1: data
+8b23    1: -
+8b24    1: data
+8b25    1: -
+8b26    2: data
+8b28    1: -
+8b29    6: data
+8b2f    1: -
+8b30    1: data
+8b31   1f: -
+8b50    3: data
+8b53    1: -
+8b54    1: data
+8b55    5: -
+8b5a    3: data
+8b5d    1: -
+8b5e    4: data
+8b62    2: -
+8b64    2: data
+8b66    3: -
+8b69    2: data
+8b6b    3: -
+8b6e    2: data
+8b70    1: -
+8b71    1: data
+8b72    f: -
+8b81    1: data
+8b82   31: -
+8bb3    f: data
+8bc2   31: -
+8bf3    f: data
+8c02   60: -
+8c62    1: data
+8c63    e: -
+8c71    1: data
+8c72 32f5: indirect data
+bf67   99: -
+
+--- Bank 3 (CPU $c000-$ffff) --------------------------------------------------
+
+c000  280: -
+
+c280    f: indirect data
+c28f    2: -
+c291    e: indirect data
+c29f    2: -
+c2a1    6: indirect data
+c2a7    4: -
+c2ab    4: indirect data
+c2af    8: -
+c2b7    4: indirect data
+c2bb    4: -
+c2bf    4: indirect data
+c2c3    8: -
+c2cb    4: indirect data
+c2cf    4: -
+c2d3    8: indirect data
+c2db    1: -
+c2dc   1f: indirect data
+c2fb    2: -
+c2fd    1: indirect data
+c2fe    3: -
+c301  297: indirect data
+
+c598   83: code
+c61b   1a: -
+c635   50: code
+c685    4: -
+c689    6: code
+c68f    4: -
+c693    8: code
+c69b    4: -
+c69f    8: code
+c6a7    4: -
+c6ab    8: code
+c6b3    4: -
+c6b7    8: code
+c6bf    4: -
+c6c3  173: code
+c836    1: code & data
+c837   29: code
+c860    1: code & data
+c861   af: code
+c910   7e: data
+c98e   1f: code
+
+c9ad  8e0: indirect data
+d28d   70: data
+
+d2fd   4d: code
+d34a    1: code & data
+d34b   63: code
+d3ae    1: code & data
+d3af   35: code
+d3e4    1: code & data
+d3e5    d: code
+d3f2    1: code & data
+d3f3    b: code
+d3fe    7: data
+d405   12: code
+d417    1: code & data
+d418   42: code
+d45a    1: code & data
+d45b   58: code
+d4b3    1: code & data
+d4b4   3d: code
+d4f1    1: code & data
+d4f2   54: code
+d546    4: -
+d54a    1: code & data
+d54b   99: code
+d5e4    1: -
+d5e5    6: code
+d5eb    d: -
+d5f8   35: code
+d62d    2: -
+d62f   99: code
+d6c8    4: data
+d6cc   1f: code
+
+d6eb 28e5: -
+
+ffd0   1c: code
+ffec    2: -
+ffee    1: code
+ffef    1: data
+fff0    a: -
+fffa    4: data
+fffe    2: unaccessed

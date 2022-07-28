@@ -993,7 +993,7 @@ nt_dkjr         ; NT & AT data for Donkey Kong Jr. ($b3f4)
 
 sub1            ; audio stuff; called by: init
                 ;
-                stx arr37+9             ; $8000
+                stx arr37+9
                 sty arr37+10
                 stx ptr4+0
                 sty ptr4+1
@@ -1033,7 +1033,7 @@ sub1            ; audio stuff; called by: init
 
 sub2            ; array stuff; called by: sub1, sub3
                 ;
-                lda #$00                ; $805b
+                lda #$00
                 sta arr28+4
                 sta arr37+15
                 ;
@@ -1097,7 +1097,7 @@ sub2            ; array stuff; called by: sub1, sub3
 
 sub3            ; array stuff; called by: init
                 ;
-                ldx arr37+9             ; $80dd
+                ldx arr37+9
                 stx ptr4+0
                 ldx arr37+10
                 stx ptr4+1
@@ -1154,8 +1154,8 @@ sub3            ; array stuff; called by: init
                 sta arr28+4
                 rts
 
-ucod1           ; unaccessed chunk
-                tax                     ; $8153
+ucod1           ; unaccessed chunk ($8153)
+                tax
                 beq +
                 jsr sub10
                 lda #$00
@@ -1170,12 +1170,13 @@ ucod1           ; unaccessed chunk
                 and #%01111111
 ++              sta arr28+4
                 rts
+                ; $8177
 
 ; -----------------------------------------------------------------------------
 
 sub4            ; called by: sub7
                 ;
-                clc                     ; $8177
+                clc
                 lda arr21,y
                 adc arr15,y
                 sta ptr5+0
@@ -1188,8 +1189,8 @@ sub4            ; called by: sub7
                 lda arr22,y
                 beq +
 
-ucod2           ; unaccessed chunk
-                lda arr24,y             ; $8193
+ucod2           ; unaccessed chunk ($8193)
+                lda arr24,y
                 cmp #$80
                 ror a
                 sta ram23
@@ -1200,8 +1201,9 @@ ucod2           ; unaccessed chunk
                 lda ram23
                 adc ptr5+1
                 sta ptr5+1
+                ; $81aa
 
-+               clc                     ; $81aa
++               clc
                 lda dat3,x
                 adc ptr5+0
                 sta ptr5+0
@@ -1212,7 +1214,7 @@ ucod2           ; unaccessed chunk
 
 sub5            ; called by: sub6
                 ;
-                jsr sub9                ; $81ba
+                jsr sub9
                 bcc +++
                 txa
                 tay
@@ -1222,10 +1224,10 @@ sub5            ; called by: sub6
                 bcc ++
                 lda arr27+4
                 bne +
-                jsr sub10               ; $81d0 (unaccessed)
+                jsr sub10               ; unaccessed ($81d0)
                 ldx #$04                ; unaccessed
                 bne +++                 ; unaccessed
-+               jsr sub11               ; $81d7
++               jsr sub11
                 ldx #$04
                 jmp +++
 ++              jsr sub8
@@ -1233,15 +1235,15 @@ sub5            ; called by: sub6
 
 sub6            ; called by: sub7
                 ;
-                lda arr37+7             ; $81e3
+                lda arr37+7
                 beq +
                 lda arr35,x
                 bmi ++
-                lda #$ff                ; $81ed (unaccessed)
+                lda #$ff                ; unaccessed ($81ed)
                 sta arr35,x             ; unaccessed
                 jsr sub5                ; unaccessed
                 jmp ++                  ; unaccessed
-+               lda arr35,x             ; $81f8
++               lda arr35,x
                 bmi +++
                 sub #$01
                 sta arr35,x
@@ -1249,23 +1251,23 @@ sub6            ; called by: sub7
 ++              jsr sub5
 +++             lda arr36,x
                 bmi +
-                sub #$01                ; $820d (unaccessed)
+                sub #$01                ; unaccessed ($820d)
                 sta arr36,x             ; unaccessed
                 bpl +                   ; unaccessed
                 lda #$00                ; unaccessed
                 sta arr27,x             ; unaccessed
-+               rts                     ; $821a
++               rts
 
 sub7            ; called by: nmi
                 ;
-                lda ptr4+0              ; $821b
+                lda ptr4+0
                 pha
                 lda ptr4+1
                 pha
                 lda arr28+4
                 bmi +
                 bne ++
-+               jmp cod10               ; $8228 (unaccessed)
++               jmp cod10               ; unaccessed ($8228)
 ++              lda arr37+6
                 cmp arr28+4
                 ldx #$00
@@ -1316,9 +1318,9 @@ sub7            ; called by: nmi
                 ldx #$00
                 jmp cod2
 
-cod1            ; unaccessed chunk
+cod1            ; unaccessed chunk ($828e)
                 ;
-                lda arr17,x             ; $828e
+                lda arr17,x
                 sub #$01
                 sta arr17,x
                 and #%01111111
@@ -1345,8 +1347,9 @@ cod1            ; unaccessed chunk
 +               adc arr16,x
                 sta arr16,x
                 jmp cod7
+                ; $82c7
 
-cod2            lda arr17,x             ; $82c7
+cod2            lda arr17,x
                 cmp #$81
                 bcs cod1
                 and #%01111111
@@ -1377,8 +1380,8 @@ cod4            lda (ptr4),y
                 iny
                 jmp cod6
 
-ucod3           ; unaccessed chunk
-                sta ram24               ; $830a
+ucod3           ; unaccessed chunk ($830a)
+                sta ram24
                 clc
                 adc arr15,x
                 sta arr15,x
@@ -1390,8 +1393,9 @@ ucod3           ; unaccessed chunk
                 sta arr16,x
                 iny
                 jmp cod6
+                ; $8325
 
-cod5            bne +                   ; $8325
+cod5            bne +
                 iny
                 lda (ptr4),y
                 tay
@@ -1408,8 +1412,8 @@ cod7            inx
 cod8            lda arr22,x
                 beq cod9
 
-ucod4           ; unaccessed chunk
-                clc                     ; $8344
+ucod4           ; unaccessed chunk ($8344)
+                clc
                 lda arr22,x
                 adc arr23,x
                 sta arr23,x
@@ -1426,13 +1430,14 @@ ucod4           ; unaccessed chunk
                 bmi cod9
 ++              lda #$00
                 sta arr22,x
+                ; $836f
 
-cod9            inx                     ; $836f
+cod9            inx
                 cpx #4
                 bne cod8
 cod10           lda arr27
                 bne +
-                jmp ++                  ; $8379 (unaccessed)
+                jmp ++                  ; unaccessed ($8379)
 +               add arr10+1
                 add arr37+8
                 tax
@@ -1487,9 +1492,9 @@ cod10           lda arr27
                 bne ucod5
                 jmp cod11
 
-ucod5           ; unaccessed chunk
+ucod5           ; unaccessed chunk ($8411)
                 ;
-                add arr10+9             ; $8411
+                add arr10+9
                 ldy arr22+3
                 beq +
                 ;
@@ -1524,8 +1529,9 @@ ucod5           ; unaccessed chunk
                 ora arr10+8
                 tax
                 lda dat12,x
+                ; $845a
 
-cod11           ldx arr10+10            ; $845a
+cod11           ldx arr10+10
                 ora dat11,x
                 ora #%11110000
                 sta ram70
@@ -1570,7 +1576,7 @@ cod11           ldx arr10+10            ; $845a
 
 sub8            ; called by: sub5
                 ;
-                sty ram24               ; $84e0
+                sty ram24
                 asl a
                 tay
                 lda arr37+12
@@ -1590,7 +1596,7 @@ sub8            ; called by: sub5
                 lsr a
                 ldx ram25
                 bcc +
-                iny                     ; $8509 (unaccessed)
+                iny                     ; unaccessed ($8509)
                 jmp ++                  ; unaccessed
                 ;
 +               lda (ptr4),y
@@ -1654,7 +1660,7 @@ sub8            ; called by: sub5
 
 sub9            ; called by: sub5
                 ;
-                lda arr29,x             ; $8583
+                lda arr29,x
                 beq +
                 dec arr29,x
                 clc
@@ -1665,7 +1671,7 @@ sub9            ; called by: sub5
                 lda arr26,x
                 sta ptr4+1
                 ldy #0
-cod12           lda (ptr4),y            ; $859d
+cod12           lda (ptr4),y
                 inc ptr4+0
                 bne +
                 inc ptr4+1
@@ -1687,30 +1693,30 @@ cod12           lda (ptr4),y            ; $859d
 +               stx ram23
                 and #%00001111
                 tax
-                lda dat1,x
+                lda jump_tbl_lo,x
                 sta ptr5+0
-                lda dat2,x
+                lda jump_tbl_hi,x
                 sta ptr5+1
                 ldx ram23
                 jmp (ptr5)
 
-                stx ram23               ; $85d7
+icode1          stx ram23
                 lda dat8,x
                 tax
                 lda (ptr4),y
                 inc ptr4+0
                 bne +
-                inc ptr4+1              ; $85e3 (unaccessed)
+                inc ptr4+1              ; unaccessed ($85e3)
 +               sta arr21,x
                 ldx ram23
                 jmp cod12
 
-                lda #$7f                ; $85ed
+icode2          lda #$7f
                 and arr34,x
                 sta arr34,x
                 jmp cod12
 
-                lda #$80                ; $85f8
+icode3          lda #$80
                 ora arr34,x
                 sta arr34,x
                 stx ram23
@@ -1732,15 +1738,16 @@ cod12           lda (ptr4),y            ; $859d
                 adc ptr4+0
                 sta ptr4+0
                 bcc +
-                inc ptr4+1              ; $8627 (unaccessed)
+                inc ptr4+1              ; unaccessed ($8627)
 +               jmp cod12
 
-ucod6           ; unaccessed chunk
-                ;
-                lda #$fe                ; $862c
+icode4          ; unaccessed chunk ($862c)
+                lda #$fe
                 and arr34,x
                 sta arr34,x
                 jmp cod12
+
+icode5          ; unaccessed chunk
                 lda #$01
                 ora arr34,x
                 sta arr34,x
@@ -1758,15 +1765,15 @@ ucod6           ; unaccessed chunk
                 sta arr10,x
                 sta arr14,x
                 ldx ram23
-                ;
                 clc
                 lda #$02
                 adc ptr4+0
                 sta ptr4+0
                 bcc +
                 inc ptr4+1
-                ;
 +               jmp cod12
+
+icode6          ; unaccessed chunk
                 stx ram23
                 lda dat6,x
                 tax
@@ -1776,8 +1783,9 @@ ucod6           ; unaccessed chunk
                 sta arr14,x
                 ldx ram23
                 jmp cod12
+                ; $8682
 
-                stx ram23               ; $8682
+icode7          stx ram23
                 lda dat9,x
                 tax
                 lda (ptr4),y
@@ -1791,27 +1799,27 @@ ucod6           ; unaccessed chunk
                 ldx ram23
                 inc ptr4+0
                 bne +
-                inc ptr4+1              ; $86a0 (unaccessed)
+                inc ptr4+1              ; unaccessed ($86a0)
 +               jmp cod12
 
-                lda (ptr4),y            ; $86a5
+icode8          lda (ptr4),y
                 sta arr35,x
                 inc ptr4+0
                 bne +
-                inc ptr4+1              ; $86ae (unaccessed)
+                inc ptr4+1              ; unaccessed ($86ae)
 +               jmp cod17
 
-ucod7           ; unaccessed chunk
-                ;
-                copy #$40, ram25        ; $86b3
+icode9          ; unaccessed chunk ($86b3)
+                copy #$40, ram25
                 lda (ptr4),y
                 sta arr36,x
                 inc ptr4+0
                 bne +
                 inc ptr4+1
 +               jmp cod12
-                ;
-                lda #$80                ; $86c5
+
+icode10         ; unaccessed chunk
+                lda #$80
                 ora ram25
                 sta ram25
                 jmp cod12
@@ -1838,10 +1846,12 @@ ucod7           ; unaccessed chunk
                 rol a
                 sta arr24+3
                 jmp +
+
+icode11         ; unaccessed chunk
                 cpx #3
                 beq -
                 ;
-                stx ram23               ; $86ff
+                stx ram23
                 lda dat7,x
                 tax
                 lda (ptr4),y
@@ -1880,8 +1890,9 @@ ucod7           ; unaccessed chunk
                 inc ptr4+1
 +               ldy #$00
                 jmp +
+                ; $8754
 
-cod13           sta arr27,x             ; $8754
+cod13           sta arr27,x
                 ldy dat7,x
                 bmi +
                 lda #$00
@@ -1895,11 +1906,11 @@ cod13           sta arr27,x             ; $8754
                 beq ++
 -               sec
                 jmp cod16
-++              cpx #4                  ; $8775 (unaccessed)
+++              cpx #4                  ; unaccessed ($8775)
                 beq -                   ; unaccessed
                 clc                     ; unaccessed
                 jmp cod16               ; unaccessed
-cod14           and #%01111111          ; $877d
+cod14           and #%01111111
                 lsr a
                 bcs ++
                 asl a
@@ -1911,7 +1922,7 @@ cod14           and #%01111111          ; $877d
                 sta arr28+4
                 inc ptr4+0
                 bne +
-                inc ptr4+1              ; $8793 (unaccessed)
+                inc ptr4+1              ; unaccessed ($8793)
 +               jmp cod12
                 ;
 -               lda (ptr4),y
@@ -1950,8 +1961,8 @@ cod14           and #%01111111          ; $877d
                 ldy #$00
                 jmp cod12
 
-ucod8           ; unaccessed chunk
-                stx ram23               ; $87de
+ucod8           ; unaccessed chunk ($87de)
+                stx ram23
                 lda dat5,x
                 tax
                 lda arr11,x
@@ -1967,9 +1978,10 @@ ucod8           ; unaccessed chunk
 +               ldx ram23
                 clc
                 jmp cod16
+                ; $8802
 
-cod15           sta arr29,x             ; $8802
-cod16           lda arr32,x             ; $8805
+cod15           sta arr29,x
+cod16           lda arr32,x
                 beq cod17
                 dec arr32,x
                 bne cod17
@@ -1978,31 +1990,34 @@ cod16           lda arr32,x             ; $8805
                 lda arr31,x
                 sta arr26,x
                 rts
-cod17           lda ptr4+0              ; $881c
+cod17           lda ptr4+0
                 sta arr25,x
                 lda ptr4+1
                 sta arr26,x
                 rts
 
-dat1            hex 00 fb c5            ; $8827 (unaccessed)
-                hex f8 ed               ; $882a
-                hex 37 2c 6c            ; $882c (unaccessed)
-                hex d7 82 a5 b3 27 27   ; $882f
+jump_tbl_lo     ; $8827; partially unaccessed
+                dl $2700,       icode11,    icode10, icode3
+                dl icode2,      icode5,     icode4,  icode6
+                dl icode1,      icode7,     icode8,  icode9
+                dl jump_tbl_lo, jump_tbl_lo
 
-dat2            hex 27 86 86            ; $8835 (unaccessed)
-                hex 85 85               ; $8838
-                hex 86 86 86            ; $883a (unaccessed)
-                hex 85 86 86            ; $883d
-                hex 86 88 88 88         ; $8840 (unaccessed)
+jump_tbl_hi     ; $8835; partially unaccessed
+                dh $2700,       icode11,    icode10, icode3
+                dh icode2,      icode5,     icode4,  icode6
+                dh icode1,      icode7,     icode8,  icode9
+                dh jump_tbl_lo, jump_tbl_lo
+                hex 88
 
-sub10           ; called by: sub2, ucod1, sub5
-                copy #%00001111, snd_chn  ; $8844
+sub10           ; $8844
+                ; called by: sub2, ucod1, sub5
+                copy #%00001111, snd_chn
                 rts
 
-                ldx #$01                ; $884a (unaccessed)
+                ldx #$01                ; unaccessed ($884a)
                 stx arr37+15            ; unaccessed
 
-cod18           asl a                   ; $884f
+cod18           asl a
                 asl a
                 add arr37+13
                 sta ptr4+0
@@ -2027,12 +2042,11 @@ cod18           asl a                   ; $884f
 
 sub11           ; called by: sub5
                 ;
-                ldx arr37+15            ; $8882
+                ldx arr37+15
                 beq cod18
 
-ucod9           ; unaccessed chunk
-                ;
-                tax                     ; $8887
+ucod9           ; unaccessed chunk ($8887)
+                tax
                 lda snd_chn
                 and #%00010000
                 beq +
@@ -2040,8 +2054,9 @@ ucod9           ; unaccessed chunk
 +               sta arr37+15
                 txa
                 jmp cod18
-                ;
-                stx ptr4+0              ; $8897
+
+                ; unaccessed chunk
+                stx ptr4+0
                 sty ptr4+1
                 ldy #0
                 lda arr37+8
@@ -2064,9 +2079,9 @@ ucod9           ; unaccessed chunk
                 ;
                 rts
 
-sub12           ; called by: sub11, some sub after sub12
-                ;
-                lda #$00                ; $88be
+sub12           ; unaccessed chunk
+                ; called by: sub11, sub12b
+                lda #$00
                 sta arr40,x
                 sta arr38,x
                 sta arr41,x
@@ -2077,7 +2092,8 @@ sub12           ; called by: sub11, some sub after sub12
                 sta arr51,x
                 rts
 
-                asl a                   ; $88d8
+sub12b          ; unaccessed chunk
+                asl a
                 tay
                 jsr sub12
                 copy ram72, ptr4+0
@@ -2088,25 +2104,24 @@ sub12           ; called by: sub11, some sub after sub12
                 lda (ptr4),y
                 sta arr40,x
                 rts
+                ; $88f3
 
 sub13           ; called by: sub7
                 ;
-                lda arr38,x             ; $88f3
+                lda arr38,x
                 beq +
                 dec arr38,x             ; $88f8 (unaccessed)
                 bne cod19               ; unaccessed
-+               lda arr40,x             ; $88fd
++               lda arr40,x
                 bne ucod10
                 rts
 
-ucod10          ; unaccessed chunk
-                ;
-                sta ptr4+1              ; $8903
+ucod10          ; unaccessed chunk ($8903)
+                sta ptr4+1
                 lda arr39,x
                 sta ptr4+0
                 ldy arr41,x
                 clc
-                ;
 -               lda (ptr4),y
                 bmi ++
                 beq +++
@@ -2133,7 +2148,8 @@ ucod10          ; unaccessed chunk
 +               sta arr15,x
                 ldx ram23
                 jmp -
-                ;
+
+                ; unaccessed chunk
 +++             sta arr40,x
 cod19           lda ram61
                 and #%00001111
@@ -2180,72 +2196,37 @@ cod19           lda ram61
                 lda arr52,x
                 sta ram71
 +               rts
+                ; $89bd
 
 sub14           ; called by: ucod10
-                inc ptr4+1              ; $89bd
+                inc ptr4+1
                 inc arr40,x
                 rts
 
                 hex c0 7f 00 00 00 c0 7f 00  ; $89c3
                 hex 01
 
-dat3            ; unaccessed chunk
-                hex 00 68 b6 0e 6f d9 4b c6  ; $89cc
-                hex 48 d1 60 f6 92 34 db 86
-                hex 37 ec a5 62 23 e8 b0 7b
-                hex 49 19 ed c3 9b 75 52 31
-                hex 11 f3 d7 bd a4 8c 76 61
-                hex 4d 3a 29 18 08 f9 eb de
-                hex d1 c6 ba b0 a6 9d 94 8b
-                hex 84 7c 75 6e 68 62 5d 57
-                hex 52 4e 49 45 41 3e 3a 37
-                hex 34 31 2e 2b 29 26 24 22
-                hex 20 1e 1d 1b 19 18 16 15
-                hex 14 13 12 11 10 0f 0e 0d
-                hex 0c 00 5b 9c e6 3b 9a 01
-                hex 72 ea 6a
+dat3            ; unaccessed chunk ($89cc)
+                hex 00 68 b6 0e 6f d9 4b c6 48 d1 60 f6 92 34 db 86
+                hex 37 ec a5 62 23 e8 b0 7b 49 19 ed c3 9b 75 52 31
+                hex 11 f3 d7 bd a4 8c 76 61 4d 3a 29 18 08 f9 eb de
+                hex d1 c6 ba b0 a6 9d 94 8b 84 7c 75 6e 68 62 5d 57
+                hex 52 4e 49 45 41 3e 3a 37 34 31 2e 2b 29 26 24 22
+                hex 20 1e 1d 1b 19 18 16 15 14 13 12 11 10 0f 0e 0d
+                hex 0c 00 5b 9c e6 3b 9a 01 72 ea 6a
 
-                hex f1                  ; $8a37
-                hex 7f                  ; unaccessed
-                hex 13
-                hex ad 4d               ; unaccessed
-                hex f3
-                hex 9d                  ; unaccessed
-                hex 4c
-                hex 00                  ; unaccessed
-                hex b8
-                hex 74                  ; unaccessed
-                hex 34 f8
-                hex bf                  ; unaccessed
-                hex 89 56
-                hex 26 f9 ce            ; unaccessed
-                hex a6
-                hex 80                  ; unaccessed
-                hex 5c 3a 1a fb
-                hex df                  ; unaccessed
-                hex c4
-                hex ab 93 7c 67         ; unaccessed
-                hex 52
-                hex 3f 2d 1c 0c fd ef e1 d5  ; unaccessed
-                hex c9                  ; unaccessed
-                hex bd
-                hex b3                  ; unaccessed
-                hex a9
-                hex 9f                  ; unaccessed
-                hex 96 8e
-                hex 86                  ; unaccessed
-                hex 7e 77 70 6a 64 5e
-                hex 59                  ; unaccessed
-                hex 54
+                ; partially unaccessed ($8a37)
+                hex f1 7f 13 ad 4d f3 9d 4c 00 b8 74 34 f8 bf 89 56
+                hex 26 f9 ce a6 80 5c 3a 1a fb df c4 ab 93 7c 67 52
+                hex 3f 2d 1c 0c fd ef e1 d5 c9 bd b3 a9 9f 96 8e 86
+                hex 7e 77 70 6a 64 5e 59 54
 
-udat1           ; unaccessed chunk
-                hex 4f 4b 46 42 3f 3b 38 34  ; $8a6f
-                hex 31 2f 2c 29 27 25 23 21
-                hex 1f 1d 1b 1a 18 17 15 14
-                hex 13 12 11 10 0f 0e 0d
+udat1           ; unaccessed chunk ($8a6f)
+                hex 4f 4b 46 42 3f 3b 38 34 31 2f 2c 29 27 25 23 21
+                hex 1f 1d 1b 1a 18 17 15 14 13 12 11 10 0f 0e 0d
 
 dat4            ; unaccessed chunk
-                hex 00 0c 0b 0b 0a 09 09 08  ; $8a8e
+                hex 00 0c 0b 0b 0a 09 09 08
                 hex 08 07 07 06 06 06 05 05
                 hex 05 04 04 04 04 03 03 03
                 hex 03 03 02 02 02 02 02 02
@@ -2260,116 +2241,55 @@ dat4            ; unaccessed chunk
                 hex 00 00 0d 0c 0b 0b 0a 0a
                 hex 09 08 08
 
-                hex 07                  ; $8af9
-                hex 07                  ; unaccessed
-                hex 07
-                hex 06 06               ; unaccessed
-                hex 05
-                hex 05                  ; unaccessed
-                hex 05
-                hex 05                  ; unaccessed
-                hex 04
-                hex 04                  ; unaccessed
-                hex 04 03
-                hex 03                  ; unaccessed
-                hex 03 03
-                hex 03 02 02            ; unaccessed
-                hex 02
-                hex 02                  ; unaccessed
-                hex 02 02 02 01
-                hex 01                  ; unaccessed
-                hex 01
-                hex 01 01 01 01         ; unaccessed
-                hex 01
-                hex 01 01 01 01 00 00 00 00  ; unaccessed
-                hex 00                  ; unaccessed
-                hex 00
-                hex 00                  ; unaccessed
-                hex 00
-                hex 00                  ; unaccessed
-                hex 00 00
-                hex 00                  ; unaccessed
-                hex 00 00 00 00 00 00
-                hex 00                  ; unaccessed
-                hex 00
-
-udat2           ; unaccessed chunk
-                hex 00 00 00 00 00 00 00 00  ; $8b31
+                ; partially unaccessed ($8af9)
+                hex 07 07 07 06 06 05 05 05 05 04 04 04 03 03 03 03
+                hex 03 02 02 02 02 02 02 02 01 01 01 01 01 01 01 01
+                hex 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00
+
+udat2           ; unaccessed chunk ($8b31)
+                pad $8b50, $00
+
+                ; these are partially unaccessed
+dat5            hex 00 03 06 08 ff
+dat6            hex 01 04 07 09 ff
+dat7            hex 00 01 02 03 ff
+dat8            hex 00 01 02 ff ff
+dat9            hex 00 01 ff 02 ff
+dat10           hex 02 05 ff 0a ff
+dat11           hex 30 70 b0 f0
+dat12           hex 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00
 
-dat5            hex 00 03 06            ; $8b50
-                hex 08                  ; unaccessed
-                hex ff
-
-dat6            hex 01 04 07 09 ff      ; $8b55 (unaccessed)
-
-dat7            hex 00 01 02            ; $8b5a
-                hex 03                  ; unaccessed
-                hex ff
-
-dat8            hex 00 01 02            ; $8b5f
-                hex ff ff               ; unaccessed
-
-dat9            hex 00 01               ; $8b64
-                hex ff 02 ff            ; unaccessed
-
-dat10           hex 02 05               ; $8b69
-                hex ff 0a ff            ; unaccessed
-
-dat11           hex 30 70               ; $8b6e
-                hex b0                  ; unaccessed
-                hex f0
-
-dat12           hex 00 00 00 00 00 00 00 00  ; $8b72 (unaccessed)
-                hex 00 00 00 00 00 00 00     ; unaccessed
-                hex 00
-
-udat3           ; unaccessed chunk
-                hex 00 01 01 01 01 01 01 01  ; $8b82
-                hex 01 01 01 01 01 01 01 01
-                hex 00 01 01 01 01 01 01 01
-                hex 01 01 01 01 02 02 02 02
-                hex 00 01 01 01 01 01 01 01
-                hex 02 02 02 02 02 03 03 03
+udat3           ; unaccessed chunk ($8b82)
+                hex 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
+                hex 00 01 01 01 01 01 01 01 01 01 01 01 02 02 02 02
+                hex 00 01 01 01 01 01 01 01 02 02 02 02 02 03 03 03
                 hex 00
 
                 hex 01 01 01 01 01 02 02 02  ; $8bb3
                 hex 02 03 03 03 03 04 04
 
-udat4           ; unaccessed chunk
-                hex 00 01 01 01 01 02 02 02  ; $8bc2
-                hex 03 03 03 04 04 04 05 05
-                hex 00 01 01 01 02 02 02 03
-                hex 03 04 04 04 05 05 06 06
-                hex 00 01 01 01 02 02 03 03
-                hex 04 04 05 05 06 06 07 07
+udat4           ; unaccessed chunk ($8bc2)
+                hex 00 01 01 01 01 02 02 02 03 03 03 04 04 04 05 05
+                hex 00 01 01 01 02 02 02 03 03 04 04 04 05 05 06 06
+                hex 00 01 01 01 02 02 03 03 04 04 05 05 06 06 07 07
                 hex 00
 
                 hex 01 01 02 02 03 03 04 04  ; $8bf3
                 hex 05 05 06 06 07 07 08
 
-udat5           ; unaccessed chunk
-                hex 00 01 01 02 02 03 04 04  ; $8c02
-                hex 05 05 06 07 07 08 08 09
-                hex 00 01 01 02 03 03 04 05
-                hex 05 06 07 07 08 09 09 0a
-                hex 00 01 01 02 03 04 04 05
-                hex 06 07 07 08 09 0a 0a 0b
-                hex 00 01 02 02 03 04 05 06
-                hex 06 07 08 09 0a 0a 0b 0c
-                hex 00 01 02 03 03 04 05 06
-                hex 07 08 09 0a 0a 0b 0c 0d
+udat5           ; unaccessed chunk ($8c02)
+                hex 00 01 01 02 02 03 04 04 05 05 06 07 07 08 08 09
+                hex 00 01 01 02 03 03 04 05 05 06 07 07 08 09 09 0a
+                hex 00 01 01 02 03 04 04 05 06 07 07 08 09 0a 0a 0b
+                hex 00 01 02 02 03 04 05 06 06 07 08 09 0a 0a 0b 0c
+                hex 00 01 02 03 03 04 05 06 07 08 09 0a 0a 0b 0c 0d
+                hex 00 01 02 03 04 05 06 07 07 08 09 0a 0b 0c 0d 0e
+
+                ; partially unaccessed ($8c62)
                 hex 00 01 02 03 04 05 06 07
-                hex 07 08 09 0a 0b 0c 0d 0e
-
-                hex 00                       ; $8c62
-
-                hex 01 02 03 04 05 06 07 08  ; $8c63 (unaccessed)
-                hex 09 0a 0b 0c 0d 0e        ; unaccessed
-
-                hex 0f
+                hex 08 09 0a 0b 0c 0d 0e 0f
 
 pt_title_dk     ; BG PT data for title screen & Donkey Kong ($8c72)
                 hex 62 a9 ff 9c 39 73 e7 cf 9f 3f 7f ff 49 93 26 4c
@@ -2476,7 +2396,7 @@ pt_title_dk     ; BG PT data for title screen & Donkey Kong ($8c72)
                 hex 3f 1c 30 3c 3f a2 bd 81 00 f8 81 f0 ff 80 d0 c0
                 hex fc fe 01 80 87 d0 ee f1 fc
 
-pt_dkjr         ; BG PT data for Donkey Kong Jr. ($92db)
+pt_dkjr         ; BG PT data for Donkey Kong Jr.
                 hex 03 2a 57 fe 82 c6 7c 38 73 7c fe 82 fe 7c 5e fe
                 hex 1c 38 70 fe 09 5f fe 30 78 ec c6 82 51 fe 92 82
                 hex 3b 0e 1e f0 1e 0e 7e 38 7c c6 82 92 f2 83 ab 7b
@@ -2541,7 +2461,7 @@ pt_dkjr         ; BG PT data for Donkey Kong Jr. ($92db)
                 hex fe 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00
 
-pt_baseball     ; BG PT data for Baseball ($96c7)
+pt_baseball     ; BG PT data for Baseball
                 hex 03 2a 53 fe 92 fe 6c 7f f8 fc 26 22 26 fc f8 77
                 hex 4c de 92 96 f4 60 83 af 51 fe 92 82 28 fe 80 07
                 hex 08 1c 3c 3a c0 f0 f8 fc 90 7c bc 80 fc 03 f7 80
@@ -2603,7 +2523,7 @@ pt_baseball     ; BG PT data for Baseball ($96c7)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00
 
-pt_dk3          ; BG PT data for Donkey Kong 3 ($9a78)
+pt_dk3          ; BG PT data for Donkey Kong 3
                 hex 03 2a 57 fe 82 c6 7c 38 73 7c fe 82 fe 7c 5e fe
                 hex 1c 38 70 fe 09 5f fe 30 78 ec c6 82 51 fe 92 82
                 hex 3b 0e 1e f0 1e 0e 7e 38 7c c6 82 92 f2 83 bf 7f
@@ -2666,7 +2586,7 @@ pt_dk3          ; BG PT data for Donkey Kong 3 ($9a78)
                 hex 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00
 
-pt_dkjrmath     ; BG PT data for Donkey Kong Jr. Math ($9e43)
+pt_dkjrmath     ; BG PT data for Donkey Kong Jr. Math
                 hex 03 2a 57 fe 82 c6 7c 38 73 7c fe 82 fe 7c 5e fe
                 hex 1c 38 70 fe 09 5f fe 30 78 ec c6 82 51 fe 92 82
                 hex 3b 0e 1e f0 1e 0e 7e 38 7c c6 82 92 f2 09 7b 60
@@ -2726,7 +2646,7 @@ pt_dkjrmath     ; BG PT data for Donkey Kong Jr. Math ($9e43)
                 hex 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00
 
-pt_golf         ; BG PT data for Golf ($a1df)
+pt_golf         ; BG PT data for Golf
                 hex 03 2a 7e 38 7c c6 82 92 f2 73 7c fe 82 fe 7c 28
                 hex fe 80 83 bf 51 fe 12 02 07 08 1c 3c 3a c0 f0 f8
                 hex fc 90 7c bc 80 fc 80 bc 80 fc 12 de e0 02 fc 00
@@ -2784,7 +2704,7 @@ pt_golf         ; BG PT data for Golf ($a1df)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00
 
-pt_gomoku       ; BG PT data for Gomoku ($a553)
+pt_gomoku       ; BG PT data for Gomoku
                 hex 03 2a 7e 38 7c c6 82 92 f2 73 7c fe 82 fe 7c 5e
                 hex fe 1c 38 1c fe 09 5f fe 30 78 ec c6 82 73 7e fe
                 hex 80 fe 7e 5e fe 1c 38 70 fe 7f f8 fc 26 22 26 fc
@@ -2848,7 +2768,7 @@ pt_gomoku       ; BG PT data for Gomoku ($a553)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00
 
-pt_mahjong      ; BG PT data for Mah-jong ($a925)
+pt_mahjong      ; BG PT data for Mah-jong
                 hex 03 2a 5e fe 1c 38 1c fe 7f f8 fc 26 22 26 fc f8
                 hex 52 fe 10 fe 09 41 10 00 7b 60 e0 80 82 fe 7e 73
                 hex 7c fe 82 fe 7c 5e fe 1c 38 70 fe 83 bf 7e 38 7c
@@ -2910,7 +2830,7 @@ pt_mahjong      ; BG PT data for Mah-jong ($a925)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00
 
-pt_mario        ; BG PT data for Mario Bros. ($ace0)
+pt_mario        ; BG PT data for Mario Bros.
                 hex 03 2a 5e fe 1c 38 1c fe 7f f8 fc 26 22 26 fc f8
                 hex 5f fe 22 62 f2 de 9c 09 2a 82 fe 82 73 7c fe 82
                 hex fe 7c 53 fe 92 fe 6c 77 4c de 92 96 f4 60 83 bf
@@ -2973,7 +2893,7 @@ pt_mario        ; BG PT data for Mario Bros. ($ace0)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00
 
-pt_pinball      ; BG PT data for Pinball ($b0aa)
+pt_pinball      ; BG PT data for Pinball
                 hex 03 2a 53 fe 22 3e 1c 54 82 fe 82 5e fe 1c 38 70
                 hex fe 83 ab 53 fe 92 fe 6c 7f f8 fc 26 22 26 fc f8
                 hex 28 fe 80 07 08 1c 3c 3a c0 f0 f8 fc 03 fd 90 80
@@ -3036,7 +2956,7 @@ pt_pinball      ; BG PT data for Pinball ($b0aa)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00
 
-pt_popeye       ; BG PT data for Popeye ($b472)
+pt_popeye       ; BG PT data for Popeye
                 hex 03 2a 53 fe 22 3e 1c 73 7c fe 82 fe 7c 51 fe 92
                 hex 82 83 bf 3b 0e 1e f0 1e 0e 07 08 1c 3c 3a c0 f0
                 hex f8 fc 90 7c bc 80 fc 80 bc 80 fc 12 de e0 02 fc
@@ -3096,7 +3016,7 @@ pt_popeye       ; BG PT data for Popeye ($b472)
                 hex fe 70 38 70 fe 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-pt_popeyeen     ; BG PT data for Popeye English ($b812)
+pt_popeyeen     ; BG PT data for Popeye English
                 hex 03 2a 53 fe 22 3e 1c 73 7c fe 82 fe 7c 51 fe 92
                 hex 82 09 3b 0e 1e f0 1e 0e 5e fe 1c 38 70 fe 7e 38
                 hex 7c c6 82 92 f2 28 fe 80 83 ab 2a 82 fe 82 77 4c
@@ -3159,7 +3079,7 @@ pt_popeyeen     ; BG PT data for Popeye English ($b812)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00
 
-pt_tennis       ; BG PT data for Tennis ($bbda)
+pt_tennis       ; BG PT data for Tennis
                 hex 03 2a 2a 02 fe 02 51 fe 92 82 5e fe 1c 38 70 fe
                 hex 83 af 2a 82 fe 82 77 4c de 92 96 f4 60 07 08 1c
                 hex 3c 3a c0 f0 f8 fc 90 7c bc 80 fc 03 f7 80 40 80
@@ -3224,9 +3144,8 @@ pt_tennis       ; BG PT data for Tennis ($bbda)
 
                 base $c000
 
-udat6           ; unaccessed chunk
-                ;
-                hex d6 5a 6b b5 d6 5a ab b5 d6 5a ad b5 d6 6a ad b5  ; $c000
+udat6           ; unaccessed chunk ($c000)
+                hex d6 5a 6b b5 d6 5a ab b5 d6 5a ad b5 d6 6a ad b5
                 hex 5a 6b ad d5 5a 6b ad d6 5a 6b b5 d6 5a ab b5 d6
                 hex 0a 00 00 00 6b ad b5 5a 6b ad d5 5a 6b ad d6 5a
                 hex ab b5 d6 5a ad b5 d6 6a ad b5 56 6b ad b5 5a 6b
@@ -3242,7 +3161,7 @@ udat6           ; unaccessed chunk
                 hex d6 d6 5a 6b 2d 00 00 00 da 5a 6b ad b5 b5 d6 5a
                 hex 6b 6b ad b5 d6 d6 5a 6b ad ad b5 d6 5a 5b 6b ad
                 hex b5 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
-                hex b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b 6d 6d ad  ; $c100
+                hex b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b 6d 6d ad
                 hex ad ad b5 b5 b5 b6 b6 d6 d6 02 00 00 50 5b 5b 6b
                 hex 6b 6b 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da
                 hex da 5a 5b 5b 6b 6b 6b 6d 6d ad ad ad b5 b5 b5 b6
@@ -3258,7 +3177,7 @@ udat6           ; unaccessed chunk
                 hex b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b 6d 6d ad
                 hex ad ad b5 00 00 00 b4 d6 d6 d6 da da 5a 5b 5b 6b
                 hex 6b 6b 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da
-                hex da 5a 5b 5b 6b 6b 6b 6d ad ad ad b5 b5 b5 b6 b6  ; $c200
+                hex da 5a 5b 5b 6b 6b 6b 6d ad ad ad b5 b5 b5 b6 b6
                 hex d6 d6 d6 da da 02 00 00 60 6b 6b 6d 6d ad ad ad
                 hex b5 b5 b5 b6 b6 d6 d6 d6 da da 5a 5b 5b 6b 6b 6b
                 hex 6d 6d ad ad ad b5 b5 b5 b6 b6 d6 d6 d6 da da 5a
@@ -3267,31 +3186,16 @@ udat6           ; unaccessed chunk
                 hex b5 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
                 hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
 
-                hex 01 93 c2 8f c2 14 c3 bf  ; $c280
-                hex c3 3f c4 2a c5 3d c5
-                hex 33 01                    ; $c28f (unaccessed)
-                hex 00 01 db c2 d7 c2 fd c2  ; $c291
-                hex f8 c2 00 c3 d7 c2
-                hex fd c2                    ; $c29f (unaccessed)
-                hex f8 c2 00 04 4d 40        ; $c2a1
-                hex 00 00 00 40              ; $c2a7 (unaccessed)
-                hex 02 07 4d 40              ; $c2ab
-                hex 00 00 00 40 00 00 00 40  ; $c2af (unaccessed)
-                hex 02 07 4e 40              ; $c2b7
-                hex 00 00 00 40              ; $c2bb (unaccessed)
-                hex 04 16 4e 40              ; $c2bf
-                hex 00 00 00 40 00 00 00 40  ; $c2c3 (unaccessed)
-                hex 02 07 4f 40              ; $c2cb
-                hex 00 00 00 40              ; $c2cf (unaccessed)
-                hex 04 16 4f 40 c0 7f 00 00  ; $c2d3
-                hex 00                       ; $c2db (unaccessed)
-                hex c1 c4 c8 cd ce cf cf ce  ; $c2dc
-                hex cd cd cc cb ca ca c9 c8
-                hex c7 c7 c6 c5 c4 c4 c3 c2
-                hex c2 c1 00 1a 00 c0 7f
-                hex 00 01                    ; $c2fb (unaccessed)
-                hex 7f                       ; $c2fd
-                hex 00 00 00                 ; $c2fe (unaccessed)
+                ; partially unaccessed ($c280)
+                hex 01 93 c2 8f c2 14 c3 bf c3 3f c4 2a c5 3d c5 33
+                hex 01 00 01 db c2 d7 c2 fd c2 f8 c2 00 c3 d7 c2 fd
+                hex c2 f8 c2 00 04 4d 40 00 00 00 40 02 07 4d 40 00
+                hex 00 00 40 00 00 00 40 02 07 4e 40 00 00 00 40 04
+                hex 16 4e 40 00 00 00 40 00 00 00 40 02 07 4f 40 00
+                hex 00 00 40 04 16 4f 40 c0 7f 00 00 00 c1 c4 c8 cd
+                hex ce cf cf ce cd cd cc cb ca ca c9 c8 c7 c7 c6 c5
+                hex c4 c4 c3 c2 c2 c1 00 1a 00 c0 7f 00 01 7f 00 00
+                hex 00
 
                 hex c0 02 cf 00 03 00 c0 be bd bd be bf c1 c2 c3 c3  ; $c301
                 hex c2 00 01 fb 12 78 69 01 80 11 81 15 81 21 81 22
@@ -3309,7 +3213,7 @@ udat6           ; unaccessed chunk
                 hex 68 fd 69 03 ff 20 1a c3 ff 1c 1a c3 11 81 15 81
                 hex 68 fd 69 03 ff 20 1a c3 ff 1c 1a c3 11 81 15 81
                 hex 68 fd 69 03 ff 20 1a c3 ff 1c 1a c3 11 81 15 81
-                hex 68 fd 69 03 ff 20 6e c3 ff 20 6e c3 68 fd 69 03  ; $c401
+                hex 68 fd 69 03 ff 20 6e c3 ff 20 6e c3 68 fd 69 03
                 hex ff 20 1a c3 ff 1c 1a c3 11 81 15 81 68 fd 69 03
                 hex ff 20 1a c3 ff 1c 1a c3 11 81 15 81 68 fd 69 03
                 hex ff 20 1a c3 ff 1c 1a c3 11 81 15 fd bf c3 70 f7
@@ -3325,7 +3229,7 @@ udat6           ; unaccessed chunk
                 hex 35 81 63 06 c3 37 81 63 f8 c2 64 38 81 63 06 c3
                 hex 37 81 63 f8 c2 64 3c 81 ff 16 a2 c4 63 f8 c2 64
                 hex 33 81 63 f8 c2 64 ff 1c 4a c4 29 24 29 24 29 24
-                hex 29 24 29 24 29 24 29 24 29 24 29 22 29 22 29 22  ; $c501
+                hex 29 24 29 24 29 24 29 24 29 24 29 22 29 22 29 22
                 hex 29 22 29 1f 29 1f 29 1f 29 1f ff 20 fb c4 ff 20
                 hex fb c4 ff 20 fb c4 fd 3f c4 f7 87 f7 87 f7 87 f7
                 hex 87 f7 87 f7 87 f7 87 f7 87 fd 2a c5 6a 02 05 8d
@@ -3470,21 +3374,21 @@ read_joypads    ; of the variables written, only joypad1b is actually used
                 and #%00001100
                 cmp #%00001100
                 bne +
-                eor joypad1a            ; $c6a7 (unaccessed)
+                eor joypad1a            ; unaccessed ($c6a7)
                 sta joypad1a            ; unaccessed
                 ;
 +               lda joypad2a
                 and #%00000011
                 cmp #%00000011
                 bne +
-                eor joypad2a            ; $c6b3 (unaccessed)
+                eor joypad2a            ; unaccessed ($c6b3)
                 sta joypad2a            ; unaccessed
                 ;
 +               lda joypad2a
                 and #%00001100
                 cmp #%00001100
                 bne +
-                eor joypad2a            ; $c6bf (unaccessed)
+                eor joypad2a            ; unaccessed ($c6bf)
                 sta joypad2a            ; unaccessed
                 ;
 +               lda joypad1a
