@@ -92,50 +92,52 @@ joypad2a        equ $05  ; in read_joypads
 joypad2_prev    equ $06  ; in read_joypads
 joypad2b        equ $07  ; in read_joypads
 read_ptr1       equ $08  ; 2 bytes; in init, sub16, copy_nt
-ptr3            equ $0e  ; 2 bytes; in read_joypads, init, copy_nt, sub23,sub24
-ram9            equ $3f  ; in nmi, init, sub20, sub23, sub24, sprite1a/b/c
-ram10           equ $53  ; in nmi, init, sub19
-ram11           equ $59  ; in nmi, init, sub23, sub24
+ptr1            equ $0e  ; 2 bytes; in init, copy_nt, sub23, sub24; overlaps
+joypad1c        equ $0e  ; in read_joypads
+joypad2c        equ $0f  ; in read_joypads
+ram1            equ $3f  ; in nmi, init, sub20, sub23, sub24, sprite1a/b/c
+ram2            equ $53  ; in nmi, init, sub19
+ram3            equ $59  ; in nmi, init, sub23, sub24
 ppu_ctrl_copy   equ $73
 game_screen     equ $75  ; which game screen shown (0-13)
-ram14           equ $76  ; in       sub19, sub20, sub21
-ram15           equ $77  ; in init, sub19, sub20, sub21
-ram16           equ $78  ; in       sub19, sub20, sub21, sub30
-ram17           equ $79  ; in       sub19, sub20, sub21, sub30
-ram18           equ $7a  ; in init, shift_left
-nt_fill_column  equ $7b
-nt_fill_byte    equ $7c
-nt_copy_column  equ $7d
-nt_copy_array   equ $7e  ; 30 bytes
-ram22           equ $9e
-ram23           equ $9f  ; used by bank 2
-ram24           equ $a0  ; used by bank 2
-ram25           equ $a1  ; used by bank 2
-ptr4            equ $a2  ; 2 bytes; used by bank 2
-ptr5            equ $a4  ; 2 bytes; used by bank 2
+ram4            equ $76  ; in       sub19, sub20, sub21
+ram5            equ $77  ; in init, sub19, sub20, sub21
+ram6            equ $78  ; in       sub19, sub20, sub21, sub30
+ram7            equ $79  ; in       sub19, sub20, sub21, sub30
+ram8            equ $7a  ; in init, shift_left
+nt_fill_column  equ $7b  ; in nmi, init, sub23, sub24, set_palette
+nt_fill_byte    equ $7c  ; in nmi, sub16
+nt_copy_column  equ $7d  ; in nmi, init, sub23, sub24, set_palette
+nt_copy_array   equ $7e  ; 30 bytes; in nmi, sub23, sub24
+ram9            equ $9e  ; in nmi, init, sub20, sub23, sub24
+ram10           equ $9f  ; bank 2
+ram11           equ $a0  ; bank 2
+ram12           equ $a1  ; bank 2
+read_ptr2       equ $a2  ; 2 bytes; bank 2
+ptr2            equ $a4  ; 2 bytes; bank 2
 prg_bank        equ $a6  ; current PRG bank at CPU $8000-$bfff (0-3)
 do_nmi          equ $a7  ; 0 = no, 1 = yes
-arr2            equ $a8
-arr3            equ $b8  ; 8 bytes
-ram39           equ $c0
-ram40           equ $c1
-pt_dat_out_len  equ $c2  ; length of decompressed PT data (decomp_pt_data2)
-ram42           equ $c3
-pt_out_len_trg  equ $c4  ; target of pt_dat_out_len (decomp_pt_data2)
+bg_pal_copy     equ $a8  ; 16 bytes; copy of BG palettes
+some_array      equ $b8  ; decomp_pt_data2: 8 bytes
+index_var       equ $c0  ; decomp_pt_data2: some index
+bitop_var1      equ $c1  ; decomp_pt_data2: some bitops
+pt_dat_out_len  equ $c2  ; decomp_pt_data2: length of decompressed PT data
+bitop_var2      equ $c3  ; decomp_pt_data2: some bitops
+pt_out_len_trg  equ $c4  ; decomp_pt_data2: target of pt_dat_out_len
 xor_mask        equ $c5  ; decomp_pt_data2
-ram45           equ $c6
+bitop_var3      equ $c6  ; decomp_pt_data2: some bitops
 pt_data_ptr     equ $c7  ; 2 bytes
 deco_dat_left   equ $c9  ; PT data left to decompress (unit = 4 tiles?)
-ram47           equ $f0
-ram48           equ $f1
-ram49           equ $ff
+useless1        equ $f0  ; in sub16
+temp            equ $f1  ; in sub16
+useless2        equ $ff  ; in init
 
 stack           equ $0100  ; used by bank 3
 
 ; $02xx used by bank 2
 arr10           equ $0200
-arr11           equ $0216
-arr12           equ $0221
+addr_tbl_lo     equ $0216
+addr_tbl_hi     equ $0221
 arr13           equ $022b
 arr14           equ $022c
 arr15           equ $0237
@@ -228,7 +230,7 @@ endm
 
                 base $8000
 
-pt_devil        ; BG PT data for Devil World ($8000)
+pt_devil        ; BG PT data for Devil World
                 hex 48 e0 3f 7f ff 1f 01 03 07 0f 1f fc 18 30 60 c0
                 hex 80 00 ff b3 66 cc 98 31 63 c6 8c 49 ff fd fb f6
                 hex ed db b6 6c d9 81 ff fe 7b 78 fc 96 92 f2 60 77
@@ -294,7 +296,7 @@ pt_devil        ; BG PT data for Devil World ($8000)
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 00 00 00
 
-nt_devil        ; NT & AT data for Devil World ($83f4)
+nt_devil        ; NT & AT data for Devil World
                 pad nt_devil+2*32, $2e
                 hex 2e 2e 2e 2e 2e 2e 2e 2e 2e 2e 31 30 27 29 28 2e
                 hex 1d 1f 2f 28 31 2e 2e 2e 2e 2e 2e 2e 2e 2e 2e 2e
@@ -348,7 +350,7 @@ nt_devil        ; NT & AT data for Devil World ($83f4)
                 hex 00 04 05 05 05 05 01 00
                 pad nt_devil+30*32+8*8, $00
 
-nt_gomoku       ; NT & AT data for Gomokunarabe ($87f4)
+nt_gomoku       ; NT & AT data for Gomokunarabe
                 pad nt_gomoku+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 01 02 03 02 04 05 06
                 hex 07 08 07 09 0a 00 00 00 00 00 00 00 00 00 00 00
@@ -403,7 +405,7 @@ nt_gomoku       ; NT & AT data for Gomokunarabe ($87f4)
                 ;
                 pad nt_gomoku+30*32+8*8, $00
 
-nt_mahjong      ; NT & AT data for Mah-jong ($8bf4)
+nt_mahjong      ; NT & AT data for Mah-jong
                 pad nt_mahjong+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 00 01 02 03 04 05
                 hex 06 07 08 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -461,7 +463,7 @@ nt_mahjong      ; NT & AT data for Mah-jong ($8bf4)
                 ;
                 pad nt_mahjong+30*32+8*8, $00
 
-nt_mario        ; NT & AT data for Mario Bros. ($8ff4)
+nt_mario        ; NT & AT data for Mario Bros.
                 pad nt_mario+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 01 02 03 04 05 00
                 hex 06 03 05 07 08 00 00 00 00 00 00 00 00 00 00 00
@@ -516,7 +518,7 @@ nt_mario        ; NT & AT data for Mario Bros. ($8ff4)
                 ;
                 pad nt_mario+30*32+8*8, $00
 
-nt_baseball     ; NT & AT data for Baseball ($93f4)
+nt_baseball     ; NT & AT data for Baseball
                 pad nt_baseball+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 01 02 03 04
                 hex 01 02 05 05 00 00 00 00 00 00 00 00 00 00 00 00
@@ -565,7 +567,7 @@ nt_baseball     ; NT & AT data for Baseball ($93f4)
                 ;
                 pad nt_baseball+30*32+8*8, $00
 
-nt_dk3          ; NT & AT data for Donkey Kong 3 ($97f4)
+nt_dk3          ; NT & AT data for Donkey Kong 3
                 pad nt_dk3+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 01 02 03 04 05 06 00
                 hex 04 02 03 07 00 08 00 00 00 00 00 00 00 00 00 00
@@ -616,7 +618,7 @@ nt_dk3          ; NT & AT data for Donkey Kong 3 ($97f4)
                 ;
                 pad nt_dk3+30*32+8*8, $00
 
-nt_dkjrmath     ; NT & AT data for Donkey Kong Jr. Math ($9bf4)
+nt_dkjrmath     ; NT & AT data for Donkey Kong Jr. Math
                 pad nt_dkjrmath+2*32, $00
                 hex 00 00 00 00 00 00 01 02 03 04 05 06 00 04 02 03
                 hex 07 00 08 09 0a 00 0b 0c 0d 0e 00 00 00 00 00 00
@@ -667,7 +669,7 @@ nt_dkjrmath     ; NT & AT data for Donkey Kong Jr. Math ($9bf4)
                 ;
                 pad nt_dkjrmath+30*32+8*8, $00
 
-nt_golf         ; NT & AT data for Golf ($9ff4)
+nt_golf         ; NT & AT data for Golf
                 pad nt_golf+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 01 02 03
                 hex 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -722,7 +724,7 @@ nt_golf         ; NT & AT data for Golf ($9ff4)
                 ;
                 pad nt_golf+30*32+8*8, $00
 
-nt_pinball      ; NT & AT data for Pinball ($a3f4)
+nt_pinball      ; NT & AT data for Pinball
                 pad nt_pinball+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 01 02 03 04
                 hex 05 06 06 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -777,7 +779,7 @@ nt_pinball      ; NT & AT data for Pinball ($a3f4)
                 ;
                 pad nt_pinball+30*32+8*8, $00
 
-nt_popeye       ; NT & AT data for Popeye ($a7f4)
+nt_popeye       ; NT & AT data for Popeye
                 pad nt_popeye+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 01 02 01 03
                 hex 04 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -828,7 +830,7 @@ nt_popeye       ; NT & AT data for Popeye ($a7f4)
                 ;
                 pad nt_popeye+30*32+8*8, $00
 
-nt_popeyeen     ; NT & AT data for Popeye English ($abf4)
+nt_popeyeen     ; NT & AT data for Popeye English
                 pad nt_popeyeen+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 01 02 01 03 04 03 00
                 hex 03 05 06 07 08 09 0a 00 00 00 00 00 00 00 00 00
@@ -881,7 +883,7 @@ nt_popeyeen     ; NT & AT data for Popeye English ($abf4)
                 ;
                 pad nt_popeyeen+30*32+8*8, $00
 
-nt_tennis       ; NT & AT data for Tennis ($aff4)
+nt_tennis       ; NT & AT data for Tennis
                 pad nt_tennis+2*32, $00
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 01 02 03
                 hex 03 04 05 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -930,7 +932,7 @@ nt_tennis       ; NT & AT data for Tennis ($aff4)
                 ;
                 pad nt_tennis+30*32+8*8, $00
 
-nt_dkjr         ; NT & AT data for Donkey Kong Jr. ($b3f4)
+nt_dkjr         ; NT & AT data for Donkey Kong Jr.
                 pad nt_dkjr+2*32, $00
                 hex 00 00 00 00 00 00 00 00 01 02 03 04 05 06 00 04
                 hex 02 03 07 00 08 09 0a 00 00 00 00 00 00 00 00 00
@@ -995,8 +997,8 @@ sub1            ; audio stuff; called by: init
                 ;
                 stx arr37+9
                 sty arr37+10
-                stx ptr4+0
-                sty ptr4+1
+                stx read_ptr2+0
+                sty read_ptr2+1
                 tax
                 beq +
                 lda #$61
@@ -1004,16 +1006,16 @@ sub1            ; audio stuff; called by: init
                 jsr sub2
                 ;
                 ldy #1
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr37+11
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr37+12
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr37+13
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr37+14
                 ;
                 lda #$80
@@ -1065,10 +1067,10 @@ sub2            ; array stuff; called by: sub1, sub3
                 bne -
                 ;
                 ldx #0
--               lda #$c3
-                sta arr11,x
-                lda #$89
-                sta arr12,x
+-               lda #<dat2
+                sta addr_tbl_lo,x
+                lda #>dat2
+                sta addr_tbl_hi,x
                 lda #$00
                 sta arr10+11,x
                 sta arr10,x
@@ -1098,31 +1100,31 @@ sub2            ; array stuff; called by: sub1, sub3
 sub3            ; array stuff; called by: init
                 ;
                 ldx arr37+9
-                stx ptr4+0
+                stx read_ptr2+0
                 ldx arr37+10
-                stx ptr4+1
+                stx read_ptr2+1
                 ldy #0
-                cmp (ptr4),y
+                cmp (read_ptr2),y
                 bcc +
                 rts                     ; $80ed (unaccessed)
 +               asl a
-                sta ptr4+0
+                sta read_ptr2+0
                 asl a
                 tax
                 asl a
-                adc ptr4+0
-                stx ptr4+0
-                adc ptr4+0
+                adc read_ptr2+0
+                stx read_ptr2+0
+                adc read_ptr2+0
                 adc #$05
                 tay
-                copy arr37+9, ptr4+0
+                copy arr37+9, read_ptr2+0
                 jsr sub2
                 ;
                 ldx #0
--               lda (ptr4),y
+-               lda (read_ptr2),y
                 sta arr25,x
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr26,x
                 iny
                 lda #$00
@@ -1143,10 +1145,10 @@ sub3            ; array stuff; called by: init
                 beq +
                 iny
                 iny
-+               lda (ptr4),y
++               lda (read_ptr2),y
                 sta arr37+3
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr37+4
                 copy #$00, arr37+5
                 lda #$06
@@ -1179,13 +1181,13 @@ sub4            ; called by: sub7
                 clc
                 lda arr21,y
                 adc arr15,y
-                sta ptr5+0
+                sta ptr2+0
                 lda arr21,y
                 and #%10000000
                 beq +
                 lda #$ff
 +               adc arr16,y
-                sta ptr5+1
+                sta ptr2+1
                 lda arr22,y
                 beq +
 
@@ -1193,23 +1195,23 @@ ucod2           ; unaccessed chunk ($8193)
                 lda arr24,y
                 cmp #$80
                 ror a
-                sta ram23
+                sta ram10
                 lda arr23,y
                 ror a
-                add ptr5+0
-                sta ptr5+0
-                lda ram23
-                adc ptr5+1
-                sta ptr5+1
+                add ptr2+0
+                sta ptr2+0
+                lda ram10
+                adc ptr2+1
+                sta ptr2+1
                 ; $81aa
 
 +               clc
                 lda dat3,x
-                adc ptr5+0
-                sta ptr5+0
+                adc ptr2+0
+                sta ptr2+0
                 lda dat4,x
-                adc ptr5+1
-                sta ptr5+1
+                adc ptr2+1
+                sta ptr2+1
                 rts
 
 sub5            ; called by: sub6
@@ -1260,9 +1262,9 @@ sub6            ; called by: sub7
 
 sub7            ; called by: nmi
                 ;
-                lda ptr4+0
+                lda read_ptr2+0
                 pha
-                lda ptr4+1
+                lda read_ptr2+1
                 pha
                 lda arr28+4
                 bmi +
@@ -1289,13 +1291,13 @@ sub7            ; called by: nmi
                 beq +
                 dec arr10+11,x
                 bne +++
-+               lda arr11,x
-                sta ptr4+0
-                lda arr12,x
-                sta ptr4+1
++               lda addr_tbl_lo,x
+                sta read_ptr2+0
+                lda addr_tbl_hi,x
+                sta read_ptr2+1
                 ;
                 ldy arr14,x
--               lda (ptr4),y
+-               lda (read_ptr2),y
                 bpl +
                 add #$40
                 sta arr10,x
@@ -1303,7 +1305,7 @@ sub7            ; called by: nmi
                 bne ++
 +               bne +
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 tay
                 jmp -
                 ;
@@ -1327,21 +1329,21 @@ cod1            ; unaccessed chunk ($828e)
                 beq cod3
                 ;
                 lda arr18,x
-                sta ptr4+0
+                sta read_ptr2+0
                 lda arr19,x
-                sta ptr4+1
+                sta read_ptr2+1
                 ;
                 ldy arr20,x
                 dey
                 dey
-                lda (ptr4),y
+                lda (read_ptr2),y
                 add #$40
-                sta ram24
+                sta ram11
                 clc
                 adc arr15,x
                 sta arr15,x
                 ;
-                lda ram24
+                lda ram11
                 bpl +
                 lda #$ff
 +               adc arr16,x
@@ -1358,17 +1360,17 @@ cod2            lda arr17,x
                 bne cod7
                 ;
 cod3            lda arr18,x
-                sta ptr4+0
+                sta read_ptr2+0
                 lda arr19,x
-                sta ptr4+1
+                sta read_ptr2+1
                 ldy #0
-                lda (ptr4),y
-                sta ram23
+                lda (read_ptr2),y
+                sta ram10
                 ldy arr20,x
-cod4            lda (ptr4),y
+cod4            lda (read_ptr2),y
                 bpl cod5
                 add #$40
-                bit ram23
+                bit ram10
                 bmi ucod3
                 sta arr15,x
                 ora #%00000000
@@ -1381,11 +1383,11 @@ cod4            lda (ptr4),y
                 jmp cod6
 
 ucod3           ; unaccessed chunk ($830a)
-                sta ram24
+                sta ram11
                 clc
                 adc arr15,x
                 sta arr15,x
-                lda ram24
+                lda ram11
                 and #%10000000
                 bpl +
                 lda #$ff
@@ -1397,11 +1399,11 @@ ucod3           ; unaccessed chunk ($830a)
 
 cod5            bne +
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 tay
                 jmp cod4
 +               iny
-                ora ram23
+                ora ram10
                 sta arr17,x
 cod6            tya
                 sta arr20,x
@@ -1443,8 +1445,8 @@ cod10           lda arr27
                 tax
                 ldy #$00
                 jsr sub4
-                copy ptr5+0, ram62
-                copy ptr5+1, ram63
+                copy ptr2+0, ram62
+                copy ptr2+1, ram63
                 lda arr33
                 ora arr10+0
                 tax
@@ -1461,8 +1463,8 @@ cod10           lda arr27
                 tax
                 ldy #$01
                 jsr sub4
-                copy ptr5+0, ram65
-                copy ptr5+1, ram66
+                copy ptr2+0, ram65
+                copy ptr2+1, ram66
                 lda arr33+1
                 ora arr10+3
                 tax
@@ -1479,8 +1481,8 @@ cod10           lda arr27
                 tax
                 ldy #$02
                 jsr sub4
-                copy ptr5+0, ram68
-                copy ptr5+1, ram69
+                copy ptr2+0, ram68
+                copy ptr2+1, ram69
                 lda arr33+2
                 ora arr10+6
                 tax
@@ -1498,32 +1500,32 @@ ucod5           ; unaccessed chunk ($8411)
                 ldy arr22+3
                 beq +
                 ;
-                sta ram23
-                copy arr23+3, ptr5+0
+                sta ram10
+                copy arr23+3, ptr2+0
                 lda arr24+3
                 cmp #$80
                 ror a
-                ror ptr5+0
+                ror ptr2+0
                 cmp #$80
                 ror a
-                ror ptr5+0
+                ror ptr2+0
                 cmp #$80
                 ror a
-                ror ptr5+0
+                ror ptr2+0
                 cmp #$80
                 ror a
-                lda ptr5+0
+                lda ptr2+0
                 ror a
-                add ram23
+                add ram10
                 ;
 +               and #%00001111
                 eor #%00001111
-                sta ram23
+                sta ram10
                 ldx arr10+10
                 lda dat11,x
                 asl a
                 and #%10000000
-                ora ram23
+                ora ram10
                 sta ram71
                 lda arr33+3
                 ora arr10+8
@@ -1569,41 +1571,41 @@ cod11           ldx arr10+10
                 copy ram70, noise_vol
                 copy ram71, noise_lo
                 pla
-                sta ptr4+1
+                sta read_ptr2+1
                 pla
-                sta ptr4+0
+                sta read_ptr2+0
                 rts
 
 sub8            ; called by: sub5
                 ;
-                sty ram24
+                sty ram11
                 asl a
                 tay
                 lda arr37+12
                 adc #$00
-                sta ptr4+1
-                copy arr37+11, ptr4+0
-                lda (ptr4),y
-                sta arr11,x
+                sta read_ptr2+1
+                copy arr37+11, read_ptr2+0
+                lda (read_ptr2),y
+                sta addr_tbl_lo,x
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 iny
-                sta arr12,x
+                sta addr_tbl_hi,x
                 inx
-                stx ram25
-                ldx ram24
+                stx ram12
+                ldx ram11
                 lda arr34,x
                 lsr a
-                ldx ram25
+                ldx ram12
                 bcc +
                 iny                     ; unaccessed ($8509)
                 jmp ++                  ; unaccessed
                 ;
-+               lda (ptr4),y
-                sta arr11,x
++               lda (read_ptr2),y
+                sta addr_tbl_lo,x
                 iny
-                lda (ptr4),y
-                sta arr12,x
+                lda (read_ptr2),y
+                sta addr_tbl_hi,x
                 ;
 ++              lda #$01
                 sta arr13,x
@@ -1611,7 +1613,7 @@ sub8            ; called by: sub5
                 sta arr10+10,x
                 sta arr10+11,x
                 sta arr14,x
-                lda ram24
+                lda ram11
                 cmp #$02
                 bne +
                 iny
@@ -1620,23 +1622,23 @@ sub8            ; called by: sub5
                 ;
 +               inx
                 iny
-                lda (ptr4),y
-                sta arr11,x
+                lda (read_ptr2),y
+                sta addr_tbl_lo,x
                 iny
-                lda (ptr4),y
-                sta arr12,x
+                lda (read_ptr2),y
+                sta addr_tbl_hi,x
                 lda #$00
                 sta arr10+11,x
                 sta arr14,x
-                stx ram25
-                ldx ram24
+                stx ram12
+                ldx ram11
                 lda dat9,x
                 tax
                 lda arr37,x
-                ldx ram25
+                ldx ram12
                 sta arr10,x
                 ;
-++              ldx ram24
+++              ldx ram11
                 lda arr34,x
                 bmi +
                 lda dat8,x
@@ -1649,13 +1651,13 @@ sub8            ; called by: sub5
                 sta arr15,x
                 sta arr16,x
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr18,x
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr19,x
                 ;
-+               ldx ram24
++               ldx ram11
                 rts
 
 sub9            ; called by: sub5
@@ -1665,16 +1667,16 @@ sub9            ; called by: sub5
                 dec arr29,x
                 clc
                 rts
-+               copy #$00, ram25
++               copy #$00, ram12
                 lda arr25,x
-                sta ptr4+0
+                sta read_ptr2+0
                 lda arr26,x
-                sta ptr4+1
+                sta read_ptr2+1
                 ldy #0
-cod12           lda (ptr4),y
-                inc ptr4+0
+cod12           lda (read_ptr2),y
+                inc read_ptr2+0
                 bne +
-                inc ptr4+1
+                inc read_ptr2+1
 +               cmp #$61
                 bcs +
                 jmp cod13
@@ -1690,25 +1692,26 @@ cod12           lda (ptr4),y
                 asl a
                 sta arr33,x
                 jmp cod12
-+               stx ram23
++               stx ram10
                 and #%00001111
                 tax
-                lda jump_tbl_lo,x
-                sta ptr5+0
+                ;
+                lda jump_tbl_lo,x       ; jump to index X in jump table
+                sta ptr2+0
                 lda jump_tbl_hi,x
-                sta ptr5+1
-                ldx ram23
-                jmp (ptr5)
+                sta ptr2+1
+                ldx ram10
+                jmp (ptr2)
 
-icode1          stx ram23
+icode1          stx ram10
                 lda dat8,x
                 tax
-                lda (ptr4),y
-                inc ptr4+0
+                lda (read_ptr2),y
+                inc read_ptr2+0
                 bne +
-                inc ptr4+1              ; unaccessed ($85e3)
+                inc read_ptr2+1         ; unaccessed ($85e3)
 +               sta arr21,x
-                ldx ram23
+                ldx ram10
                 jmp cod12
 
 icode2          lda #$7f
@@ -1719,26 +1722,26 @@ icode2          lda #$7f
 icode3          lda #$80
                 ora arr34,x
                 sta arr34,x
-                stx ram23
+                stx ram10
                 lda dat8,x
                 tax
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr18,x
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr19,x
                 lda #$00
                 tay
                 sta arr17,x
                 lda #$01
                 sta arr20,x
-                ldx ram23
+                ldx ram10
                 clc
                 lda #$02
-                adc ptr4+0
-                sta ptr4+0
+                adc read_ptr2+0
+                sta read_ptr2+0
                 bcc +
-                inc ptr4+1              ; unaccessed ($8627)
+                inc read_ptr2+1         ; unaccessed ($8627)
 +               jmp cod12
 
 icode4          ; unaccessed chunk ($862c)
@@ -1751,86 +1754,86 @@ icode5          ; unaccessed chunk
                 lda #$01
                 ora arr34,x
                 sta arr34,x
-                stx ram23
+                stx ram10
                 lda dat6,x
                 tax
-                lda (ptr4),y
-                sta arr11,x
+                lda (read_ptr2),y
+                sta addr_tbl_lo,x
                 iny
-                lda (ptr4),y
-                sta arr12,x
+                lda (read_ptr2),y
+                sta addr_tbl_hi,x
                 lda #$00
                 tay
                 sta arr10+11,x
                 sta arr10,x
                 sta arr14,x
-                ldx ram23
+                ldx ram10
                 clc
                 lda #$02
-                adc ptr4+0
-                sta ptr4+0
+                adc read_ptr2+0
+                sta read_ptr2+0
                 bcc +
-                inc ptr4+1
+                inc read_ptr2+1
 +               jmp cod12
 
 icode6          ; unaccessed chunk
-                stx ram23
+                stx ram10
                 lda dat6,x
                 tax
                 lda #$00
                 sta arr10+11,x
                 sta arr10,x
                 sta arr14,x
-                ldx ram23
+                ldx ram10
                 jmp cod12
                 ; $8682
 
-icode7          stx ram23
+icode7          stx ram10
                 lda dat9,x
                 tax
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr37,x
-                sta ram24
-                ldx ram23
+                sta ram11
+                ldx ram10
                 lda dat10,x
                 tax
-                lda ram24
+                lda ram11
                 sta arr10,x
-                ldx ram23
-                inc ptr4+0
+                ldx ram10
+                inc read_ptr2+0
                 bne +
-                inc ptr4+1              ; unaccessed ($86a0)
+                inc read_ptr2+1         ; unaccessed ($86a0)
 +               jmp cod12
 
-icode8          lda (ptr4),y
+icode8          lda (read_ptr2),y
                 sta arr35,x
-                inc ptr4+0
+                inc read_ptr2+0
                 bne +
-                inc ptr4+1              ; unaccessed ($86ae)
+                inc read_ptr2+1         ; unaccessed ($86ae)
 +               jmp cod17
 
 icode9          ; unaccessed chunk ($86b3)
-                copy #$40, ram25
-                lda (ptr4),y
+                copy #$40, ram12
+                lda (read_ptr2),y
                 sta arr36,x
-                inc ptr4+0
+                inc read_ptr2+0
                 bne +
-                inc ptr4+1
+                inc read_ptr2+1
 +               jmp cod12
 
 icode10         ; unaccessed chunk
                 lda #$80
-                ora ram25
-                sta ram25
+                ora ram12
+                sta ram12
                 jmp cod12
                 ;
--               lda (ptr4),y
+-               lda (read_ptr2),y
                 iny
                 sta arr22+3
-                lda (ptr4),y
+                lda (read_ptr2),y
                 iny
                 sec
-                sbc (ptr4),y
+                sbc (read_ptr2),y
                 sta arr23+3
                 bpl +
                 lda #$ff
@@ -1851,43 +1854,43 @@ icode11         ; unaccessed chunk
                 cpx #3
                 beq -
                 ;
-                stx ram23
+                stx ram10
                 lda dat7,x
                 tax
-                lda (ptr4),y
+                lda (read_ptr2),y
                 iny
                 sta arr22,x
-                lda (ptr4),y
+                lda (read_ptr2),y
                 add arr37+8
-                sta ram24
+                sta ram11
                 iny
-                lda (ptr4),y
-                ldy ram24
+                lda (read_ptr2),y
+                ldy ram11
                 adc arr37+8
-                stx ram24
+                stx ram11
                 tax
                 sec
                 lda dat3,y
                 sbc dat3,x
-                sta ptr5+1
+                sta ptr2+1
                 lda dat4,y
                 sbc dat4,x
-                ldx ram24
+                ldx ram11
                 sta arr24,x
-                lda ptr5+1
+                lda ptr2+1
                 asl a
                 sta arr23,x
                 rol arr24,x
-                ldx ram23
+                ldx ram10
                 ldy #$02
-+               lda (ptr4),y
++               lda (read_ptr2),y
                 sta arr27,x
                 clc
                 lda #$03
-                adc ptr4+0
-                sta ptr4+0
+                adc read_ptr2+0
+                sta read_ptr2+0
                 bcc +
-                inc ptr4+1
+                inc read_ptr2+1
 +               ldy #$00
                 jmp +
                 ; $8754
@@ -1897,7 +1900,7 @@ cod13           sta arr27,x
                 bmi +
                 lda #$00
                 sta arr22,y
-+               bit ram25
++               bit ram12
                 bmi ++
                 bvs +
                 lda #$ff
@@ -1918,19 +1921,19 @@ cod14           and #%01111111
                 sta arr28,x
                 jmp cod12
                 ;
---              lda (ptr4),y
+--              lda (read_ptr2),y
                 sta arr28+4
-                inc ptr4+0
+                inc read_ptr2+0
                 bne +
-                inc ptr4+1              ; unaccessed ($8793)
+                inc read_ptr2+1         ; unaccessed ($8793)
 +               jmp cod12
                 ;
--               lda (ptr4),y
-                sta ram23
+-               lda (read_ptr2),y
+                sta ram10
                 iny
-                lda (ptr4),y
-                sta ptr4+1
-                copy ram23, ptr4+0
+                lda (read_ptr2),y
+                sta read_ptr2+1
+                copy ram10, read_ptr2+0
                 dey
                 jmp cod12
 ++              cmp #$3d
@@ -1943,39 +1946,39 @@ cod14           and #%01111111
                 beq -
                 ;
                 clc
-                lda ptr4+0
+                lda read_ptr2+0
                 adc #$03
                 sta arr30,x
-                lda ptr4+1
+                lda read_ptr2+1
                 adc #$00
                 sta arr31,x
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr32,x
                 iny
-                lda (ptr4),y
-                sta ram23
+                lda (read_ptr2),y
+                sta ram10
                 iny
-                lda (ptr4),y
-                sta ptr4+1
-                copy ram23, ptr4+0
+                lda (read_ptr2),y
+                sta read_ptr2+1
+                copy ram10, read_ptr2+0
                 ldy #$00
                 jmp cod12
 
 ucod8           ; unaccessed chunk ($87de)
-                stx ram23
+                stx ram10
                 lda dat5,x
                 tax
-                lda arr11,x
-                sta ptr5+0
-                lda arr12,x
-                sta ptr5+1
+                lda addr_tbl_lo,x
+                sta ptr2+0
+                lda addr_tbl_hi,x
+                sta ptr2+1
                 ldy #0
-                lda (ptr5),y
+                lda (ptr2),y
                 beq +
                 sta arr14,x
                 lda #$00
                 sta arr10+11,x
-+               ldx ram23
++               ldx ram10
                 clc
                 jmp cod16
                 ; $8802
@@ -1990,9 +1993,9 @@ cod16           lda arr32,x
                 lda arr31,x
                 sta arr26,x
                 rts
-cod17           lda ptr4+0
+cod17           lda read_ptr2+0
                 sta arr25,x
-                lda ptr4+1
+                lda read_ptr2+1
                 sta arr26,x
                 rts
 
@@ -2009,8 +2012,7 @@ jump_tbl_hi     ; $8835; partially unaccessed
                 dh jump_tbl_lo, jump_tbl_lo
                 hex 88
 
-sub10           ; $8844
-                ; called by: sub2, ucod1, sub5
+sub10           ; called by: sub2, ucod1, sub5
                 copy #%00001111, snd_chn
                 rts
 
@@ -2020,22 +2022,22 @@ sub10           ; $8844
 cod18           asl a
                 asl a
                 add arr37+13
-                sta ptr4+0
+                sta read_ptr2+0
                 lda #$00
                 adc arr37+14
-                sta ptr4+1
+                sta read_ptr2+1
                 copy #%00001111, snd_chn
                 ldy #0
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta dmc_start
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta dmc_len
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta dmc_freq
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta dmc_raw
                 copy #%00011111, snd_chn
                 rts
@@ -2056,17 +2058,17 @@ ucod9           ; unaccessed chunk ($8887)
                 jmp cod18
 
                 ; unaccessed chunk
-                stx ptr4+0
-                sty ptr4+1
+                stx read_ptr2+0
+                sty read_ptr2+1
                 ldy #0
                 lda arr37+8
                 bne +
                 iny
                 iny
-+               lda (ptr4),y
++               lda (read_ptr2),y
                 sta ram72
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta ram73
                 ;
                 ldx #0
@@ -2096,12 +2098,12 @@ sub12b          ; unaccessed chunk
                 asl a
                 tay
                 jsr sub12
-                copy ram72, ptr4+0
-                copy ram73, ptr4+1
-                lda (ptr4),y
+                copy ram72, read_ptr2+0
+                copy ram73, read_ptr2+1
+                lda (read_ptr2),y
                 sta arr39,x
                 iny
-                lda (ptr4),y
+                lda (read_ptr2),y
                 sta arr40,x
                 rts
                 ; $88f3
@@ -2117,12 +2119,12 @@ sub13           ; called by: sub7
                 rts
 
 ucod10          ; unaccessed chunk ($8903)
-                sta ptr4+1
+                sta read_ptr2+1
                 lda arr39,x
-                sta ptr4+0
+                sta read_ptr2+0
                 ldy arr41,x
                 clc
--               lda (ptr4),y
+-               lda (read_ptr2),y
                 bmi ++
                 beq +++
                 iny
@@ -2135,28 +2137,28 @@ ucod10          ; unaccessed chunk ($8903)
 ++              iny
                 bne +
                 jsr sub14
-+               stx ram23
-                adc ram23
++               stx ram10
+                adc ram10
                 tax
-                lda (ptr4),y
+                lda (read_ptr2),y
                 iny
                 bne +
-                stx ram24
-                ldx ram23
+                stx ram11
+                ldx ram10
                 jsr sub14
-                ldx ram24
+                ldx ram11
 +               sta arr15,x
-                ldx ram23
+                ldx ram10
                 jmp -
 
                 ; unaccessed chunk
 +++             sta arr40,x
 cod19           lda ram61
                 and #%00001111
-                sta ram23
+                sta ram10
                 lda arr42,x
                 and #%00001111
-                cmp ram23
+                cmp ram10
                 bcc +
                 lda arr42,x
                 sta ram61
@@ -2166,10 +2168,10 @@ cod19           lda ram61
                 sta ram63
 +               lda ram64
                 and #%00001111
-                sta ram23
+                sta ram10
                 lda arr45,x
                 and #%00001111
-                cmp ram23
+                cmp ram10
                 bcc +
                 lda arr45,x
                 sta ram64
@@ -2186,10 +2188,10 @@ cod19           lda ram61
                 sta ram69
 +               lda ram70
                 and #%00001111
-                sta ram23
+                sta ram10
                 lda arr51,x
                 and #%00001111
-                cmp ram23
+                cmp ram10
                 bcc +
                 lda arr51,x
                 sta ram70
@@ -2199,33 +2201,31 @@ cod19           lda ram61
                 ; $89bd
 
 sub14           ; called by: ucod10
-                inc ptr4+1
+                inc read_ptr2+1
                 inc arr40,x
                 rts
 
-                hex c0 7f 00 00 00 c0 7f 00  ; $89c3
+dat2            hex c0 7f 00 00 00 c0 7f 00
                 hex 01
 
-dat3            ; unaccessed chunk ($89cc)
+dat3            ; partially unaccessed ($89cc)
                 hex 00 68 b6 0e 6f d9 4b c6 48 d1 60 f6 92 34 db 86
                 hex 37 ec a5 62 23 e8 b0 7b 49 19 ed c3 9b 75 52 31
                 hex 11 f3 d7 bd a4 8c 76 61 4d 3a 29 18 08 f9 eb de
                 hex d1 c6 ba b0 a6 9d 94 8b 84 7c 75 6e 68 62 5d 57
                 hex 52 4e 49 45 41 3e 3a 37 34 31 2e 2b 29 26 24 22
                 hex 20 1e 1d 1b 19 18 16 15 14 13 12 11 10 0f 0e 0d
-                hex 0c 00 5b 9c e6 3b 9a 01 72 ea 6a
-
-                ; partially unaccessed ($8a37)
-                hex f1 7f 13 ad 4d f3 9d 4c 00 b8 74 34 f8 bf 89 56
-                hex 26 f9 ce a6 80 5c 3a 1a fb df c4 ab 93 7c 67 52
-                hex 3f 2d 1c 0c fd ef e1 d5 c9 bd b3 a9 9f 96 8e 86
-                hex 7e 77 70 6a 64 5e 59 54
+                hex 0c 00 5b 9c e6 3b 9a 01 72 ea 6a f1 7f 13 ad 4d
+                hex f3 9d 4c 00 b8 74 34 f8 bf 89 56 26 f9 ce a6 80
+                hex 5c 3a 1a fb df c4 ab 93 7c 67 52 3f 2d 1c 0c fd
+                hex ef e1 d5 c9 bd b3 a9 9f 96 8e 86 7e 77 70 6a 64
+                hex 5e 59 54
 
 udat1           ; unaccessed chunk ($8a6f)
                 hex 4f 4b 46 42 3f 3b 38 34 31 2f 2c 29 27 25 23 21
                 hex 1f 1d 1b 1a 18 17 15 14 13 12 11 10 0f 0e 0d
 
-dat4            ; unaccessed chunk
+dat4            ; partially unaccessed ($8a8e)
                 hex 00 0c 0b 0b 0a 09 09 08
                 hex 08 07 07 06 06 06 05 05
                 hex 05 04 04 04 04 03 03 03
@@ -2239,13 +2239,14 @@ dat4            ; unaccessed chunk
                 hex 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 00 00 00
                 hex 00 00 0d 0c 0b 0b 0a 0a
-                hex 09 08 08
-
-                ; partially unaccessed ($8af9)
-                hex 07 07 07 06 06 05 05 05 05 04 04 04 03 03 03 03
-                hex 03 02 02 02 02 02 02 02 01 01 01 01 01 01 01 01
-                hex 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00
+                hex 09 08 08 07 07 07 06 06
+                hex 05 05 05 05 04 04 04 03
+                hex 03 03 03 03 02 02 02 02
+                hex 02 02 02 01 01 01 01 01
+                hex 01 01 01 01 01 01 01 00
                 hex 00 00 00 00 00 00 00 00
+                hex 00 00 00 00 00 00 00 00
+                hex 00 00 00
 
 udat2           ; unaccessed chunk ($8b31)
                 pad $8b50, $00
@@ -2258,28 +2259,19 @@ dat8            hex 00 01 02 ff ff
 dat9            hex 00 01 ff 02 ff
 dat10           hex 02 05 ff 0a ff
 dat11           hex 30 70 b0 f0
-dat12           hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 00 00 00
 
-udat3           ; unaccessed chunk ($8b82)
+dat12           ; partially unaccessed ($8b72)
+                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
                 hex 00 01 01 01 01 01 01 01 01 01 01 01 02 02 02 02
                 hex 00 01 01 01 01 01 01 01 02 02 02 02 02 03 03 03
-                hex 00
-
-                hex 01 01 01 01 01 02 02 02  ; $8bb3
-                hex 02 03 03 03 03 04 04
-
-udat4           ; unaccessed chunk ($8bc2)
+                hex 00 01 01 01 01 01 02 02 02 02 03 03 03 03 04 04
                 hex 00 01 01 01 01 02 02 02 03 03 03 04 04 04 05 05
                 hex 00 01 01 01 02 02 02 03 03 04 04 04 05 05 06 06
                 hex 00 01 01 01 02 02 03 03 04 04 05 05 06 06 07 07
-                hex 00
+                hex 00 01 01 02 02 03 03 04 04 05 05 06 06 07 07 08
 
-                hex 01 01 02 02 03 03 04 04  ; $8bf3
-                hex 05 05 06 06 07 07 08
-
-udat5           ; unaccessed chunk ($8c02)
+                ; unaccessed chunk ($8c02)
                 hex 00 01 01 02 02 03 04 04 05 05 06 07 07 08 08 09
                 hex 00 01 01 02 03 03 04 05 05 06 07 07 08 09 09 0a
                 hex 00 01 01 02 03 04 04 05 06 07 07 08 09 0a 0a 0b
@@ -2287,11 +2279,10 @@ udat5           ; unaccessed chunk ($8c02)
                 hex 00 01 02 03 03 04 05 06 07 08 09 0a 0a 0b 0c 0d
                 hex 00 01 02 03 04 05 06 07 07 08 09 0a 0b 0c 0d 0e
 
-                ; partially unaccessed ($8c62)
-                hex 00 01 02 03 04 05 06 07
-                hex 08 09 0a 0b 0c 0d 0e 0f
+                ; partially unaccessed ($8c62); read by LDA (ptr1),y
+                hex 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
 
-pt_title_dk     ; BG PT data for title screen & Donkey Kong ($8c72)
+pt_title_dk     ; BG PT data for title screen & Donkey Kong
                 hex 62 a9 ff 9c 39 73 e7 cf 9f 3f 7f ff 49 93 26 4c
                 hex 99 33 67 ce bf 00 01 02 04 09 12 24 e0 c0 80 00
                 hex 24 1f 01 03 07 0f 1f fc 18 30 60 c0 80 00 ff b3
@@ -3144,7 +3135,7 @@ pt_tennis       ; BG PT data for Tennis
 
                 base $c000
 
-udat6           ; unaccessed chunk ($c000)
+udat6           ; unaccessed chunk
                 hex d6 5a 6b b5 d6 5a ab b5 d6 5a ad b5 d6 6a ad b5
                 hex 5a 6b ad d5 5a 6b ad d6 5a 6b b5 d6 5a ab b5 d6
                 hex 0a 00 00 00 6b ad b5 5a 6b ad d5 5a 6b ad d6 5a
@@ -3240,7 +3231,7 @@ udat6           ; unaccessed chunk ($c000)
                 hex 6a 02 0f 8d 6a 02 0a 8d ff 10 3d c5 ff 10 3d c5
                 hex ff 10 3d c5 fd 3d c5
 
-nmi             inc some_flag           ; $c598
+nmi             inc some_flag
                 pha                     ; push A, Y, X
                 tya
                 pha
@@ -3252,7 +3243,7 @@ nmi             inc some_flag           ; $c598
                 ;
                 lda prg_bank            ; store current PRG bank
                 pha
-                lda ram11
+                lda ram3
                 bpl ++
                 ;
                 copy #%00011000, ppu_mask  ; show sprites & BG
@@ -3288,8 +3279,8 @@ nmi             inc some_flag           ; $c598
                 copy #$00,          oam_addr  ; do OAM DMA
                 copy #>sprite_data, oam_dma
                 copy ppu_ctrl_copy, ppu_ctrl
-                copy ram9,          ppu_scroll
-                copy ram10,         ppu_scroll
+                copy ram1,          ppu_scroll
+                copy ram2,          ppu_scroll
                 ;
 ++              lda #2                  ; run a sub in bank 2
                 jsr bankswitch
@@ -3306,7 +3297,7 @@ nmi             inc some_flag           ; $c598
                 pla
                 rti
 
-irq             rti                     ; $c61b (unaccessed)
+irq             rti                     ; unaccessed
 
 udat7           ; unaccessed chunk
                 hex 0f 01 02 04 08 10 20 40  ; $c61c
@@ -3317,14 +3308,14 @@ udat7           ; unaccessed chunk
 read_joypads    ; of the variables written, only joypad1b is actually used
                 ; called by: init
                 ;
-                copy joypad1a, joypad1_prev  ; $c635
+                copy joypad1a, joypad1_prev
                 copy joypad2a, joypad2_prev
                 ;
                 lda #$01
                 sta joypad1a
-                sta ptr3+0
+                sta joypad1c
                 sta joypad2a
-                sta ptr3+1
+                sta joypad2c
                 sta joypad1
                 lsr a
                 sta joypad1
@@ -3344,21 +3335,21 @@ read_joypads    ; of the variables written, only joypad1b is actually used
                 lsr a
                 sta joypad1
                 ;
--               lda joypad1             ; 8 buttons -> ptr3+0, ptr3+1
+-               lda joypad1             ; 8 buttons -> joypad1c, joypad2c
                 and #%00000011
                 cmp #$01
-                rol ptr3+0
+                rol joypad1c
                 lda joypad2
                 and #%00000011
                 cmp #$01
-                rol ptr3+1
+                rol joypad2c
                 bcc -
                 ;
-                lda ptr3+0
+                lda joypad1c
                 cmp joypad1a
                 beq +
                 copy joypad1_prev, joypad1a  ; $c685 (unaccessed)
-+               lda ptr3+1
++               lda joypad2c
                 cmp joypad2a
                 beq +
                 copy joypad2_prev, joypad2a  ; $c68f (unaccessed)
@@ -3404,7 +3395,7 @@ read_joypads    ; of the variables written, only joypad1b is actually used
 
 init            ; initialization and main loop
                 ;
-                sei                     ; $c6d4
+                sei
                 ldx #%00000000
                 stx ppu_ctrl
                 stx ppu_mask
@@ -3439,10 +3430,10 @@ init            ; initialization and main loop
                 lda #$21
                 sta nt_fill_column
                 sta nt_copy_column
-                copy #$cf, ram18
+                copy #$cf, ram8
                 ;
                 lda #$00
-                sta ram11
+                sta ram3
                 sta do_nmi
                 ldy #%10001000          ; enable NMI, PT1 for sprites
                 sty ppu_ctrl_copy
@@ -3450,29 +3441,29 @@ init            ; initialization and main loop
                 jsr sub34
                 tay
                 lda dat26,y
-                sta ptr3+0
-                sta ram49
+                sta ptr1+0
+                sta useless2
                 ;
                 lda #2
                 jsr bankswitch
                 ;
                 ldx #$80
                 ldy #$c2
-                lda ptr3+0
+                lda ptr1+0
                 jsr sub1
                 ;
                 copy #$01, do_nmi
                 lda #$00
-                sta ram22
-                sta ram11
-                sta game_screen
                 sta ram9
-                sta ram10
+                sta ram3
+                sta game_screen
+                sta ram1
+                sta ram2
                 jsr sub3
                 jsr sub16
                 ;
-                copy #$20,    ptr3+0       ; copy 768 bytes from nt_dk to NT0
-                copy #$00,    ptr3+1
+                copy #$20,    ptr1+0       ; copy 768 bytes from nt_dk to NT0
+                copy #$00,    ptr1+1
                 copy #<nt_dk, read_ptr1+0
                 copy #>nt_dk, read_ptr1+1
                 ldy game_screen
@@ -3488,7 +3479,7 @@ init            ; initialization and main loop
                 copy #>pal_title_dk, read_ptr1+1
                 ldy #0
 -               lda (read_ptr1),y
-                sta arr2,y
+                sta bg_pal_copy,y
                 iny
                 cpy #16
                 bcc -
@@ -3502,15 +3493,15 @@ init            ; initialization and main loop
                 copy #$10, ppu_addr     ; copy sprite PT data to PT1
                 copy #$00, ppu_addr     ; ($70 bytes or 7 tiles)
                 ldy #0
-                sty ram11
+                sty ram3
 -               lda spr_pt_data,y
                 sta ppu_data
                 iny
                 cpy #$70
                 bcc -
                 ;
-                copy #<$0028,    ptr3+0
-                copy #>$0028,    ptr3+1
+                copy #<$0028, ptr1+0
+                copy #>$0028, ptr1+1
                 copy #<nt_title, read_ptr1+0
                 copy #>nt_title, read_ptr1+1
                 jsr copy_nt             ; copy 768 bytes to PPU
@@ -3525,44 +3516,44 @@ init            ; initialization and main loop
                 sta ppu_scroll
                 sta ppu_scroll
                 ;
-                copy #$a5, ram15
+                copy #$a5, ram5
                 jsr hide_sprites
-                copy #$ff, ram11
+                copy #$ff, ram3
                 ;
 -               jsr wait_flag_chg
                 jsr shift_left
-                copy #$00, ram11
+                copy #$00, ram3
                 jsr sub19
-                copy #$ff, ram11
+                copy #$ff, ram3
                 jsr read_joypads
                 lda joypad1b
                 and #%10010000          ; A/start
                 beq -
                 ;
 -               jsr wait_flag_chg
-                copy #$00, ram11
-                lda ram10
+                copy #$00, ram3
+                lda ram2
                 add #$04
                 cmp #$f0
                 bcs +
-                sta ram10
+                sta ram2
                 jsr sub19
                 lda #$ff
-                sta ram11
+                sta ram3
                 bne -                   ; unconditional
                 ;
 +               jsr hide_sprites
                 jsr sub21
-                copy #$00, ram10
+                copy #$00, ram2
                 lda ppu_ctrl_copy       ; use NT0
                 and #%11111100
                 sta ppu_ctrl_copy
                 ;
 -               jsr wait_flag_chg
                 jsr shift_left
-                copy #$00, ram22
+                copy #$00, ram9
                 jsr read_joypads
-                copy #$00, ram11
+                copy #$00, ram3
                 jsr sub20
                 jsr sprite1a
                 lda joypad1b
@@ -3573,12 +3564,12 @@ init            ; initialization and main loop
                 jsr sub23
                 jmp ++
 +               jsr sub24
-++              copy #$ff, ram11
+++              copy #$ff, ram3
                 jmp -
 
 sub16           ; called by: init, sub23, sub24
                 ;
-                copy #$00, ppu_mask     ; $c867
+                copy #$00, ppu_mask
                 jsr wait_flag_chg
                 ldy game_screen
                 lda nt_fill_bytes,y
@@ -3593,7 +3584,7 @@ sub16           ; called by: init, sub23, sub24
                 sta read_ptr1+1
                 ldy #0
 -               lda (read_ptr1),y
-                sta arr2,y
+                sta bg_pal_copy,y
                 iny
                 cpy #16
                 bcc -
@@ -3608,12 +3599,12 @@ sub16           ; called by: init, sub23, sub24
                 lda game_screen
                 asl a
                 tax
-                lda pt_data_ptrs,x
-                sta ram48
+                lda pt_data_ptrs+0,x
+                sta temp
                 lda pt_data_ptrs+1,x
-                sta ram47
-                lda ram47
-                ldy ram48
+                sta useless1
+                lda useless1
+                ldy temp
                 ldx #$40
                 jsr decomp_pt_data1
                 ;
@@ -3637,7 +3628,7 @@ sub16           ; called by: init, sub23, sub24
                 lda game_screen
                 asl a
                 tay
-                lda nt_data_ptrs,y
+                lda nt_data_ptrs+0,y
                 add #<$03c0
                 sta read_ptr1+0
                 lda nt_data_ptrs+1,y
@@ -3707,11 +3698,11 @@ pal_data_ptrs   dw pal_title_dk, pal_dkjr,   pal_popeye,   pal_gomoku
 
 ; -----------------------------------------------------------------------------
 
-copy_nt         ; copy 768 bytes from read_ptr1 to PPU ptr3; called by: init
+copy_nt         ; copy 768 bytes from read_ptr1 to PPU ptr1; called by: init
                 ;
-                bit ppu_status          ; $c98e
-                copy ptr3+0, ppu_addr
-                copy ptr3+1, ppu_addr
+                bit ppu_status
+                copy ptr1+0, ppu_addr
+                copy ptr1+1, ppu_addr
                 ;
                 ldx #3
                 ldy #0
@@ -3725,7 +3716,7 @@ copy_nt         ; copy 768 bytes from read_ptr1 to PPU ptr3; called by: init
                 ;
                 rts
 
-nt_title        ; NT & AT data for title screen ($c9ad)
+nt_title        ; NT & AT data for title screen
                 hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52
                 hex 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52 52
                 hex 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57 57
@@ -3791,7 +3782,7 @@ nt_title        ; NT & AT data for title screen ($c9ad)
                 hex 00 00 00 00 00 50 10 00
                 pad nt_title+30*32+8*8, $00
 
-nt_dk           ; NT & AT data for Donkey Kong ($cdad)
+nt_dk           ; NT & AT data for Donkey Kong
                 pad nt_dk+2*32, $cd
                 hex cd cd cd cd cd cd cd cd cd cd bb ce be ba cc bd
                 hex cd ba ce be 9f cd cd cd cd cd cd cd cd cd cd cd
@@ -3871,7 +3862,7 @@ pal_popeyeen    hex  0f 30 27 37  0f 0f 0f 0f  0f 0f 0f 0f  0f 0f 0f 0f
 pal_tennis      hex  0f 30 04 14  0f 0f 0f 0f  0f 0f 0f 0f  0f 0f 0f 0f
 pal_devil       hex  0f 0c 1c 20  0f 0c 1c 26  0f 20 26 0f  0f 0f 0f 0f
 
-spr_pt_data     ; sprite PT data ($70 bytes or 7 tiles; $d28d)
+spr_pt_data     ; sprite PT data ($70 bytes or 7 tiles)
                 hex  00 00 00 18 18 00 00 00  00 00 00 18 18 00 00 00
                 hex  00 00 10 38 10 00 00 00  00 10 10 7c 10 10 00 00
                 hex  80 04 10 38 10 40 02 00  00 40 38 38 38 04 00 00
@@ -3884,7 +3875,7 @@ spr_pt_data     ; sprite PT data ($70 bytes or 7 tiles; $d28d)
 
 hide_sprites    ; hide all sprites; called by: init
                 ;
-                ldy #0                  ; $d2fd
+                ldy #0
                 lda #$ff
 -               sta sprite_data,y
                 iny
@@ -3896,85 +3887,85 @@ hide_sprites    ; hide all sprites; called by: init
 
 sub19           ; sprite stuff; called by: init
                 ;
-                lda ram14               ; $d30b
+                lda ram4
                 add #1
                 cmp #$86
                 bcc ++
-                lda ram16
+                lda ram6
                 cmp #$01
                 beq +
-                copy #$01, ram16
-                copy #$00, ram17
+                copy #$01, ram6
+                copy #$00, ram7
                 jmp +++
-+               ldy ram17
++               ldy ram7
                 iny
-                sty ram17
+                sty ram7
                 cpy #$0a
                 bcc +++
-                copy #$ff, ram15
+                copy #$ff, ram5
                 cpy #$40
                 bcc +++
                 lda #$00
-                sta ram16
-                sta ram17
-                sta ram14
-                copy #$a5, ram15
+                sta ram6
+                sta ram7
+                sta ram4
+                copy #$a5, ram5
                 jmp +++
                 ;
-++              sta ram14
+++              sta ram4
                 jsr sub30
-+++             copy ram14, sprite_data+3
-                lda ram15
++++             copy ram4, sprite_data+3
+                lda ram5
                 cmp #$f0
                 bcs +
-                sub ram10
+                sub ram2
                 bcs +
                 lda #$ff
 +               sta sprite_data+0
-                copy ram16, sprite_data+1
-                copy #$00,  sprite_data+2
+                copy ram6, sprite_data+1
+                copy #$00, sprite_data+2
                 rts
 
 sub20           ; called by: init, sub23, sub24
                 ;
-                lda ram22               ; $d36a
+                lda ram9
                 beq +
-                lda ram16
+                lda ram6
                 cmp #$06
                 bcs +
-                copy #$06, ram16
-                copy #$00, ram17
-+               lda ram17
+                copy #$06, ram6
+                copy #$00, ram7
++               lda ram7
                 add #$01
-                sta ram17
+                sta ram7
                 cmp #$06
                 bcc ++
-                copy #$00, ram17
-                lda ram16
+                copy #$00, ram7
+                lda ram6
                 add #1
                 cmp #$07
                 bcc +
-                copy #$ff, ram15
+                copy #$ff, ram5
                 jsr shift_left
                 cmp #$40
                 bcs ++
                 jsr shift_left
-                lda ram22
+                lda ram9
                 bne ++
                 jsr sub21
                 jmp ++
-+               sta ram16
-++              lda ram14
++               sta ram6
+++              lda ram4
                 add #$39
-                sub ram9
+                sub ram1
                 bcc ++
                 sta sprite_data+3
-                lda ram15
+                lda ram5
                 cmp #$ff
                 beq +
                 add #$23
 +               sta sprite_data+0
-                ldy ram16
+                ldy ram6
                 lda dat23,y
                 sta sprite_data+1
                 copy #%00000000, sprite_data+2
@@ -3984,38 +3975,38 @@ sub20           ; called by: init, sub23, sub24
 
 sub21           ; called by: init, sub20
                 ;
-                lda #$00                ; $d3db
-                sta ram17
-                sta ram16
+                lda #$00
+                sta ram7
+                sta ram6
                 ;
                 jsr shift_left
                 ;
--               cmp #$90                ; A modulo $90 -> ram14
+-               cmp #$90                ; A modulo $90 -> ram4
                 bcc +
                 sbc #$90
                 jmp -
-+               sta ram14
++               sta ram4
                 ;
                 jsr shift_left
                 ;
--               cmp #$4c                ; A modulo $4c -> ram15
+-               cmp #$4c                ; A modulo $4c -> ram5
                 bcc +
                 sbc #$4c
                 jmp -
-+               sta ram15
++               sta ram5
                 ;
                 rts
 
-dat23           hex 00 01 02 03 04 05 01  ; $d3fe
+dat23           hex 00 01 02 03 04 05 01
 
-shift_left      ; shift ram18 left; if carry, XOR with %11001111
+shift_left      ; shift ram8 left; if carry, XOR with %11001111
                 ; called by: init, sub20, sub21
                 ;
-                lda ram18               ; $d405
+                lda ram8
                 asl a
                 bcc +
                 eor #%11001111
-+               sta ram18
++               sta ram8
                 rts
 
 macro copy_nt_column
@@ -4025,23 +4016,23 @@ macro copy_nt_column
                 ; - step size 32
                 ; called by: sub23, sub24
                 ;
-                lda game_screen         ; load ptr3 with array specified
+                lda game_screen         ; load ptr1 with array specified
                 asl a                   ; by game_screen
                 tax
-                lda nt_data_ptrs,x
-                sta ptr3+0
+                lda nt_data_ptrs+0,x
+                sta ptr1+0
                 lda nt_data_ptrs+1,x
-                sta ptr3+1
+                sta ptr1+1
                 ;
-                ldx #0                  ; starting from (ptr3),y
--               lda (ptr3),y            ; copy 30 bytes in increments of 32
+                ldx #0                  ; starting from (ptr1),y
+-               lda (ptr1),y            ; copy 30 bytes in increments of 32
                 sta nt_copy_array,x     ; to nt_copy_array
-                lda ptr3+0
+                lda ptr1+0
                 add #32
-                sta ptr3+0
-                lda ptr3+1
+                sta ptr1+0
+                lda ptr1+1
                 adc #0
-                sta ptr3+1
+                sta ptr1+1
                 inx
                 cpx #30
                 bcc -
@@ -4049,14 +4040,14 @@ endm
 
 sub23           ; called by: init
                 ;
-                copy #$01, ram22        ; $d40f
-                copy #$00, ram9
+                copy #$01, ram9
+                copy #$00, ram1
                 ;
 -               jsr wait_flag_chg
-                copy #$00, ram11
-                lda ram9
+                copy #$00, ram3
+                lda ram1
                 add #$08
-                sta ram9
+                sta ram1
                 beq +
                 sub #$08
                 lsr a
@@ -4065,10 +4056,10 @@ sub23           ; called by: init
                 sta nt_fill_column
                 jsr sub20
                 jsr sprite1b
-                copy #$ff, ram11
+                copy #$ff, ram3
                 jmp -
                 ;
-+               copy #$00, ram9
++               copy #$00, ram1
                 ldy game_screen
                 iny
                 cpy #14
@@ -4076,17 +4067,17 @@ sub23           ; called by: init
                 ldy #0
 +               sty game_screen
                 jsr sub16
-                copy #$00, ram9
+                copy #$00, ram1
                 lda #$ff
-                sta ram11
+                sta ram3
                 sta nt_copy_column
                 sta nt_fill_column
                 ;
 --              jsr wait_flag_chg
-                copy #$00, ram11
-                lda ram9
+                copy #$00, ram3
+                lda ram1
                 add #8
-                sta ram9
+                sta ram1
                 beq +
                 sub #8
                 ;
@@ -4099,23 +4090,23 @@ sub23           ; called by: init
                 copy_nt_column          ; to nt_copy_array (macro)
                 ;
                 jsr sprite1c
-                copy #$ff, ram11
+                copy #$ff, ram3
                 jmp --
                 ;
 +               jsr sprite1a
-                copy #$00, ram22
+                copy #$00, ram9
                 rts
 
 sub24           ; called by: init
                 ;
-                copy #$01, ram22        ; $d4ab
-                copy #$00, ram9
+                copy #$01, ram9
+                copy #$00, ram1
                 ;
 -               jsr wait_flag_chg
-                copy #$00, ram11
-                lda ram9
+                copy #$00, ram3
+                lda ram1
                 sub #8
-                sta ram9
+                sta ram1
                 beq +
                 lsr a
                 lsr a
@@ -4123,27 +4114,27 @@ sub24           ; called by: init
                 sta nt_fill_column
                 jsr sub20
                 jsr sprite1c
-                copy #$ff, ram11
+                copy #$ff, ram3
                 jmp -
                 ;
-+               copy #$00, ram9
++               copy #$00, ram1
                 ldy game_screen
                 dey
                 bpl +
                 ldy #13
 +               sty game_screen
                 jsr sub16
-                copy #$00, ram9
+                copy #$00, ram1
                 lda #$ff
-                sta ram11
+                sta ram3
                 sta nt_copy_column
                 sta nt_fill_column
                 ;
 --              jsr wait_flag_chg
-                copy #$00, ram11
-                lda ram9
+                copy #$00, ram3
+                lda ram1
                 sub #8
-                sta ram9
+                sta ram1
                 beq +
                 ;
                 lsr a
@@ -4155,17 +4146,17 @@ sub24           ; called by: init
                 copy_nt_column          ; to nt_copy_array (macro)
                 ;
                 jsr sprite1b
-                copy #$ff, ram11
+                copy #$ff, ram3
                 jmp --
                 ;
 +               jsr sprite1a
-                copy #$00, ram22
+                copy #$00, ram9
                 rts
 
 bankswitch      ; map PRG bank specified by A (0-3) to CPU $8000-$bfff
                 ; called by: nmi, init, sub16
                 ;
-                tay                     ; $d53f
+                tay
                 sta prg_bank
                 sta id_table,y
                 rts
@@ -4175,23 +4166,23 @@ id_table        hex 00 01 02 03
 sprite1a        ; do something to sprite 1
                 ; sprite1a/b/c called by: init, sub23, sub24
                 ;
-                lda game_screen         ; $d54a
+                lda game_screen
                 cmp #13
                 bne +
                 copy #$2d,       sprite_data+4+0
                 copy #$06,       sprite_data+4+1
                 copy #%00000000, sprite_data+4+2
                 lda #$51
-                sub ram9
+                sub ram1
                 sta sprite_data+4+3
                 rts
                 ;
-sprite1b        lda ram9
+sprite1b        lda ram1
                 cmp #$58
                 bcs +
                 jmp sprite1a
                 ;
-sprite1c        lda ram9
+sprite1c        lda ram1
                 cmp #$50
                 bcc +
                 jmp sprite1a
@@ -4202,28 +4193,28 @@ sprite1c        lda ram9
 wait_flag_chg   ; wait until some_flag changes
                 ; called by: init, sub16, sub23, sub24
                 ;
-                lda some_flag           ; $d580
+                lda some_flag
 -               cmp some_flag
                 beq -
                 rts
 
 sub30           ; called by: sub19
                 ;
-                lda ram17               ; $d587
+                lda ram7
                 add #1
                 cmp #10
                 bcc ++
-                lda ram16
+                lda ram6
                 add #1
                 cmp #6
                 bcc +
                 lda #$02
-+               sta ram16
++               sta ram6
                 lda #$00
-++              sta ram17
+++              sta ram7
                 rts
 
-set_palette     ; $d5a2; called by: nmi
+set_palette     ; called by: nmi
                 ;
                 lda nt_fill_column      ; exit if there are NT columns to
                 cmp #32                 ; fill/copy
@@ -4236,10 +4227,10 @@ set_palette     ; $d5a2; called by: nmi
                 and #%11111011
                 sta ppu_ctrl
                 ;
-                copy #$3f, ppu_addr     ; copy arr2 to BG palettes
+                copy #$3f, ppu_addr     ; copy bg_pal_copy to BG palettes
                 copy #$00, ppu_addr
                 ldy #0
--               lda arr2,y
+-               lda bg_pal_copy,y
                 sta ppu_data
                 iny
                 cpy #16
@@ -4249,8 +4240,7 @@ set_palette     ; $d5a2; called by: nmi
 
 ; -----------------------------------------------------------------------------
 
-decomp_pt_data2 ; $d5cd
-                ; in: X = $40, pt_data_ptr
+decomp_pt_data2 ; in: X = $40, pt_data_ptr
                 ; out: X = usually $80
                 ; decrements deco_dat_left
                 ; called by: decomp_pt_data1
@@ -4283,9 +4273,9 @@ cod20           lda (pt_data_ptr),y     ; unaccessed ($d5eb)
                 ;
 ++              stx pt_dat_out_len      ; $d5f8
                 and #%11011111
-                sta ram40
+                sta bitop_var1
                 lsr a
-                ror ram45
+                ror bitop_var3
                 lsr a
                 bcs -
                 ;
@@ -4293,46 +4283,46 @@ cod20           lda (pt_data_ptr),y     ; unaccessed ($d5eb)
                 tax
                 lda bit_patterns,x
                 ;
-+++             ror ram45
-                sta ram42
-                sty ram39
++++             ror bitop_var3
+                sta bitop_var2
+                sty index_var
                 clc
                 lda pt_dat_out_len
                 ;
 cod21           adc #8
                 sta pt_dat_out_len
                 ;
-                lda ram40
+                lda bitop_var1
                 eor xor_mask
-                sta ram40
+                sta bitop_var1
                 and #%00110000
                 beq +
                 lda #$ff
-+               asl ram42
++               asl bitop_var2
                 bcc ++++
-                ldy ram39
-                bit ram45
+                ldy index_var
+                bit bitop_var3
                 bpl +
                 ldy #2                  ; unaccessed ($d62d)
 +               tax
                 lda (pt_data_ptr),y
                 iny
-                sta ram39
+                sta index_var
                 txa
                 bvs +++++
                 ldx pt_dat_out_len
-                rol ram39
+                rol index_var
                 ;
 -               bcc +
                 lda (pt_data_ptr),y
                 iny
 +               dex
                 sta stack,x
-                asl ram39
+                asl index_var
                 bne -
                 ;
-                sty ram39
-cod22           bit ram40
+                sty index_var
+cod22           bit bitop_var1
                 bpl +
                 ;
                 ldy #8
@@ -4355,7 +4345,7 @@ cod22           bit ram40
 +               lda pt_dat_out_len
                 cmp pt_out_len_trg
                 bcc cod21
-                ldy ram39
+                ldy index_var
 exit_sub        clc
                 tya
                 adc pt_data_ptr+0
@@ -4375,32 +4365,32 @@ exit_sub        clc
                 beq cod22
 
 +++++           ldx #8
--               asl ram39
+-               asl index_var
                 bcc +
                 lda (pt_data_ptr),y
                 iny
 +               dex
-                sta arr3,x
+                sta some_array,x
                 bne -
-                sty ram39
+                sty index_var
                 ;
                 ldy #8
                 ldx pt_dat_out_len
--               asl arr3+0
+-               asl some_array+0
                 ror a
-                asl arr3+1
+                asl some_array+1
                 ror a
-                asl arr3+2
+                asl some_array+2
                 ror a
-                asl arr3+3
+                asl some_array+3
                 ror a
-                asl arr3+4
+                asl some_array+4
                 ror a
-                asl arr3+5
+                asl some_array+5
                 ror a
-                asl arr3+6
+                asl some_array+6
                 ror a
-                asl arr3+7
+                asl some_array+7
                 ror a
                 dex
                 sta stack,x
@@ -4409,12 +4399,12 @@ exit_sub        clc
                 ;
                 beq cod22               ; unconditional
 
-bit_patterns    db %00000000            ; $d6c8
+bit_patterns    db %00000000
                 db %01010101
                 db %10101010
                 db %11111111
 
-decomp_pt_data1 ; decompress pattern table data ($d6cc)
+decomp_pt_data1 ; decompress pattern table data
                 ; in: Y/A = address low/high of compressed PT data,
                 ; X = how much to decompress (64 = 256 tiles)
                 ; called by: sub16
@@ -4445,7 +4435,7 @@ decomp_pt_data1 ; decompress pattern table data ($d6cc)
 
 sub34           ; called by: init
                 ;
-                ldx #0                  ; $ffd0
+                ldx #0
                 ldy #0
                 lda some_flag
 -               cmp some_flag
@@ -4463,7 +4453,7 @@ sub34           ; called by: init
                 lda #3                  ; $ffec (unaccessed)
 +               rts
 
-dat26           hex ff                  ; $ffef
+dat26           hex ff
 
                 pad $fffa, $00
                 dw nmi, init, irq       ; IRQ unaccessed
