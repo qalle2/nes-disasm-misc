@@ -162,7 +162,7 @@ arr33           equ $0280
 arr34           equ $0285
 arr35           equ $028a
 arr36           equ $028f
-arr37           equ $0294
+arr37           equ $0294  ; values for read_ptr2
 ram60           equ $02a5
 ram61           equ $02a6
 ram62           equ $02a7
@@ -3177,7 +3177,8 @@ udat6           ; unaccessed chunk
                 hex b5 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
                 hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
 
-                ; partially unaccessed ($c280)
+                ; $c280: partially unaccessed; read indirectly using read_ptr2
+                ; ($c280-$c292 read in init only)
                 hex 01 93 c2 8f c2 14 c3 bf c3 3f c4 2a c5 3d c5 33
                 hex 01 00 01 db c2 d7 c2 fd c2 f8 c2 00 c3 d7 c2 fd
                 hex c2 f8 c2 00 04 4d 40 00 00 00 40 02 07 4d 40 00
@@ -3188,7 +3189,8 @@ udat6           ; unaccessed chunk
                 hex c4 c4 c3 c2 c2 c1 00 1a 00 c0 7f 00 01 7f 00 00
                 hex 00
 
-                hex c0 02 cf 00 03 00 c0 be bd bd be bf c1 c2 c3 c3  ; $c301
+                ; $c301: read indirectly using read_ptr2
+                hex c0 02 cf 00 03 00 c0 be bd bd be bf c1 c2 c3 c3
                 hex c2 00 01 fb 12 78 69 01 80 11 81 15 81 21 81 22
                 hex 81 11 81 1d 81 11 81 1f 81 1d 81 11 81 18 81 15
                 hex 81 11 81 16 81 15 81 11 81 ff 1c 1a c3 11 81 15
@@ -3231,7 +3233,7 @@ udat6           ; unaccessed chunk
                 hex 6a 02 0f 8d 6a 02 0a 8d ff 10 3d c5 ff 10 3d c5
                 hex ff 10 3d c5 fd 3d c5
 
-nmi             inc some_flag
+nmi             inc some_flag           ; $c598
                 pha                     ; push A, Y, X
                 tya
                 pha
