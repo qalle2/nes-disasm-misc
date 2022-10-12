@@ -45,6 +45,13 @@ macro incw _zp
                 db $ee, _zp, $00
 endm
 
+macro set_ppu_addr _addr
+                lda #>_addr
+                sta ppu_addr
+                lda #<_addr
+                sta ppu_addr
+endm
+
 ; --- iNES header -------------------------------------------------------------
 
                 base $0000
@@ -91,28 +98,19 @@ reset           sei                     ; initialize the NES
                 sta unused
 
                 lda ppu_status          ; set NT0
-                lda #$20
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                set_ppu_addr $2000
                 ldx #<(nt_data-$4000)
                 ldy #>(nt_data-$4000)
                 jsr set_nt-$4000        ; X, Y = address
 
                 lda ppu_status          ; set NT2
-                lda #$28
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                set_ppu_addr $2800
                 ldx #<(nt_data-$4000)
                 ldy #>(nt_data-$4000)
                 jsr set_nt-$4000        ; X, Y = address
 
                 lda ppu_status          ; set initial palette
-                lda #$3f
-                sta ppu_addr
-                lda #$00
-                sta ppu_addr
+                set_ppu_addr $3f00
                 lda #<(initial_palette-$4000)
                 ldx #>(initial_palette-$4000)
                 ldy #32
@@ -257,10 +255,7 @@ nmi             pha                     ; push A, X, Y
                 pha
                 ;
                 lda ppu_status
-                lda #$3f
-                sta ppu_addr
-                lda #$03
-                sta ppu_addr
+                set_ppu_addr $3f03
                 ldxw color
                 lda colors-$4000,x
                 sta ppu_data
