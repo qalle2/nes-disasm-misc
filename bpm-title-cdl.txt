@@ -1,0 +1,258 @@
+FCEUX code/data log for bpm-title.cdl (just let the program sit at the title
+screen, so mainly music data; no button presses or start-up sequence).
+
+CPU address / length / description ("-" = unaccessed)
+
+--- Bank 0 --------------------------------------------------------------------
+
+8000 4000: -
+
+--- Bank 1 --------------------------------------------------------------------
+
+8000 4000: -
+
+--- Bank 2 --------------------------------------------------------------------
+
+8000  177: -
+8177   1c: code
+8193   17: -
+81aa   26: code
+81d0    7: -
+81d7    b: code
+81e2    1: code, data
+81e3    a: code
+81ed    b: -
+81f8   15: code
+820d    d: -
+821a    e: code
+8228    3: -
+822b   3b: code
+8266    1: code, data
+8267   27: code
+828e   39: -
+82c7    1: code, data
+82c8   22: code
+82ea    1: code, data
+82eb   18: code
+8303    1: code, data
+8304    6: code
+830a   1b: -
+8325    f: code
+8334    1: code, data
+8335    f: code
+8344   2b: -
+836f    a: code
+8379    3: -
+837c   30: code
+83ac    3: -
+83af   55: code
+8404    1: code, data
+8405    c: code
+8411   49: -
+845a    1: code, data
+845b   ae: code
+8509    4: -
+850d   90: code
+859d    1: code, data
+859e   39: code
+85d7    2: code (indirectly accessed)
+85d9    a: code
+85e3    2: -
+85e5    8: code
+85ed    2: code (indirectly accessed)
+85ef    9: code
+85f8    2: code (indirectly accessed)
+85fa   2d: code
+8627    2: -
+8629    3: code
+862c   56: -
+8682    2: code (indirectly accessed)
+8684   1c: code
+86a0    2: -
+86a2    3: code
+86a5    2: code (indirectly accessed)
+86a7    7: code
+86ae    2: -
+86b0    3: code
+86b3   a1: -
+8754    1: code, data
+8755   20: code
+8775    8: -
+877d    1: code, data
+877e    c: code
+878a    e: -
+8798   46: code
+87de   24: -
+8802    3: code
+8805    1: code, data
+8806   16: code
+881c    1: code, data
+881d    a: code
+8827    3: -
+882a    2: data
+882c    3: -
+882f    3: data
+8832    6: -
+8838    2: data
+883a    3: -
+883d    3: data
+8840    f: -
+884f   38: code
+8887   6c: -
+88f3    5: code
+88f8    5: -
+88fd    6: code
+8903   c0: -
+89c3    9: data (indirectly accessed)
+89cc   6b: -
+8a37    1: data
+8a38    1: -
+8a39    1: data
+8a3a    2: -
+8a3c    1: data
+8a3d    1: -
+8a3e    1: data
+8a3f    1: -
+8a40    1: data
+8a41    1: -
+8a42    2: data
+8a44    1: -
+8a45    2: data
+8a47    3: -
+8a4a    1: data
+8a4b    1: -
+8a4c    4: data
+8a50    1: -
+8a51    1: data
+8a52    4: -
+8a56    1: data
+8a57    9: -
+8a60    1: data
+8a61    1: -
+8a62    1: data
+8a63    1: -
+8a64    2: data
+8a66    1: -
+8a67    6: data
+8a6d    1: -
+8a6e    1: data
+8a6f   8a: -
+8af9    1: data
+8afa    1: -
+8afb    1: data
+8afc    2: -
+8afe    1: data
+8aff    1: -
+8b00    1: data
+8b01    1: -
+8b02    1: data
+8b03    1: -
+8b04    2: data
+8b06    1: -
+8b07    2: data
+8b09    3: -
+8b0c    1: data
+8b0d    1: -
+8b0e    4: data
+8b12    1: -
+8b13    1: data
+8b14    4: -
+8b18    1: data
+8b19    9: -
+8b22    1: data
+8b23    1: -
+8b24    1: data
+8b25    1: -
+8b26    2: data
+8b28    1: -
+8b29    6: data
+8b2f    1: -
+8b30    1: data
+8b31   1f: -
+8b50    3: data
+8b53    1: -
+8b54    1: data
+8b55    5: -
+8b5a    3: data
+8b5d    1: -
+8b5e    4: data
+8b62    2: -
+8b64    2: data
+8b66    3: -
+8b69    2: data
+8b6b    3: -
+8b6e    2: data
+8b70    1: -
+8b71    1: data
+8b72    f: -
+8b81    1: data
+8b82   31: -
+8bb3    f: data
+8bc2   31: -
+8bf3    f: data
+8c02   60: -
+8c62    1: data
+8c63    e: -
+8c71    1: data
+8c72 338e: -
+
+--- Bank 3 --------------------------------------------------------------------
+
+c000  293: -
+c293    c: data (indirectly accessed)
+c29f    2: -
+c2a1    6: data (indirectly accessed)
+c2a7    4: -
+c2ab    4: data (indirectly accessed)
+c2af    8: -
+c2b7    4: data (indirectly accessed)
+c2bb    4: -
+c2bf    4: data (indirectly accessed)
+c2c3    8: -
+c2cb    4: data (indirectly accessed)
+c2cf    4: -
+c2d3    8: data (indirectly accessed)
+c2db    1: -
+c2dc   1f: data (indirectly accessed)
+c2fb    2: -
+c2fd    1: data (indirectly accessed)
+c2fe    3: -
+c301   13: data (indirectly accessed)
+c314    2: -
+c316  282: data (indirectly accessed)
+c598   24: code
+c5bc   12: -
+c5ce    6: code
+c5d4   17: -
+c5eb   30: code
+c61b   1a: -
+c635   50: code
+c685    4: -
+c689    6: code
+c68f    4: -
+c693    8: code
+c69b    4: -
+c69f    8: code
+c6a7    4: -
+c6ab    8: code
+c6b3    4: -
+c6b7    8: code
+c6bf    4: -
+c6c3   11: code
+c6d4  11d: -
+c7f1   1a: code
+c80b  b00: -
+d30b   3f: code
+d34a    1: code, data
+d34b    f: code
+d35a    2: -
+d35c    e: code
+d36a   9b: -
+d405    a: code
+d40f  130: -
+d53f    7: code
+d546   3a: -
+d580   4d: code
+d5cd 2a2d: -
+fffa    2: data
+fffc    4: -
