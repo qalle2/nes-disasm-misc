@@ -113,26 +113,26 @@ ram9            equ $9e  ; in nmi, init, sub20, sub23, sub24
 ram10           equ $9f  ; bank 2
 ram11           equ $a0  ; bank 2
 ram12           equ $a1  ; bank 2
-read_ptr2       equ $a2  ; 2 bytes; bank 2
+fs_dat_ptr      equ $a2  ; 2 bytes; bank 2; Famistudio data pointer
 ptr2            equ $a4  ; 2 bytes; bank 2
 prg_bank        equ $a6  ; current PRG bank at CPU $8000-$bfff (0-3)
 do_nmi          equ $a7  ; 0 = no, 1 = yes
 bg_pal_copy     equ $a8  ; 16 bytes; copy of BG palettes
-some_array      equ $b8  ; decomp_pt_data2: 8 bytes
-index_var       equ $c0  ; decomp_pt_data2: some index
-bitop_var1      equ $c1  ; decomp_pt_data2: some bitops
-pt_dat_out_len  equ $c2  ; decomp_pt_data2: length of decompressed PT data
-bitop_var2      equ $c3  ; decomp_pt_data2: some bitops
-pt_out_len_trg  equ $c4  ; decomp_pt_data2: target of pt_dat_out_len
-xor_mask        equ $c5  ; decomp_pt_data2
-bitop_var3      equ $c6  ; decomp_pt_data2: some bitops
-pt_data_ptr     equ $c7  ; 2 bytes
-deco_dat_left   equ $c9  ; PT data left to decompress (unit = 4 tiles?)
+donut_pln_buf   equ $b8  ; 8 bytes; Donut plane buffer
+donut_pb8_ctrl  equ $c0  ; Donut pb8 control
+donut_even_odd  equ $c1  ; Donut even_odd
+donut_blk_offs  equ $c2  ; Donut block offset
+donut_plane_def equ $c3  ; Donut plane_def
+donut_blkofsend equ $c4  ; Donut block offset end
+donut_blk_hdr   equ $c5  ; Donut block header
+donut_is_rotd   equ $c6  ; Donut - is rotated
+donut_strm_ptr  equ $c7  ; 2 bytes; Donut stream pointer
+donut_blk_cnt   equ $c9  ; Donut block count
 useless1        equ $f0  ; in sub16
 temp            equ $f1  ; in sub16
 useless2        equ $ff  ; in init
 
-stack           equ $0100  ; used by bank 3
+donut_blk_buf   equ $0100  ; used by bank 3; 64 bytes; Donut block buffer
 
 ; $02xx used by bank 2
 arr10           equ $0200
@@ -154,6 +154,7 @@ arr25           equ $0258
 arr26           equ $025d
 arr27           equ $0262
 arr28           equ $0267
+fs_song_spd     equ $026b  ; famistudio_song_speed
 arr29           equ $026c
 arr30           equ $0271
 arr31           equ $0276
@@ -162,8 +163,18 @@ arr33           equ $0280
 arr34           equ $0285
 arr35           equ $028a
 arr36           equ $028f
-arr37           equ $0294  ; values for read_ptr2
-ram60           equ $02a5
+arr37           equ $0294
+fs_tem_adv_row  equ $029b  ; famistudio_tempo_advance_row
+fs_pal_adj      equ $029c  ; famistudio_pal_adjust
+fs_songlist_lo  equ $029d  ; famistudio_song_list_lo
+fs_songlist_hi  equ $029e  ; famistudio_song_list_hi
+fs_instru_lo    equ $029f  ; famistudio_instrument_lo
+fs_instru_hi    equ $02a0  ; famistudio_instrument_hi
+fs_dpcm_lo      equ $02a1  ; famistudio_dpcm_list_lo
+fs_dpcm_hi      equ $02a2  ; famistudio_dpcm_list_hi
+fs_dpcm_effect  equ $02a3  ; famistudio_dpcm_effect
+fs_pulse1_prev  equ $02a4  ; famistudio_pulse1_prev
+fs_pulse2_prev  equ $02a5  ; famistudio_pulse2_prev
 ram61           equ $02a6
 ram62           equ $02a7
 ram63           equ $02a8
@@ -993,37 +1004,44 @@ nt_dkjr         ; NT & AT data for Donkey Kong Jr.
 
                 base $8000
 
-sub1            ; audio stuff; called by: init
+fs_init         ; "famistudio init";
+                ; download "NES Sound Engine" from https://famistudio.org
+                ; and see "famistudio_asm6.asm";
+                ; called by: init
                 ;
-                stx arr37+9
-                sty arr37+10
-                stx read_ptr2+0
-                sty read_ptr2+1
+                stx fs_songlist_lo
+                sty fs_songlist_hi
+                stx fs_dat_ptr+0
+                sty fs_dat_ptr+1
                 tax
                 beq +
-                lda #$61
-+               sta arr37+8
-                jsr sub2
+                lda #97
++               sta fs_pal_adj
+                jsr fs_stop
                 ;
                 ldy #1
-                lda (read_ptr2),y
-                sta arr37+11
+                lda (fs_dat_ptr),y
+                sta fs_instru_lo
                 iny
-                lda (read_ptr2),y
-                sta arr37+12
+                lda (fs_dat_ptr),y
+                sta fs_instru_hi
                 iny
-                lda (read_ptr2),y
-                sta arr37+13
+                lda (fs_dat_ptr),y
+                sta fs_dpcm_lo
                 iny
-                lda (read_ptr2),y
-                sta arr37+14
+                lda (fs_dat_ptr),y
+                sta fs_dpcm_hi
                 ;
                 lda #$80
-                sta arr37+16
-                sta ram60
-                copy #%00001111, snd_chn
-                copy #%10000000, tri_linear
-                copy #%00000000, noise_hi
+                sta fs_pulse1_prev
+                sta fs_pulse2_prev
+                ;
+                lda #%00001111
+                sta snd_chn
+                lda #%10000000
+                sta tri_linear
+                lda #%00000000
+                sta noise_hi
                 lda #%00110000
                 sta sq1_vol
                 sta sq2_vol
@@ -1031,13 +1049,14 @@ sub1            ; audio stuff; called by: init
                 lda #%00001000
                 sta sq1_sweep
                 sta sq2_sweep
-                jmp sub2
+                jmp fs_stop
 
-sub2            ; array stuff; called by: sub1, sub3
+fs_stop         ; "famistudio music stop"
+                ; called by: fs_init, fs_play
                 ;
-                lda #$00
-                sta arr28+4
-                sta arr37+15
+                lda #0
+                sta fs_song_spd
+                sta fs_dpcm_effect
                 ;
                 ldx #0
 -               sta arr29,x
@@ -1097,34 +1116,35 @@ sub2            ; array stuff; called by: sub1, sub3
                 ;
                 jmp sub10
 
-sub3            ; array stuff; called by: init
+fs_play         ; "famistudio music play"; called by: init
                 ;
-                ldx arr37+9
-                stx read_ptr2+0
-                ldx arr37+10
-                stx read_ptr2+1
+                ldx fs_songlist_lo
+                stx fs_dat_ptr+0
+                ldx fs_songlist_hi
+                stx fs_dat_ptr+1
                 ldy #0
-                cmp (read_ptr2),y
+                cmp (fs_dat_ptr),y
                 bcc +
                 rts                     ; $80ed (unaccessed)
 +               asl a
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 asl a
                 tax
                 asl a
-                adc read_ptr2+0
-                stx read_ptr2+0
-                adc read_ptr2+0
+                adc fs_dat_ptr+0
+                stx fs_dat_ptr+0
+                adc fs_dat_ptr+0
                 adc #$05
                 tay
-                copy arr37+9, read_ptr2+0
-                jsr sub2
+                lda fs_songlist_lo
+                sta fs_dat_ptr+0
+                jsr fs_stop
                 ;
                 ldx #0
--               lda (read_ptr2),y
+-               lda (fs_dat_ptr),y
                 sta arr25,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr26,x
                 iny
                 lda #$00
@@ -1141,19 +1161,19 @@ sub3            ; array stuff; called by: init
                 cpx #5
                 bne -
                 ;
-                lda arr37+8
+                lda fs_pal_adj
                 beq +
                 iny
                 iny
-+               lda (read_ptr2),y
++               lda (fs_dat_ptr),y
                 sta arr37+3
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr37+4
                 copy #$00, arr37+5
                 lda #$06
                 sta arr37+6
-                sta arr28+4
+                sta fs_song_spd
                 rts
 
 ucod1           ; unaccessed chunk ($8153)
@@ -1165,18 +1185,17 @@ ucod1           ; unaccessed chunk ($8153)
                 sta arr10+3
                 sta arr10+6
                 sta arr10+8
-                lda arr28+4
+                lda fs_song_spd
                 ora #%10000000
                 bne ++
-+               lda arr28+4
++               lda fs_song_spd
                 and #%01111111
-++              sta arr28+4
+++              sta fs_song_spd
                 rts
                 ; $8177
 
-; -----------------------------------------------------------------------------
-
-sub4            ; called by: sub7
+fs_get_pitch    ; "famistudio get note pitch macro"
+                ; called by: fs_update
                 ;
                 clc
                 lda arr21,y
@@ -1214,9 +1233,10 @@ ucod2           ; unaccessed chunk ($8193)
                 sta ptr2+1
                 rts
 
-sub5            ; called by: sub6
+fs_upd_row      ; "famistudio update row"
+                ; called by: fs_upd_row_del
                 ;
-                jsr sub9
+                jsr fs_upd_chan
                 bcc +++
                 txa
                 tay
@@ -1232,25 +1252,26 @@ sub5            ; called by: sub6
 +               jsr sub11
                 ldx #$04
                 jmp +++
-++              jsr sub8
+++              jsr fs_set_instr
 +++             rts
 
-sub6            ; called by: sub7
+fs_upd_row_del  ; "famistudio update row with delays"
+                ; called by: fs_update
                 ;
-                lda arr37+7
+                lda fs_tem_adv_row
                 beq +
                 lda arr35,x
                 bmi ++
                 lda #$ff                ; unaccessed ($81ed)
                 sta arr35,x             ; unaccessed
-                jsr sub5                ; unaccessed
+                jsr fs_upd_row          ; unaccessed
                 jmp ++                  ; unaccessed
 +               lda arr35,x
                 bmi +++
                 sub #$01
                 sta arr35,x
                 bpl +++
-++              jsr sub5
+++              jsr fs_upd_row
 +++             lda arr36,x
                 bmi +
                 sub #$01                ; unaccessed ($820d)
@@ -1260,28 +1281,29 @@ sub6            ; called by: sub7
                 sta arr27,x             ; unaccessed
 +               rts
 
-sub7            ; called by: nmi
+fs_update       ; "famistudio update"
+                ; called by: nmi
                 ;
-                lda read_ptr2+0
+                lda fs_dat_ptr+0
                 pha
-                lda read_ptr2+1
+                lda fs_dat_ptr+1
                 pha
-                lda arr28+4
+                lda fs_song_spd
                 bmi +
                 bne ++
 +               jmp cod10               ; unaccessed ($8228)
 ++              lda arr37+6
-                cmp arr28+4
+                cmp fs_song_spd
                 ldx #$00
-                stx arr37+7
+                stx fs_tem_adv_row
                 bcc +
-                sbc arr28+4
+                sbc fs_song_spd
                 sta arr37+6
                 ldx #$01
-                stx arr37+7
+                stx fs_tem_adv_row
                 ;
 +               ldx #0
--               jsr sub6
+-               jsr fs_upd_row_del
                 inx
                 cpx #5
                 bne -
@@ -1292,20 +1314,20 @@ sub7            ; called by: nmi
                 dec arr10+11,x
                 bne +++
 +               lda addr_tbl_lo,x
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 lda addr_tbl_hi,x
-                sta read_ptr2+1
+                sta fs_dat_ptr+1
                 ;
                 ldy arr14,x
--               lda (read_ptr2),y
+-               lda (fs_dat_ptr),y
                 bpl +
-                add #$40
+                add #64
                 sta arr10,x
                 iny
                 bne ++
 +               bne +
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 tay
                 jmp -
                 ;
@@ -1329,14 +1351,14 @@ cod1            ; unaccessed chunk ($828e)
                 beq cod3
                 ;
                 lda arr18,x
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 lda arr19,x
-                sta read_ptr2+1
+                sta fs_dat_ptr+1
                 ;
                 ldy arr20,x
                 dey
                 dey
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 add #$40
                 sta ram11
                 clc
@@ -1360,14 +1382,14 @@ cod2            lda arr17,x
                 bne cod7
                 ;
 cod3            lda arr18,x
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 lda arr19,x
-                sta read_ptr2+1
+                sta fs_dat_ptr+1
                 ldy #0
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta ram10
                 ldy arr20,x
-cod4            lda (read_ptr2),y
+cod4            lda (fs_dat_ptr),y
                 bpl cod5
                 add #$40
                 bit ram10
@@ -1399,7 +1421,7 @@ ucod3           ; unaccessed chunk ($830a)
 
 cod5            bne +
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 tay
                 jmp cod4
 +               iny
@@ -1441,10 +1463,10 @@ cod10           lda arr27
                 bne +
                 jmp ++                  ; unaccessed ($8379)
 +               add arr10+1
-                add arr37+8
+                add fs_pal_adj
                 tax
                 ldy #$00
-                jsr sub4
+                jsr fs_get_pitch
                 copy ptr2+0, ram62
                 copy ptr2+1, ram63
                 lda arr33
@@ -1459,10 +1481,10 @@ cod10           lda arr27
                 bne +
                 jmp ++
 +               add arr10+4
-                add arr37+8
+                add fs_pal_adj
                 tax
                 ldy #$01
-                jsr sub4
+                jsr fs_get_pitch
                 copy ptr2+0, ram65
                 copy ptr2+1, ram66
                 lda arr33+1
@@ -1477,10 +1499,10 @@ cod10           lda arr27
                 bne +
                 jmp ++
 +               add arr10+7
-                add arr37+8
+                add fs_pal_adj
                 tax
                 ldy #$02
-                jsr sub4
+                jsr fs_get_pitch
                 copy ptr2+0, ram68
                 copy ptr2+1, ram69
                 lda arr33+2
@@ -1490,16 +1512,17 @@ cod10           lda arr27
                 ;
 ++              ora #%10000000
                 sta ram67
-                lda arr27+3
-                bne ucod5
-                jmp cod11
 
-ucod5           ; unaccessed chunk ($8411)
-                ;
+                ; "famistudio update channel sound"
+
+                lda arr27+3
+                bne fs_nocut            ; never taken
+                jmp fs_set_volume
+
+fs_nocut        ; unaccessed chunk ($8411)
                 add arr10+9
                 ldy arr22+3
                 beq +
-                ;
                 sta ram10
                 copy arr23+3, ptr2+0
                 lda arr24+3
@@ -1517,7 +1540,6 @@ ucod5           ; unaccessed chunk ($8411)
                 lda ptr2+0
                 ror a
                 add ram10
-                ;
 +               and #%00001111
                 eor #%00001111
                 sta ram10
@@ -1533,11 +1555,11 @@ ucod5           ; unaccessed chunk ($8411)
                 lda dat12,x
                 ; $845a
 
-cod11           ldx arr10+10
+fs_set_volume   ldx arr10+10
                 ora dat11,x
                 ora #%11110000
                 sta ram70
-                lda arr28+4
+                lda fs_song_spd
                 bmi +
                 clc
                 lda arr37+5
@@ -1554,16 +1576,16 @@ cod11           ldx arr10+10
                 copy ram61, sq1_vol
                 copy ram62, sq1_lo
                 lda ram63
-                cmp arr37+16
+                cmp fs_pulse1_prev
                 beq +
-                sta arr37+16
+                sta fs_pulse1_prev
                 sta sq1_hi
 +               copy ram64, sq2_vol
                 copy ram65, sq2_lo
                 lda ram66
-                cmp ram60
+                cmp fs_pulse2_prev
                 beq +
-                sta ram60
+                sta fs_pulse2_prev
                 sta sq2_hi
 +               copy ram67, tri_linear
                 copy ram68, tri_lo
@@ -1571,24 +1593,26 @@ cod11           ldx arr10+10
                 copy ram70, noise_vol
                 copy ram71, noise_lo
                 pla
-                sta read_ptr2+1
+                sta fs_dat_ptr+1
                 pla
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 rts
 
-sub8            ; called by: sub5
+fs_set_instr    ; "famistudio_set_instrument"
+                ; called by: fs_upd_row
                 ;
                 sty ram11
                 asl a
                 tay
-                lda arr37+12
+                lda fs_instru_hi
                 adc #$00
-                sta read_ptr2+1
-                copy arr37+11, read_ptr2+0
-                lda (read_ptr2),y
+                sta fs_dat_ptr+1
+                lda fs_instru_lo
+                sta fs_dat_ptr+0
+                lda (fs_dat_ptr),y
                 sta addr_tbl_lo,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 iny
                 sta addr_tbl_hi,x
                 inx
@@ -1601,10 +1625,10 @@ sub8            ; called by: sub5
                 iny                     ; unaccessed ($8509)
                 jmp ++                  ; unaccessed
                 ;
-+               lda (read_ptr2),y
++               lda (fs_dat_ptr),y
                 sta addr_tbl_lo,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta addr_tbl_hi,x
                 ;
 ++              lda #$01
@@ -1622,10 +1646,10 @@ sub8            ; called by: sub5
                 ;
 +               inx
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta addr_tbl_lo,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta addr_tbl_hi,x
                 lda #$00
                 sta arr10+11,x
@@ -1651,16 +1675,17 @@ sub8            ; called by: sub5
                 sta arr15,x
                 sta arr16,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr18,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr19,x
                 ;
 +               ldx ram11
                 rts
 
-sub9            ; called by: sub5
+fs_upd_chan     ; "famistudio update channel"
+                ; called by: fs_upd_row
                 ;
                 lda arr29,x
                 beq +
@@ -1669,14 +1694,14 @@ sub9            ; called by: sub5
                 rts
 +               copy #$00, ram12
                 lda arr25,x
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 lda arr26,x
-                sta read_ptr2+1
+                sta fs_dat_ptr+1
                 ldy #0
-cod12           lda (read_ptr2),y
-                inc read_ptr2+0
+cod12           lda (fs_dat_ptr),y
+                inc fs_dat_ptr+0
                 bne +
-                inc read_ptr2+1
+                inc fs_dat_ptr+1
 +               cmp #$61
                 bcs +
                 jmp cod13
@@ -1693,9 +1718,10 @@ cod12           lda (read_ptr2),y
                 sta arr33,x
                 jmp cod12
 +               stx ram10
+
+                ; "jmp to opcode"
                 and #%00001111
                 tax
-                ;
                 lda jump_tbl_lo,x       ; jump to index X in jump table
                 sta ptr2+0
                 lda jump_tbl_hi,x
@@ -1706,29 +1732,31 @@ cod12           lda (read_ptr2),y
 icode1          stx ram10
                 lda dat8,x
                 tax
-                lda (read_ptr2),y
-                inc read_ptr2+0
+                lda (fs_dat_ptr),y
+                inc fs_dat_ptr+0
                 bne +
-                inc read_ptr2+1         ; unaccessed ($85e3)
+                inc fs_dat_ptr+1         ; unaccessed ($85e3)
 +               sta arr21,x
                 ldx ram10
                 jmp cod12
 
-icode2          lda #$7f
+fs_clr_pitch    ; "opcode clear pitch override flag"
+                lda #$7f
                 and arr34,x
                 sta arr34,x
                 jmp cod12
 
-icode3          lda #$80
+fs_overr_pitch  ; "opcode override pitch envelope"
+                lda #$80
                 ora arr34,x
                 sta arr34,x
                 stx ram10
                 lda dat8,x
                 tax
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr18,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr19,x
                 lda #$00
                 tay
@@ -1738,29 +1766,30 @@ icode3          lda #$80
                 ldx ram10
                 clc
                 lda #$02
-                adc read_ptr2+0
-                sta read_ptr2+0
+                adc fs_dat_ptr+0
+                sta fs_dat_ptr+0
                 bcc +
-                inc read_ptr2+1         ; unaccessed ($8627)
+                inc fs_dat_ptr+1         ; unaccessed ($8627)
 +               jmp cod12
 
-icode4          ; unaccessed chunk ($862c)
+fs_clr_arp      ; "opcode clear arpeggio override flag" (unaccessed)
                 lda #$fe
                 and arr34,x
                 sta arr34,x
                 jmp cod12
 
-icode5          ; unaccessed chunk
+fs_overr_arp    ; "opcode override arpeggio envelope"
+                ; unaccessed chunk
                 lda #$01
                 ora arr34,x
                 sta arr34,x
                 stx ram10
                 lda dat6,x
                 tax
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta addr_tbl_lo,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta addr_tbl_hi,x
                 lda #$00
                 tay
@@ -1770,17 +1799,17 @@ icode5          ; unaccessed chunk
                 ldx ram10
                 clc
                 lda #$02
-                adc read_ptr2+0
-                sta read_ptr2+0
+                adc fs_dat_ptr+0
+                sta fs_dat_ptr+0
                 bcc +
-                inc read_ptr2+1
+                inc fs_dat_ptr+1
 +               jmp cod12
 
-icode6          ; unaccessed chunk
+fs_rst_arp      ; "opcode reset arpeggio" (unaccessed)
                 stx ram10
                 lda dat6,x
                 tax
-                lda #$00
+                lda #0
                 sta arr10+11,x
                 sta arr10,x
                 sta arr14,x
@@ -1791,7 +1820,7 @@ icode6          ; unaccessed chunk
 icode7          stx ram10
                 lda dat9,x
                 tax
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr37,x
                 sta ram11
                 ldx ram10
@@ -1800,25 +1829,25 @@ icode7          stx ram10
                 lda ram11
                 sta arr10,x
                 ldx ram10
-                inc read_ptr2+0
+                inc fs_dat_ptr+0
                 bne +
-                inc read_ptr2+1         ; unaccessed ($86a0)
+                inc fs_dat_ptr+1         ; unaccessed ($86a0)
 +               jmp cod12
 
-icode8          lda (read_ptr2),y
+icode8          lda (fs_dat_ptr),y
                 sta arr35,x
-                inc read_ptr2+0
+                inc fs_dat_ptr+0
                 bne +
-                inc read_ptr2+1         ; unaccessed ($86ae)
+                inc fs_dat_ptr+1         ; unaccessed ($86ae)
 +               jmp cod17
 
 icode9          ; unaccessed chunk ($86b3)
                 copy #$40, ram12
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr36,x
-                inc read_ptr2+0
+                inc fs_dat_ptr+0
                 bne +
-                inc read_ptr2+1
+                inc fs_dat_ptr+1
 +               jmp cod12
 
 icode10         ; unaccessed chunk
@@ -1826,14 +1855,15 @@ icode10         ; unaccessed chunk
                 ora ram12
                 sta ram12
                 jmp cod12
-                ;
--               lda (read_ptr2),y
+
+                ; "noise slide" (unaccessed)
+-               lda (fs_dat_ptr),y
                 iny
                 sta arr22+3
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 iny
                 sec
-                sbc (read_ptr2),y
+                sbc (fs_dat_ptr),y
                 sta arr23+3
                 bpl +
                 lda #$ff
@@ -1850,23 +1880,22 @@ icode10         ; unaccessed chunk
                 sta arr24+3
                 jmp +
 
-icode11         ; unaccessed chunk
+fs_slide        ; "opcode slide" (unaccessed)
                 cpx #3
                 beq -
-                ;
                 stx ram10
                 lda dat7,x
                 tax
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 iny
                 sta arr22,x
-                lda (read_ptr2),y
-                add arr37+8
+                lda (fs_dat_ptr),y
+                add fs_pal_adj
                 sta ram11
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 ldy ram11
-                adc arr37+8
+                adc fs_pal_adj
                 stx ram11
                 tax
                 sec
@@ -1883,14 +1912,14 @@ icode11         ; unaccessed chunk
                 rol arr24,x
                 ldx ram10
                 ldy #$02
-+               lda (read_ptr2),y
++               lda (fs_dat_ptr),y       ; "slide done pos"?
                 sta arr27,x
                 clc
                 lda #$03
-                adc read_ptr2+0
-                sta read_ptr2+0
+                adc fs_dat_ptr+0
+                sta fs_dat_ptr+0
                 bcc +
-                inc read_ptr2+1
+                inc fs_dat_ptr+1
 +               ldy #$00
                 jmp +
                 ; $8754
@@ -1921,19 +1950,19 @@ cod14           and #%01111111
                 sta arr28,x
                 jmp cod12
                 ;
---              lda (read_ptr2),y
-                sta arr28+4
-                inc read_ptr2+0
+--              lda (fs_dat_ptr),y
+                sta fs_song_spd
+                inc fs_dat_ptr+0
                 bne +
-                inc read_ptr2+1         ; unaccessed ($8793)
+                inc fs_dat_ptr+1         ; unaccessed ($8793)
 +               jmp cod12
                 ;
--               lda (read_ptr2),y
+-               lda (fs_dat_ptr),y
                 sta ram10
                 iny
-                lda (read_ptr2),y
-                sta read_ptr2+1
-                copy ram10, read_ptr2+0
+                lda (fs_dat_ptr),y
+                sta fs_dat_ptr+1
+                copy ram10, fs_dat_ptr+0
                 dey
                 jmp cod12
 ++              cmp #$3d
@@ -1946,21 +1975,21 @@ cod14           and #%01111111
                 beq -
                 ;
                 clc
-                lda read_ptr2+0
+                lda fs_dat_ptr+0
                 adc #$03
                 sta arr30,x
-                lda read_ptr2+1
+                lda fs_dat_ptr+1
                 adc #$00
                 sta arr31,x
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr32,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta ram10
                 iny
-                lda (read_ptr2),y
-                sta read_ptr2+1
-                copy ram10, read_ptr2+0
+                lda (fs_dat_ptr),y
+                sta fs_dat_ptr+1
+                copy ram10, fs_dat_ptr+0
                 ldy #$00
                 jmp cod12
 
@@ -1993,58 +2022,77 @@ cod16           lda arr32,x
                 lda arr31,x
                 sta arr26,x
                 rts
-cod17           lda read_ptr2+0
+cod17           lda fs_dat_ptr+0
                 sta arr25,x
-                lda read_ptr2+1
+                lda fs_dat_ptr+1
                 sta arr26,x
                 rts
 
-jump_tbl_lo     ; $8827; partially unaccessed
-                dl $2700,       icode11,    icode10, icode3
-                dl icode2,      icode5,     icode4,  icode6
-                dl icode1,      icode7,     icode8,  icode9
-                dl jump_tbl_lo, jump_tbl_lo
-
-jump_tbl_hi     ; $8835; partially unaccessed
-                dh $2700,       icode11,    icode10, icode3
-                dh icode2,      icode5,     icode4,  icode6
-                dh icode1,      icode7,     icode8,  icode9
-                dh jump_tbl_lo, jump_tbl_lo
+jump_tbl_lo     ; partially unaccessed
+                dl $2700
+                dl fs_slide
+                dl icode10
+                dl fs_overr_pitch
+                dl fs_clr_pitch
+                dl fs_overr_arp
+                dl fs_clr_arp
+                dl fs_rst_arp
+                dl icode1
+                dl icode7
+                dl icode8
+                dl icode9
+                dl jump_tbl_lo
+                dl jump_tbl_lo
+jump_tbl_hi     ; partially unaccessed
+                dh $2700
+                dh fs_slide
+                dh icode10
+                dh fs_overr_pitch
+                dh fs_clr_pitch
+                dh fs_overr_arp
+                dh fs_clr_arp
+                dh fs_rst_arp
+                dh icode1
+                dh icode7
+                dh icode8
+                dh icode9
+                dh jump_tbl_lo
+                dh jump_tbl_lo
                 hex 88
 
-sub10           ; called by: sub2, ucod1, sub5
+sub10           ; called by: fs_stop, ucod1, fs_upd_row
                 copy #%00001111, snd_chn
                 rts
 
                 ldx #$01                ; unaccessed ($884a)
-                stx arr37+15            ; unaccessed
+                stx fs_dpcm_effect      ; unaccessed
 
 cod18           asl a
                 asl a
-                add arr37+13
-                sta read_ptr2+0
+                add fs_dpcm_lo
+                sta fs_dat_ptr+0
                 lda #$00
-                adc arr37+14
-                sta read_ptr2+1
+                adc fs_dpcm_hi
+                sta fs_dat_ptr+1
                 copy #%00001111, snd_chn
                 ldy #0
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta dmc_start
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta dmc_len
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta dmc_freq
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta dmc_raw
                 copy #%00011111, snd_chn
                 rts
 
-sub11           ; called by: sub5
+sub11           ; called by: fs_upd_row
                 ;
-                ldx arr37+15
+                ldx fs_dpcm_effect
                 beq cod18
 
 ucod9           ; unaccessed chunk ($8887)
@@ -2053,22 +2101,22 @@ ucod9           ; unaccessed chunk ($8887)
                 and #%00010000
                 beq +
                 rts
-+               sta arr37+15
++               sta fs_dpcm_effect
                 txa
                 jmp cod18
 
                 ; unaccessed chunk
-                stx read_ptr2+0
-                sty read_ptr2+1
+                stx fs_dat_ptr+0
+                sty fs_dat_ptr+1
                 ldy #0
-                lda arr37+8
+                lda fs_pal_adj
                 bne +
                 iny
                 iny
-+               lda (read_ptr2),y
++               lda (fs_dat_ptr),y
                 sta ram72
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta ram73
                 ;
                 ldx #0
@@ -2098,17 +2146,17 @@ sub12b          ; unaccessed chunk
                 asl a
                 tay
                 jsr sub12
-                copy ram72, read_ptr2+0
-                copy ram73, read_ptr2+1
-                lda (read_ptr2),y
+                copy ram72, fs_dat_ptr+0
+                copy ram73, fs_dat_ptr+1
+                lda (fs_dat_ptr),y
                 sta arr39,x
                 iny
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 sta arr40,x
                 rts
                 ; $88f3
 
-sub13           ; called by: sub7
+sub13           ; called by: fs_update
                 ;
                 lda arr38,x
                 beq +
@@ -2119,12 +2167,12 @@ sub13           ; called by: sub7
                 rts
 
 ucod10          ; unaccessed chunk ($8903)
-                sta read_ptr2+1
+                sta fs_dat_ptr+1
                 lda arr39,x
-                sta read_ptr2+0
+                sta fs_dat_ptr+0
                 ldy arr41,x
                 clc
--               lda (read_ptr2),y
+-               lda (fs_dat_ptr),y
                 bmi ++
                 beq +++
                 iny
@@ -2140,7 +2188,7 @@ ucod10          ; unaccessed chunk ($8903)
 +               stx ram10
                 adc ram10
                 tax
-                lda (read_ptr2),y
+                lda (fs_dat_ptr),y
                 iny
                 bne +
                 stx ram11
@@ -2201,7 +2249,7 @@ cod19           lda ram61
                 ; $89bd
 
 sub14           ; called by: ucod10
-                inc read_ptr2+1
+                inc fs_dat_ptr+1
                 inc arr40,x
                 rts
 
@@ -3177,7 +3225,7 @@ udat6           ; unaccessed chunk
                 hex b5 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
                 hex 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55
 
-                ; $c280: partially unaccessed; read indirectly using read_ptr2
+                ; $c280: partially unaccessed; read indirectly using fs_dat_ptr
                 ; ($c280-$c292 read in init only)
                 hex 01 93 c2 8f c2 14 c3 bf c3 3f c4 2a c5 3d c5 33
                 hex 01 00 01 db c2 d7 c2 fd c2 f8 c2 00 c3 d7 c2 fd
@@ -3189,7 +3237,7 @@ udat6           ; unaccessed chunk
                 hex c4 c4 c3 c2 c2 c1 00 1a 00 c0 7f 00 01 7f 00 00
                 hex 00
 
-                ; $c301: read indirectly using read_ptr2
+                ; $c301: read indirectly using fs_dat_ptr
                 hex c0 02 cf 00 03 00 c0 be bd bd be bf c1 c2 c3 c3
                 hex c2 00 01 fb 12 78 69 01 80 11 81 15 81 21 81 22
                 hex 81 11 81 1d 81 11 81 1f 81 1d 81 11 81 18 81 15
@@ -3286,7 +3334,7 @@ nmi             inc some_flag           ; $c598
                 ;
 ++              lda #2                  ; run a sub in bank 2
                 jsr bankswitch
-                jsr sub7
+                jsr fs_update
                 ;
                 pla                     ; restore original PRG bank
                 sta prg_bank
@@ -3452,7 +3500,7 @@ init            ; initialization and main loop
                 ldx #$80
                 ldy #$c2
                 lda ptr1+0
-                jsr sub1
+                jsr fs_init
                 ;
                 copy #$01, do_nmi
                 lda #$00
@@ -3461,7 +3509,7 @@ init            ; initialization and main loop
                 sta game_screen
                 sta ram1
                 sta ram2
-                jsr sub3
+                jsr fs_play
                 jsr sub16
                 ;
                 copy #$20,    ptr1+0       ; copy 768 bytes from nt_dk to NT0
@@ -4242,191 +4290,224 @@ set_palette     ; called by: nmi
 
 ; -----------------------------------------------------------------------------
 
-decomp_pt_data2 ; in: X = $40, pt_data_ptr
-                ; out: X = usually $80
-                ; decrements deco_dat_left
+donut_deco_blk  ; decompress a variable-size block from donut_stream_ptr,
+                ; output 64 bytes to donut_blk_buf,x
+                ; out: carry = failure, Y = # of bytes read, X += 64
+                ; block header bits: L M l m bb B R:
+                ;     R: rotate plane bits (135-deg. reflection)
+                ;     bbB:
+                ;         000 = all planes $00
+                ;         010 = L planes $00, M planes pb8
+                ;         100 = L planes pb8, M planes $00
+                ;         110 = all planes pb8
+                ;         001 = in extra byte, for each bit from MSB:
+                ;               0 = $00 plane, 1 = pb8 plane
+                ;         011 = in extra byte, decode only 1 pb8 plane and
+                ;               duplicate for each bit from MSB:
+                ;               0 = $00 plane, 1 = duplicated plane
+                ;               if extra byte = $00, don't decode pb8 plane
+                ;         1x1 = uncompressed block
+                ;     m: M planes predict from $ff
+                ;     l: L planes predict from $ff
+                ;     M: M ^= L
+                ;     L: L ^= M
+                ; 00101010 = uncompressed 64-byte block (ASCII "*")
                 ; called by: decomp_pt_data1
-                ;
+
                 ldy #0
                 txa
-                add #$40
-                bcs +                   ; never taken
-                sta pt_out_len_trg
-                lda (pt_data_ptr),y
+                add #64
+                bcs +                   ; error; exit (never taken)
+                sta donut_blkofsend
+                lda (donut_strm_ptr),y
                 iny
-                sta xor_mask
+                sta donut_blk_hdr
                 cmp #$2a
-                beq cod20               ; never taken
+                beq donut_rawblklp      ; never taken
                 cmp #$c0
-                bcc ++                  ; always taken
+                bcc donut_normblk       ; always taken
 +               rts                     ; unaccessed ($d5e4)
-                ;
--               ror a
-                lda (pt_data_ptr),y
+
+donut_rdpldef   ; "read plane def from stream"
+                ror a
+                lda (donut_strm_ptr),y
                 iny
                 bne +++                 ; always taken
-cod20           lda (pt_data_ptr),y     ; unaccessed ($d5eb)
-                iny                     ; unaccessed
-                sta stack,x             ; unaccessed
-                inx                     ; unaccessed
-                cpy #$41                ; unaccessed
-                bcc cod20               ; unaccessed
-                bcs exit_sub            ; unaccessed
-                ;
-++              stx pt_dat_out_len      ; $d5f8
+
+donut_rawblklp  ; "raw block loop" (unaccessed, $d5eb)
+                lda (donut_strm_ptr),y
+                iny
+                sta donut_blk_buf,x
+                inx
+                cpy #65                 ; size of raw block
+                bcc donut_rawblklp
+                bcs exit_sub
+
+donut_normblk   stx donut_blk_offs      ; "do normal block"
                 and #%11011111
-                sta bitop_var1
+                sta donut_even_odd
                 lsr a
-                ror bitop_var3
+                ror donut_is_rotd
                 lsr a
-                bcs -
+                bcs donut_rdpldef
                 ;
+                ; "unpack shorthand plane def"
                 and #%00000011
                 tax
                 lda bit_patterns,x
                 ;
-+++             ror bitop_var3
-                sta bitop_var2
-                sty index_var
++++             ror donut_is_rotd
+                sta donut_plane_def
+                sty donut_pb8_ctrl
                 clc
-                lda pt_dat_out_len
+                lda donut_blk_offs
+
+donut_pln_loop  adc #8                  ; "plane loop"
+                sta donut_blk_offs
                 ;
-cod21           adc #8
-                sta pt_dat_out_len
-                ;
-                lda bitop_var1
-                eor xor_mask
-                sta bitop_var1
+                lda donut_even_odd
+                eor donut_blk_hdr
+                sta donut_even_odd
                 and #%00110000
-                beq +
+                beq +                   ; "not predicted from $ff"
                 lda #$ff
-+               asl bitop_var2
-                bcc ++++
-                ldy index_var
-                bit bitop_var3
-                bpl +
++               asl donut_plane_def
+                bcc donut_dozeropl
+                ;
+                ldy donut_pb8_ctrl      ; "do_pb8_plane"
+                bit donut_is_rotd
+                bpl +                   ; "don't rewind input pointer"
                 ldy #2                  ; unaccessed ($d62d)
 +               tax
-                lda (pt_data_ptr),y
+                lda (donut_strm_ptr),y
                 iny
-                sta index_var
+                sta donut_pb8_ctrl
                 txa
-                bvs +++++
-                ldx pt_dat_out_len
-                rol index_var
+                bvs donut_rotpb8pln
                 ;
--               bcc +
-                lda (pt_data_ptr),y
+                ; "do normal pb8 plane"
+                ldx donut_blk_offs
+                rol donut_pb8_ctrl
+donut_pb8_loop  bcc +
+                lda (donut_strm_ptr),y
                 iny
 +               dex
-                sta stack,x
-                asl index_var
-                bne -
+                sta donut_blk_buf,x
+                asl donut_pb8_ctrl
+                bne donut_pb8_loop
+                sty donut_pb8_ctrl
                 ;
-                sty index_var
-cod22           bit bitop_var1
+donut_end_plane bit donut_even_odd
                 bpl +
                 ;
+                ; "XOR M onto L"
                 ldy #8
 -               dex
-                lda stack,x
-                eor stack+8,x
-                sta stack,x
+                lda donut_blk_buf,x
+                eor donut_blk_buf+8,x
+                sta donut_blk_buf,x
                 dey
                 bne -
 +               bvc +
                 ;
+                ; "XOR L onto M"
                 ldy #8
 -               dex
-                lda stack,x
-                eor stack+8,x
-                sta stack+8,x
+                lda donut_blk_buf,x
+                eor donut_blk_buf+8,x
+                sta donut_blk_buf+8,x
                 dey
                 bne -
                 ;
-+               lda pt_dat_out_len
-                cmp pt_out_len_trg
-                bcc cod21
-                ldy index_var
++               lda donut_blk_offs
+                cmp donut_blkofsend
+                bcc donut_pln_loop
+
+                ldy donut_pb8_ctrl
 exit_sub        clc
                 tya
-                adc pt_data_ptr+0
-                sta pt_data_ptr+0
+                adc donut_strm_ptr+0
+                sta donut_strm_ptr+0
                 bcc +
-                inc pt_data_ptr+1
-+               ldx pt_out_len_trg
-                dec deco_dat_left
+                inc donut_strm_ptr+1
++               ldx donut_blkofsend
+                dec donut_blk_cnt
                 rts
 
-++++            ldx pt_dat_out_len
+donut_dozeropl  ; "do zero plane"
+                ldx donut_blk_offs
                 ldy #8
 -               dex
-                sta stack,x
+                sta donut_blk_buf,x
                 dey
                 bne -
-                beq cod22
+                beq donut_end_plane
 
-+++++           ldx #8
--               asl index_var
-                bcc +
-                lda (pt_data_ptr),y
+donut_rotpb8pln ; "do rotated pb8 plane"
+                ldx #8
+-               asl donut_pb8_ctrl      ; "buffered pb8 loop"
+                bcc +                   ; "use previous"
+                lda (donut_strm_ptr),y
                 iny
 +               dex
-                sta some_array,x
+                sta donut_pln_buf,x
                 bne -
-                sty index_var
                 ;
+                sty donut_pb8_ctrl
                 ldy #8
-                ldx pt_dat_out_len
--               asl some_array+0
+                ldx donut_blk_offs
+                ;
+donut_flipbits  asl donut_pln_buf+0     ; "flip bits loop"
                 ror a
-                asl some_array+1
+                asl donut_pln_buf+1
                 ror a
-                asl some_array+2
+                asl donut_pln_buf+2
                 ror a
-                asl some_array+3
+                asl donut_pln_buf+3
                 ror a
-                asl some_array+4
+                asl donut_pln_buf+4
                 ror a
-                asl some_array+5
+                asl donut_pln_buf+5
                 ror a
-                asl some_array+6
+                asl donut_pln_buf+6
                 ror a
-                asl some_array+7
+                asl donut_pln_buf+7
                 ror a
                 dex
-                sta stack,x
+                sta donut_blk_buf,x
                 dey
-                bne -
+                bne donut_flipbits
                 ;
-                beq cod22               ; unconditional
+                beq donut_end_plane     ; unconditional
 
-bit_patterns    db %00000000
+bit_patterns    db %00000000            ; "shorthand plane def table"
                 db %01010101
                 db %10101010
                 db %11111111
 
-decomp_pt_data1 ; decompress pattern table data
-                ; in: Y/A = address low/high of compressed PT data,
-                ; X = how much to decompress (64 = 256 tiles)
+decomp_pt_data1 ; "decompress X*64 bytes from AAYY to ppu_data; PPU is in
+                ; forced blank, ppu_addr already set";
+                ; "Donut, NES CHR codec decompressor" by Johnathan Roatch;
+                ; see https://www.nesdev.org/wiki/User:Ns43110/donut.s
+                ; in: X = block count
                 ; called by: sub16
                 ;
-                sty pt_data_ptr+0
-                sta pt_data_ptr+1
-                stx deco_dat_left
+                sty donut_strm_ptr+0
+                sta donut_strm_ptr+1
+                stx donut_blk_cnt
                 ;
---              ldx #$40
-                jsr decomp_pt_data2
+--              ldx #64
+                jsr donut_deco_blk
                 cpx #$80
-                bne +
+                bne +                   ; end block upload
                 ;
-                ldx #$40                ; copy 64 bytes (index $40-$7f) to PPU
--               lda stack,x
+                ldx #64                 ; copy 64 bytes (index $40-$7f) to PPU
+-               lda donut_blk_buf,x
                 sta ppu_data
                 inx
                 bpl -
                 ;
-                ldx deco_dat_left
+                ldx donut_blk_cnt
                 bne --
                 ;
 +               rts
