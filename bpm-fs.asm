@@ -1,7 +1,6 @@
 ; Famistudio at the start of bank 2.
 ; Only these subs are called from the outside: init, play, update
-; Download "NES Sound Engine" from https://famistudio.org and see
-; "famistudio_asm6.asm".
+; See "famistudio.txt" for the original Famistudio source code.
 
 temp            equ $9f
 temp_pitch      equ $a0    ; temp_pitch
@@ -36,7 +35,11 @@ chn_vol_trk     equ $0280  ; famistudio_chn_volume_track
 chn_env_ovr     equ $0285  ; famistudio_chn_env_override
 chn_note_delay  equ $028a  ; famistudio_chn_note_delay
 chn_cut_delay   equ $028f  ; famistudio_chn_cut_delay
-duty_cycle      equ $0294  ; famistudio_duty_cycle
+duty_cycle      equ $0294  ; famistudio_duty_cycle (3 cycles)
+tempo_step_lo   equ $0297  ; famistudio_tempo_step_lo
+tempo_step_hi   equ $0298  ; famistudio_tempo_step_hi
+tempo_acc_lo    equ $0299  ; famistudio_tempo_acc_lo
+tempo_acc_hi    equ $029a  ; famistudio_tempo_acc_hi
 tempo_adv_row   equ $029b  ; famistudio_tempo_advance_row
 pal_adj         equ $029c  ; famistudio_pal_adjust
 songlist_lo     equ $029d  ; famistudio_song_list_lo
@@ -48,7 +51,7 @@ dpcm_list_hi    equ $02a2  ; famistudio_dpcm_list_hi
 dpcm_effect     equ $02a3  ; famistudio_dpcm_effect
 pulse1_prev     equ $02a4  ; famistudio_pulse1_prev
 pulse2_prev     equ $02a5  ; famistudio_pulse2_prev
-out_buf         equ $02a6  ; famistudio_output_buf
+out_buf         equ $02a6  ; famistudio_output_buf (11 bytes)
 sfx_adr_lo      equ $02b1  ; famistudio_sfx_addr_lo
 sfx_adr_hi      equ $02b2  ; famistudio_sfx_addr_hi
 sfx_rep         equ $02b3  ; famistudio_sfx_repeat
@@ -232,7 +235,7 @@ play            ; "famistudio_music_play"
                 ldy #0
                 cmp (dat_ptr),y         ; music data
                 bcc +
-                rts                     ; $80ed (unaccessed)
+                rts                     ; unaccessed
 +               asl a
                 sta dat_ptr+0
                 asl a
@@ -273,34 +276,33 @@ play            ; "famistudio_music_play"
                 iny
                 iny
 +               lda (dat_ptr),y         ; music data
-                sta duty_cycle+3
+                sta tempo_step_lo
                 iny
                 lda (dat_ptr),y         ; music data
-                sta duty_cycle+4
+                sta tempo_step_hi
                 lda #0
-                sta duty_cycle+5
+                sta tempo_acc_lo
                 lda #6
-                sta duty_cycle+6
+                sta tempo_acc_hi
                 sta song_spd
                 rts
 
-ucod1           ; unaccessed chunk ($8153)
+mus_pause       ; "famistudio_music_pause" (unaccessed)
                 tax
                 beq +
-                jsr sample_stop
+                jsr sample_stop         ; pause
                 lda #0
-                sta env_val+0
-                sta env_val+3
-                sta env_val+6
-                sta env_val+8
+                sta env_val+CHN0_ENVS+ENV_VOL_OFF
+                sta env_val+CHN1_ENVS+ENV_VOL_OFF
+                sta env_val+CHN2_ENVS+ENV_VOL_OFF
+                sta env_val+CHN3_ENVS+ENV_VOL_OFF
                 lda song_spd
                 ora #%10000000
                 bne ++
-+               lda song_spd
++               lda song_spd            ; unpause
                 and #%01111111
-++              sta song_spd
+++              sta song_spd            ; done
                 rts
-                ; $8177
 
 get_pitch       ; "famistudio_get_note_pitch_macro"
                 ; called by: update
@@ -318,7 +320,7 @@ get_pitch       ; "famistudio_get_note_pitch_macro"
                 lda slide_step,y
                 beq +
 
-ucod2           ; unaccessed chunk ($8193)
+ucod2           ; unaccessed chunk
                 lda slide_ptch_hi,y
                 asr_a
                 sta temp
@@ -329,7 +331,6 @@ ucod2           ; unaccessed chunk ($8193)
                 lda temp
                 adc ptr2+1
                 sta ptr2+1
-                ; $81aa
 
 +               clc
                 lda note_tbl_lsb,x
@@ -353,7 +354,7 @@ upd_row         ; "famistudio_update_row"
                 bcc ++
                 lda chn_note+4
                 bne +
-                jsr sample_stop         ; unaccessed ($81d0)
+                jsr sample_stop         ; unaccessed
                 ldx #4                  ; unaccessed
                 bne +++                 ; unaccessed
 +               jsr sub11
@@ -369,7 +370,7 @@ upd_row_delays  ; "famistudio_update_row_with_delays"
                 beq +
                 lda chn_note_delay,x
                 bmi ++
-                lda #$ff                ; unaccessed ($81ed)
+                lda #$ff                ; unaccessed
                 sta chn_note_delay,x    ; unaccessed
                 jsr upd_row             ; unaccessed
                 jmp ++                  ; unaccessed
@@ -381,7 +382,7 @@ upd_row_delays  ; "famistudio_update_row_with_delays"
 ++              jsr upd_row
 +++             lda chn_cut_delay,x
                 bmi +
-                sub #1                  ; unaccessed ($820d)
+                sub #1                  ; unaccessed
                 sta chn_cut_delay,x     ; unaccessed
                 bpl +                   ; unaccessed
                 lda #0                  ; unaccessed
@@ -399,14 +400,14 @@ update          ; "famistudio_update"
                 lda song_spd
                 bmi +
                 bne ++
-+               jmp cod10               ; unaccessed ($8228)
-++              lda duty_cycle+6
++               jmp upd_chn_snd         ; unaccessed
+++              lda tempo_acc_hi
                 cmp song_spd
                 ldx #0
                 stx tempo_adv_row
                 bcc +
                 sbc song_spd
-                sta duty_cycle+6
+                sta tempo_acc_hi
                 ldx #1
                 stx tempo_adv_row
                 ;
@@ -450,7 +451,7 @@ update          ; "famistudio_update"
                 ldx #0
                 jmp cod2
 
-cod1            ; unaccessed chunk ($828e)
+cod1            ; unaccessed chunk
                 ;
                 lda ptch_env_rep,x
                 sub #1
@@ -479,7 +480,6 @@ cod1            ; unaccessed chunk ($828e)
 +               adc ptch_env_val_hi,x   ; pitch_relative_pos
                 sta ptch_env_val_hi,x
                 jmp cod7
-                ; $82c7
 
 cod2            lda ptch_env_rep,x
                 cmp #$81
@@ -512,7 +512,7 @@ cod4            lda (dat_ptr),y
                 iny
                 jmp cod6
 
-ucod3           ; unaccessed chunk ($830a)
+ucod3           ; unaccessed chunk
                 sta temp_pitch
                 clc
                 adc ptch_env_val_lo,x
@@ -525,7 +525,6 @@ ucod3           ; unaccessed chunk ($830a)
                 sta ptch_env_val_hi,x
                 iny
                 jmp cod6
-                ; $8325
 
 cod5            bne +
                 iny
@@ -545,7 +544,7 @@ cod7            inx
 slide_proc      lda slide_step,x        ; slide_process
                 beq slide_next
 
-ucod4           ; unaccessed chunk ($8344)
+ucod4           ; unaccessed chunk
                 clc
                 lda slide_step,x
                 adc slide_ptch_lo,x
@@ -563,86 +562,61 @@ pos_slide       adc slide_ptch_hi,x     ; positive_slide
                 bmi slide_next
 clr_slide       lda #0                  ; clear_slide
                 sta slide_step,x
-                ; $836f
 
 slide_next      inx
                 cpx #SLIDE_CNT
                 bne slide_proc
 
-cod10           lda chn_note+0
+upd_chn_snd     ; "famistudio_update_channel_sound"
+
+macro upd_chn_snd_macro _arg1, _arg2
+                lda chn_note+_arg1
                 bne +
-                jmp ++                  ; unaccessed ($8379)
-+               add env_val+1
+                jmp ++                  ; unaccessed
++               add env_val+_arg2+ENV_NOTE_OFF  ; nocut
+                ;
                 add pal_adj
                 tax
-                ldy #0
+                ldy #_arg1
                 jsr get_pitch
                 lda ptr2+0
-                sta out_buf+1
+                sta out_buf+_arg2+1
                 lda ptr2+1
-                sta out_buf+2
-                lda chn_vol_trk
-                ora env_val+0+ENV_VOL_OFF
+                sta out_buf+_arg2+2
+                ;
+                lda chn_vol_trk+_arg1   ; compute_volume
+                ora env_val+_arg2+ENV_VOL_OFF
                 tax
                 lda vol_tbl,x
-                ;
-++              ldx env_val+2
+++              ; set_volume
+endm
+
+                upd_chn_snd_macro 0, 0
+                ldx env_val+0+ENV_DUTY_OFF
                 ora duty_tbl,x
                 sta out_buf+0
-                lda chn_note+1
-                bne +
-                jmp ++
-+               add env_val+4
-                add pal_adj
-                tax
-                ldy #1
-                jsr get_pitch
-                lda ptr2+0
-                sta out_buf+4
-                lda ptr2+1
-                sta out_buf+5
-                lda chn_vol_trk+1
-                ora env_val+3+ENV_VOL_OFF
-                tax
-                lda vol_tbl,x
-                ;
-++              ldx env_val+5
+
+                upd_chn_snd_macro 1, 3
+                ldx env_val+3+ENV_DUTY_OFF
                 ora duty_tbl,x
                 sta out_buf+3
-                lda chn_note+2
-                bne +
-                jmp ++
-+               add env_val+7
-                add pal_adj
-                tax
-                ldy #2
-                jsr get_pitch
-                lda ptr2+0
-                sta out_buf+7
-                lda ptr2+1
-                sta out_buf+8
-                lda chn_vol_trk+2
-                ora env_val+6+ENV_VOL_OFF
-                tax
-                lda vol_tbl,x
-                ;
-++              ora #%10000000
+
+                upd_chn_snd_macro 2, 6
+                ora #%10000000
                 sta out_buf+6
 
-                ; "famistudio_update_channel_sound"
-
+                ; noise (mostly unaccessed)
                 lda chn_note+3
-                bne nocut               ; never taken
-                jmp set_volume
-
-nocut           ; unaccessed chunk ($8411)
-                add env_val+9
-                ldy slide_step+3
+                bne +                   ; never taken
+                jmp ++
++               add env_val+8+ENV_NOTE_OFF  ; nocut
+                ;
+                ldy slide_step+NOI_SLI_IND
                 beq +
                 sta temp
-                lda slide_ptch_lo+3
+                lda slide_ptch_lo+NOI_SLI_IND
                 sta ptr2+0
-                lda slide_ptch_hi+3
+                lda slide_ptch_hi+NOI_SLI_IND
                 asr_a
                 ror ptr2+0
                 asr_a
@@ -652,52 +626,54 @@ nocut           ; unaccessed chunk ($8411)
                 asr_a
                 lda ptr2+0
                 ror a
-                ;
                 add temp
-                ;
 +               and #%00001111          ; no_noise_slide
                 eor #%00001111
                 sta temp
-                ldx env_val+10
+                ldx env_val+8+ENV_DUTY_OFF
                 lda duty_tbl,x
                 asl a
                 and #%10000000
                 ora temp
                 sta out_buf+10
-                lda chn_vol_trk+3
+                ;
+                lda chn_vol_trk+3       ; compute_volume
                 ora env_val+8+ENV_VOL_OFF
                 tax
                 lda vol_tbl,x
-                ; $845a
-
-set_volume      ldx env_val+10
+                ;
+++              ldx env_val+8+ENV_DUTY_OFF  ; set_volume
                 ora duty_tbl,x
                 ora #%11110000
                 sta out_buf+9
-                lda song_spd
+                ;
+                lda song_spd                ; update_sound_done
                 bmi +
                 clc
-                lda duty_cycle+5
-                adc duty_cycle+3
-                sta duty_cycle+5
-                lda duty_cycle+6
-                adc duty_cycle+4
-                sta duty_cycle+6
+                lda tempo_acc_lo
+                adc tempo_step_lo
+                sta tempo_acc_lo
+                lda tempo_acc_hi
+                adc tempo_step_hi
+                sta tempo_acc_hi
                 ;
-+               ldx #0
-                jsr sub13
++               ldx #0                      ; skip_famitracker_tempo_update
+                jsr sfx_upd
                 ldx #$0f
-                jsr sub13
+                jsr sfx_upd
+                ;
                 lda out_buf+0
                 sta sq1_vol
                 lda out_buf+1
                 sta sq1_lo
                 lda out_buf+2
+                ;
                 cmp pulse1_prev
                 beq +
                 sta pulse1_prev
                 sta sq1_hi
-+               lda out_buf+3
+                ;
++               lda out_buf+3               ; no_pulse1_upd
                 sta sq2_vol
                 lda out_buf+4
                 sta sq2_lo
@@ -706,12 +682,14 @@ set_volume      ldx env_val+10
                 beq +
                 sta pulse2_prev
                 sta sq2_hi
-+               lda out_buf+6
+                ;
++               lda out_buf+6               ; no_pulse2_upd
                 sta tri_linear
                 lda out_buf+7
                 sta tri_lo
                 lda out_buf+8
                 sta tri_hi
+                ;
                 lda out_buf+9
                 sta noise_vol
                 lda out_buf+10
@@ -746,7 +724,7 @@ set_instru      ; "famistudio_set_instrument"
                 lsr a
                 ldx temp_x
                 bcc +
-                iny                     ; unaccessed ($8509)
+                iny                     ; unaccessed
                 jmp ++                  ; unaccessed
                 ;
 +               lda (dat_ptr),y
@@ -861,7 +839,7 @@ opcode2         stx temp
                 lda (dat_ptr),y
                 inc dat_ptr+0
                 bne +
-                inc dat_ptr+1           ; unaccessed ($85e3)
+                inc dat_ptr+1           ; unaccessed
 +               sta ptch_env_fine,x
                 ldx temp
                 jmp cod12
@@ -895,7 +873,7 @@ ovr_ptch_env    ; "opcode_override_pitch_envelope"
                 adc dat_ptr+0
                 sta dat_ptr+0
                 bcc +
-                inc dat_ptr+1           ; unaccessed ($8627)
+                inc dat_ptr+1           ; unaccessed
 +               jmp cod12
 
 clr_arp_ovr     ; "opcode_clear_arpeggio_override_flag" (unaccessed)
@@ -940,7 +918,6 @@ rst_arp         ; "opcode_reset_arpeggio" (unaccessed)
                 sta env_ptr,x
                 ldx temp
                 jmp cod12
-                ; $8682
 
 opcode3         stx temp
                 lda chn_to_duty,x
@@ -956,17 +933,17 @@ opcode3         stx temp
                 ldx temp
                 inc dat_ptr+0
                 bne +
-                inc dat_ptr+1           ; unaccessed ($86a0)
+                inc dat_ptr+1           ; unaccessed
 +               jmp cod12
 
 opcode4         lda (dat_ptr),y
                 sta chn_note_delay,x
                 inc dat_ptr+0
                 bne +
-                inc dat_ptr+1           ; unaccessed ($86ae)
+                inc dat_ptr+1           ; unaccessed
 +               jmp cod17
 
-opcode5         ; unaccessed chunk ($86b3)
+opcode5         ; unaccessed chunk
                 lda #$40
                 sta temp_x
                 lda (dat_ptr),y
@@ -982,33 +959,30 @@ opcode1         ; unaccessed chunk
                 sta temp_x
                 jmp cod12
 
-                ; "noise_slide" (unaccessed)
--               lda (dat_ptr),y
+noi_slide       ; "noise_slide" (unaccessed)
+                lda (dat_ptr),y
                 iny
-                sta slide_step+3
+                sta slide_step+NOI_SLI_IND
                 lda (dat_ptr),y
                 iny
                 sec
                 sbc (dat_ptr),y
-                sta slide_ptch_lo+3
+                sta slide_ptch_lo+NOI_SLI_IND
                 bpl +
-                lda #$ff
+                lda #$ff                ; negative_noise_slide
                 bmi ++
-+               lda #0
-++              asl slide_ptch_lo+3
-                rol a
++               lda #0                  ; positive_noise_slide
+++                                      ; noise_shift
+rept 4
                 asl slide_ptch_lo+3
                 rol a
-                asl slide_ptch_lo+3
-                rol a
-                asl slide_ptch_lo+3
-                rol a
+endr
                 sta slide_ptch_hi+3
                 jmp +
 
 slide           ; "opcode_slide" (unaccessed)
                 cpx #3
-                beq -
+                beq noi_slide
                 stx temp
                 lda chn_to_slide,x
                 tax
@@ -1048,7 +1022,6 @@ slide           ; "opcode_slide" (unaccessed)
                 inc dat_ptr+1
 +               ldy #0
                 jmp +
-                ; $8754
 
 cod13           sta chn_note,x
                 ldy chn_to_slide,x
@@ -1064,7 +1037,7 @@ cod13           sta chn_note,x
                 beq ++
 -               sec
                 jmp cod16
-++              cpx #4                  ; unaccessed ($8775)
+++              cpx #4                  ; unaccessed
                 beq -                   ; unaccessed
                 clc                     ; unaccessed
                 jmp cod16               ; unaccessed
@@ -1080,7 +1053,7 @@ cod14           and #%01111111
                 sta song_spd
                 inc dat_ptr+0
                 bne +
-                inc dat_ptr+1           ; unaccessed ($8793)
+                inc dat_ptr+1           ; unaccessed
 +               jmp cod12
                 ;
 -               lda (dat_ptr),y
@@ -1121,7 +1094,7 @@ cod14           and #%01111111
                 ldy #0
                 jmp cod12
 
-ucod8           ; unaccessed chunk ($87de)
+ucod8           ; unaccessed chunk
                 stx temp
                 lda chn_env,x
                 tax
@@ -1138,7 +1111,6 @@ ucod8           ; unaccessed chunk ($87de)
 +               ldx temp
                 clc
                 jmp cod16
-                ; $8802
 
 cod15           sta chn_rep,x
 cod16           lda chn_ref_len,x
@@ -1150,6 +1122,7 @@ cod16           lda chn_ref_len,x
                 lda chn_ret_hi,x
                 sta chn_ptr_hi,x
                 rts
+
 cod17           lda dat_ptr+0
                 sta chn_ptr_lo,x
                 lda dat_ptr+1
@@ -1157,45 +1130,31 @@ cod17           lda dat_ptr+0
                 rts
 
 jmp_tbl_lo      ; "famistudio_opcode_jmp_lo" (partially unaccessed)
-                dl $2700
+opcode_inv      brk                     ; opcode_invalid
                 dl slide
                 dl opcode1
-                dl ovr_ptch_env
-                dl clr_ptch_ovr
-                dl ovr_arp_env
-                dl clr_arp_ovr
-                dl rst_arp
-                dl opcode2
-                dl opcode3
-                dl opcode4
-                dl opcode5
-                dl jmp_tbl_lo
-                dl jmp_tbl_lo
+                dl ovr_ptch_env, clr_ptch_ovr
+                dl ovr_arp_env, clr_arp_ovr, rst_arp
+                dl opcode2, opcode3, opcode4, opcode5
+                dl opcode_inv, opcode_inv
                 ;
 jmp_tbl_hi      ; "famistudio_opcode_jmp_hi" (partially unaccessed)
-                dh $2700
+                dl jmp_tbl_lo
                 dh slide
                 dh opcode1
-                dh ovr_ptch_env
-                dh clr_ptch_ovr
-                dh ovr_arp_env
-                dh clr_arp_ovr
-                dh rst_arp
-                dh opcode2
-                dh opcode3
-                dh opcode4
-                dh opcode5
+                dh ovr_ptch_env, clr_ptch_ovr
+                dh ovr_arp_env, clr_arp_ovr, rst_arp
+                dh opcode2, opcode3, opcode4, opcode5
+                dh opcode_inv, opcode_inv
                 dh jmp_tbl_lo
-                dh jmp_tbl_lo
-                hex 88
 
 sample_stop     ; "famistudio_sample_stop"
-                ; called by: stop, ucod1, upd_row
+                ; called by: stop, mus_pause, upd_row
                 lda #%00001111
                 sta snd_chn
                 rts
 
-                ldx #1                  ; unaccessed ($884a)
+                ldx #1                  ; unaccessed
                 stx dpcm_effect         ; unaccessed
 
 cod18           asl a
@@ -1228,7 +1187,7 @@ sub11           ; called by: upd_row
                 ldx dpcm_effect
                 beq cod18
 
-ucod9           ; unaccessed chunk ($8887)
+ucod9           ; unaccessed chunk
                 tax
                 lda snd_chn
                 and #%00010000
@@ -1292,38 +1251,38 @@ sfx_play        ; "famistudio_sfx_play" (unaccessed)
                 sta sfx_ptr_hi,x
                 ;
                 rts
-                ; $88f3
 
-sub13           ; called by: update
+sfx_upd         ; "famistudio_sfx_update"
+                ; called by: update
                 ;
                 lda sfx_rep,x
                 beq +
-                dec sfx_rep,x           ; $88f8 (unaccessed)
+                dec sfx_rep,x           ; unaccessed
                 bne upd_buf             ; unaccessed
-+               lda sfx_ptr_hi,x
-                bne ucod10
++               lda sfx_ptr_hi,x        ; no_repeat
+                bne sfx_act
                 rts
 
-ucod10          ; unaccessed chunk ($8903)
-                sta dat_ptr+1
+                ; unaccessed chunk
+sfx_act         sta dat_ptr+1           ; sfx_active
                 lda sfx_ptr_lo,x
                 sta dat_ptr+0
                 ldy sfx_ofs,x
                 clc
--               lda (dat_ptr),y
+-               lda (dat_ptr),y         ; read_byte
                 bmi ++
                 beq +++
                 iny
                 bne +
-                jsr sub14
-+               sta sfx_rep,x
+                jsr inc_sfx
++               sta sfx_rep,x           ; store_repeat
                 tya
                 sta sfx_ofs,x
                 jmp upd_buf
-++              iny
+++              iny                     ; get_data
                 bne +
-                jsr sub14
-+               stx temp
+                jsr inc_sfx
++               stx temp                ; get_data2
                 adc temp
                 tax
                 lda (dat_ptr),y
@@ -1331,13 +1290,13 @@ ucod10          ; unaccessed chunk ($8903)
                 bne +
                 stx temp_pitch
                 ldx temp
-                jsr sub14
+                jsr inc_sfx
                 ldx temp_pitch
-+               sta ptch_env_val_lo,x
++               sta ptch_env_val_lo,x   ; write_buffer
                 ldx temp
                 jmp -
 
-+++             sta sfx_ptr_hi,x        ; unaccessed
++++             sta sfx_ptr_hi,x        ; eof (unaccessed)
 
                 ; unaccessed chunk
 upd_buf         lda out_buf+0           ; update_buf
@@ -1389,9 +1348,8 @@ upd_buf         lda out_buf+0           ; update_buf
                 sta out_buf+10
                 ;
 +               rts                     ; no_noise
-                ; $89bd
 
-sub14           ; called by: ucod10
+inc_sfx         ; called by: ucod10
                 inc dat_ptr+1
                 inc sfx_ptr_hi,x
                 rts
@@ -1399,7 +1357,7 @@ sub14           ; called by: ucod10
 dummy_env       hex c0 7f 00 00         ; famistudio_dummy_envelope
 dummy_ptch_env  hex 00 c0 7f 00 01      ; famistudio_dummy_pitch_envelope
 
-note_tbl_lsb    ; "famistudio_note_table_lsb" (partially unaccessed, $89cc)
+note_tbl_lsb    ; "famistudio_note_table_lsb" (partially unaccessed)
                 ; PAL
                 hex 00
                 hex 68 b6 0e 6f d9 4b c6 48 d1 60 f6 92  ; octave 0
@@ -1421,7 +1379,7 @@ note_tbl_lsb    ; "famistudio_note_table_lsb" (partially unaccessed, $89cc)
                 hex 34 31 2f 2c 29 27 25 23 21 1f 1d 1b  ; octave 6
                 hex 1a 18 17 15 14 13 12 11 10 0f 0e 0d  ; octave 7
                 ;
-note_tbl_msb    ; "famistudio_note_table_msb" (partially unaccessed, $8a8e)
+note_tbl_msb    ; "famistudio_note_table_msb" (partially unaccessed)
                 ; PAL
                 hex 00
                 hex 0c 0b 0b 0a 09 09 08 08 07 07 06 06  ; octave 0
@@ -1476,7 +1434,7 @@ chn_to_duty_env ; "famistudio_channel_to_duty_env"
 duty_tbl        ; "famistudio_duty_lookup"
                 hex 30 70 b0 f0
 
-vol_tbl         ; "famistudio_volume_table" ($8b72)
+vol_tbl         ; "famistudio_volume_table"
                 hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
                 hex 00 01 01 01 01 01 01 01 01 01 01 01 02 02 02 02
