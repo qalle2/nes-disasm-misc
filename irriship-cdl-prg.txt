@@ -1,0 +1,616 @@
+NES address, CDL byte repeat count, CDL byte description ("-"=unaccessed):
+
+8000    1 code, data
+8001   79 code
+807a    2 -
+807c    9 code
+8085    2 -
+8087    a code
+8091   65 -
+80f6    b code
+8101    1 code, data
+8102   18 code
+811a    2 -
+811c    9 code
+8125    2 -
+8127    a code
+8131    1 code, data
+8132   27 code
+8159   10 -
+8169    1 code, data
+816a   82 code
+81ec   14 -
+8200   20 code
+8220    3 code (indirect)
+8223   10 code
+8233    2 code (indirect)
+8235   4b code
+
+8280    2 data
+8282    2 -
+8284    e data
+8292    6 -
+8298    8 data
+82a0    6 -
+82a6    2 data
+82a8    2 -
+82aa    4 data
+82ae    2 -
+82b0    5 data (indirect)
+82b5   24 data
+82d9  131 data (indirect)
+840a  12a -
+8534   fb data (indirect)
+862f   1c -
+864b    7 data (indirect)
+8652    6 -
+8658   ac data (indirect)
+8704    4 -
+
+8708   5e code
+8766    b -
+8771   18 code
+8789    b -
+8794   66 code
+87fa   10 -
+880a    4 code
+880e    2 data
+8810    4 -
+8814   58 code
+886c    8 data
+8874   21 code
+8895    2 -
+8897   11 code
+88a8    6 -
+88ae   52 code
+8900    2 -
+8902   46 code
+8948    2 -
+894a   77 code
+89c1    1 code, data
+89c2   1d code
+89df    1 code, data
+89e0   7f code
+8a5f    1 code, data
+8a60    d code
+8a6d    7 -
+8a74    4 code
+8a78    a -
+8a82    1 code
+8a83    2 data
+8a85    1 -
+8a86    2 data
+8a88    1 -
+8a89   1c code
+8aa5    2 data
+8aa7    1 -
+8aa8    2 data
+8aaa    1 -
+8aab   87 code
+8b32    1 code, data
+8b33    3 code
+8b36    d data
+8b43   1b code
+8b5e    1 code, data
+8b5f    3 code
+8b62   79 data
+8bdb  12b code
+8d06    2 -
+8d08    9 code
+8d11   18 data
+8d29   52 code
+8d7b    1 code, data
+8d7c   7a code
+8df6    1 code, data
+8df7   1c code
+8e13    1 code, data
+8e14   1a code
+8e2e    2 -
+8e30   21 code
+8e51   1a data
+8e6b   1c code
+8e87    6 data
+8e8d    1 code, data
+8e8e   16 code
+8ea4    6 -
+8eaa   9e code
+8f48    1 code, data
+8f49   67 code
+8fb0    1 code, data
+8fb1   57 code
+9008    1 code, data
+9009   12 code
+901b    1 code, data
+901c   2b code
+9047    1 code, data
+9048   2c code
+9074    1 code, data
+9075   42 code
+90b7    1 code, data
+90b8    e code
+90c6    1 code, data
+90c7   10 code
+90d7    1 code, data
+90d8   54 code
+912c    1 code, data
+912d   2b code
+9158    1 code, data
+9159   12 code
+916b    1 code, data
+916c    f code
+917b    1 code, data
+917c   19 code
+9195    1 code, data
+9196    f code
+91a5    5 -
+91aa    4 code
+91ae    5 -
+91b3   10 code
+91c3    2 -
+91c5    1 code, data
+91c6   59 code
+921f    5 -
+9224   5d code
+9281    4 data
+9285    1 code, data
+9286   1e code
+92a4    1 code, data
+92a5    c code
+92b1    1 code, data
+92b2   10 code
+92c2    1 code, data
+92c3   bd code
+9380    8 data
+9388   90 code
+9418    1 code, data
+9419   1b code
+9434    1 code, data
+9435   1c code
+9451    1 code, data
+9452   4b code
+949d    8 data
+94a5   62 code
+9507    9 data
+9510   58 code
+9568    6 -
+
+956e  300 data
+986e  8b0 data (indirect)
+a11e    d data
+a12b    1 -
+a12c   1b data
+a147    1 -
+
+a148   9b code
+a1e3    2 -
+a1e5   89 code
+a26e    2 -
+a270   54 code
+a2c4    4 -
+a2c8   1f code
+a2e7    5 -
+a2ec  1d9 code
+a4c5    2 -
+a4c7   29 code
+a4f0    1 code, data
+a4f1   96 code
+a587   22 data (indirect)
+a5a9    7 -
+a5b0    5 code
+a5b5    7 -
+a5bc   12 code
+
+a5ce    4 data
+a5d2   10 data (indirect)
+a5e2    1 -
+a5e3   11 data (indirect)
+a5f4    1 -
+a5f5    8 data (indirect)
+a5fd    1 -
+a5fe   16 data (indirect)
+a614    1 -
+a615   45 data (indirect)
+a65a    1 -
+a65b   12 data (indirect)
+a66d    1 -
+a66e  506 data (indirect)
+ab74    6 -
+ab7a  18c data (indirect)
+ad06    6 -
+ad0c   38 data (indirect)
+ad44    6 -
+ad4a   b5 data (indirect)
+adff    2 -
+ae01   14 data (indirect)
+ae15    a -
+ae1f  23d data (indirect)
+b05c   b7 -
+b113   a3 data (indirect)
+b1b6   4c -
+
+b202   3e code
+b240    1 code, data
+b241   35 code
+b276    1 code, data
+b277   26 code
+b29d    1 code, data
+b29e   33 code
+b2d1    c -
+b2dd   1a code
+b2f7    6 -
+b2fd   50 code
+b34d    e -
+b35b   62 code
+b3bd   16 -
+b3d3    1 code, data
+b3d4   d2 code
+b4a6   ad -
+b553    5 code
+b558    1 -
+b559   43 code
+b59c    8 -
+b5a4   15 code
+b5b9    e -
+b5c7   47 code
+b60e    9 -
+b617    1 code, data
+b618    2 code
+b61a    1 code, data
+b61b   19 code
+b634   17 -
+b64b   3b code
+b686    1 code, data
+b687   13 code
+b69a    3 -
+b69d   3d code
+b6da    5 -
+b6df    f code
+b6ee   12 -
+b700    1 code, data
+b701   32 code
+b733    1 code, data
+b734   27 code
+b75b    1 code, data
+b75c    c code
+b768    1 code, data
+b769   13 code
+b77c    8 -
+b784    7 code
+b78b    2 -
+
+b78d    4 data
+b791    2 -
+b793    2 data
+b795    2 -
+b797    2 data
+b799    4 -
+b79d    2 data
+b79f    6 -
+b7a5    4 data
+b7a9    2 -
+b7ab    8 data
+b7b3    a -
+b7bd    2 data
+b7bf    f -
+
+b7ce    3 code (indirect)
+b7d1    6 code
+b7d7    2 code (indirect)
+b7d9    6 code
+b7df    c -
+b7eb    3 code (indirect)
+b7ee    9 code
+b7f7    9 -
+b800    3 code (indirect)
+b803    6 code
+b809   41 -
+b84a    3 code (indirect)
+b84d   10 code
+b85d    2 code (indirect)
+b85f    f code
+b86e    9 -
+b877    3 code (indirect)
+b87a    d code
+b887    2 -
+b889   13 code
+b89c   1c -
+b8b8    3 code (indirect)
+b8bb    6 code
+b8c1    2 code (indirect)
+b8c3    6 code
+b8c9    3 code (indirect)
+b8cc    7 code
+b8d3    3 code (indirect)
+b8d6   11 code
+b8e7   1c -
+b903    3 code (indirect)
+b906    6 code
+b90c    b -
+b917    b code
+b922    1 code, data
+b923   2c code
+b94f   22 -
+b971    3 code
+b974    1 -
+b975    a code
+b97f   1e -
+b99d   b1 code
+ba4e    2 -
+ba50    c code
+ba5c   1b -
+ba77    3 code
+ba7a    f -
+ba89    1 code, data
+ba8a   79 -
+bb03   42 code
+bb45  134 -
+bc79    1 code, data
+bc7a   2b code
+bca5    6 -
+bcab   7d code
+bd28    1 code, data
+bd29   14 code
+bd3d    1 code, data
+bd3e    6 code
+bd44   1b -
+bd5f   12 code
+bd71   12 -
+bd83    b code
+bd8e   33 -
+bdc1   47 code
+be08   1b -
+be23   14 code
+be37    2 -
+be39    4 code
+be3d    2 -
+be3f    1 code, data
+be40   10 code
+be50   10 -
+be60    1 code, data
+be61   27 code
+be88    4 -
+be8c   10 code
+be9c   45 -
+bee1    5 code
+bee6   27 -
+bf0d   2b code
+bf38   a0 -
+bfd8   46 code
+c01e    2 data
+c020    a -
+c02a    2 code (indirect)
+c02c   41 code
+c06d    1 code, data
+c06e   3d code
+c0ab    1 code, data
+c0ac   19 code
+c0c5    a -
+c0cf   1a code
+c0e9    1 code, data
+c0ea    3 code
+c0ed   32 -
+c11f    c code
+c12b   32 -
+c15d   1f code
+c17c    2 data
+c17e    b -
+c189    3 code (indirect)
+c18c    6 code
+c192    a -
+c19c    1 code
+c19d   26 -
+c1c3    5 code
+c1c8    6 -
+c1ce   12 code
+c1e0    3 -
+c1e3   20 code
+c203    2 -
+c205   1f code
+c224    a -
+c22e    5 code
+c233   1e -
+c251   18 code
+c269    1 code, data
+c26a    6 code
+c270    3 -
+c273   20 code
+c293    2 -
+c295   1f code
+c2b4    a -
+c2be    5 code
+c2c3   1e -
+c2e1   18 code
+c2f9    1 code, data
+c2fa   20 code
+c31a    a -
+c324   11 code
+c335    1 code, data
+c336   26 code
+c35c    2 -
+c35e   30 code
+
+c38e    3 data
+c391    7 -
+c398    2 data
+c39a    4 -
+c39e    1 data
+c39f    2 -
+c3a1    1 data
+c3a2    1 -
+c3a3    2 data
+c3a5    1 -
+c3a6    4 data
+c3aa    2 -
+c3ac    1 data
+c3ad    1 -
+c3ae    1 data
+c3af    2 -
+c3b1    1 data
+c3b2    1 -
+c3b3    2 data
+c3b5    1 -
+c3b6    2 data
+c3b8    4 -
+c3bc    1 data
+c3bd    1 -
+c3be    1 data
+c3bf    2 -
+c3c1    1 data
+c3c2    1 -
+c3c3    2 data
+c3c5    1 -
+c3c6    1 data
+c3c7    1 -
+c3c8    2 data
+c3ca    2 -
+c3cc    1 data
+c3cd    1 -
+c3ce    1 data
+c3cf    2 -
+c3d1    1 data
+c3d2    1 -
+c3d3    2 data
+c3d5    1 -
+c3d6    4 data
+c3da    2 -
+c3dc    1 data
+c3dd    1 -
+c3de    1 data
+c3df    2 -
+c3e1    1 data
+c3e2    1 -
+c3e3    2 data
+c3e5    1 -
+c3e6    4 data
+c3ea    2 -
+c3ec    1 data
+c3ed    1 -
+c3ee    1 data
+c3ef    2 -
+c3f1    1 data
+c3f2    1 -
+c3f3    2 data
+c3f5    1 -
+c3f6    4 data
+c3fa    2 -
+c3fc    1 data
+c3fd    1 -
+c3fe    1 data
+c3ff    2 -
+c401    1 data
+c402    1 -
+c403    2 data
+c405    1 -
+c406    1 data
+c407    5 -
+c40c    1 data
+c40d    1 -
+c40e    1 data
+c40f    2 -
+c411    1 data
+c412    1 -
+c413    8 data
+c41b    1 -
+c41c    1 data
+c41d    1 -
+c41e    1 data
+c41f    2 -
+c421    1 data
+c422    1 -
+c423    2 data
+c425    1 -
+c426    1 data
+c427    5 -
+c42c    1 data
+c42d    1 -
+c42e    1 data
+c42f    2 -
+c431    1 data
+c432    1 -
+c433    a data
+c43d    1 -
+c43e    4 data
+c442   55 -
+c497    4 data
+c49b   19 -
+c4b4    8 data (indirect)
+c4bc    2 -
+c4be    2 data (indirect)
+c4c0    2 -
+c4c2    4 data (indirect)
+c4c6    6 -
+c4cc    8 data (indirect)
+c4d4    6 -
+c4da    c data (indirect)
+c4e6    2 -
+c4e8    4 data (indirect)
+c4ec    2 -
+c4ee    2 data (indirect)
+c4f0    2 -
+c4f2    c data (indirect)
+c4fe    2 -
+c500    4 data (indirect)
+c504    2 -
+c506   10 data (indirect)
+c516    2 -
+c518    4 data (indirect)
+c51c    2 -
+c51e   10 data (indirect)
+c52e    2 -
+c530    8 data (indirect)
+c538   3c -
+c574    8 data (indirect)
+c57c    2 -
+c57e    2 data (indirect)
+c580    2 -
+c582    4 data (indirect)
+c586    6 -
+c58c    8 data (indirect)
+c594    6 -
+c59a    c data (indirect)
+c5a6    2 -
+c5a8    4 data (indirect)
+c5ac    2 -
+c5ae    2 data (indirect)
+c5b0    2 -
+c5b2    c data (indirect)
+c5be    2 -
+c5c0    4 data (indirect)
+c5c4    2 -
+c5c6   10 data (indirect)
+c5d6    2 -
+c5d8    4 data (indirect)
+c5dc    2 -
+c5de   10 data (indirect)
+c5ee    2 -
+c5f0    8 data (indirect)
+c5f8   44 -
+c63c   10 data
+c64c   20 -
+c66c   10 data
+c67c  184 -
+
+c800   1b code
+c81b    d -
+c828   5a code
+c882    1 code, data
+c883   31 code
+c8b4    4 -
+c8b8    2 data
+c8ba    5 -
+c8bf    2 data
+c8c1   2b code
+c8ec    1 code, data
+c8ed    8 code
+c8f5    1 code, data
+c8f6   2f code
+c925    2 -
+c927   72 code
+c999    1 code, data
+c99a   33 code
+c9cd    1 code, data
+c9ce    a code
+c9d8 3622 -
+
+fffa    4 data
+fffe    2 -
