@@ -10,7 +10,9 @@
 ;     normal: +2 extra lives/checkpoint, max. 9
 ;     hard:   +1 extra life/checkpoint,  max. 3
 ;     expert: no extra lives
-;     secret: time attack (press 3 * select in title screen)
+;     secret: time attack (press 3 * select in title screen);
+;             time per checkpoint: 900 on NTSC, 750 on PAL, glitches on Dendy
+;             (at least on FCEUX)
 
 ; Palettes:
 ;     default: 0f 00 10 20, except SPR1 = 0f 17 27 37
@@ -63,6 +65,14 @@
 ;     910c:a9 = OZAOGO
 ;     (the game crashes if you crash before the 1st checkpoint)
 
+; Was there supposed to be a second ship in this game?
+;   - subs get_x_accel, get_y_accel and move_plr take an argument that's
+;     always 0
+;   - that argument is used to index player's position, speed and rotation
+;   - there's unused RAM after those variables, enough for a second ship
+;   - human-controlled (joypad 2 isn't read, however), computer-controlled or
+;     a ghost?
+
 ; --- Constants ---------------------------------------------------------------
 
 ; 'arr' = RAM array, 'ram' = RAM non-array, 'misc' = $2000-$7fff.
@@ -71,7 +81,8 @@
 ptr1            equ $00  ; jump/data ptr (2 bytes, overlaps)
 temp1           equ $00
 temp2           equ $01
-ptr2            equ $02  ; jump ptr (2 bytes)
+ptr2            equ $02  ; jump ptr (2 bytes, overlaps)
+temp3           equ $02
 temp4           equ $04
 temp5           equ $0e
 temp6           equ $0f
@@ -135,7 +146,7 @@ plr_y_spd       equ $57  ; 3 bytes, high first, signed (two's complement)
 plr_rot         equ $5a  ; 0-47, 0=top, incr. clockwise
 plr_rot_inquad  equ $5b  ; within quadrant (0=up/down...12=left/right)
 plr_quad        equ $5c  ; quadrant (0-3, 0=top right, incr. clockwise)
-; $5d seems to be unused apart from being cleared with those above
+; $5d seems to be unused
 sq1_prev        equ $74
 sq2_prev        equ $75
 
@@ -898,7 +909,7 @@ sub3            ; $8710; called by sub22, sub28
                 eor ram30
                 rts
 
-sub4            ; $872d; called by sub21
+sub4            ; $872d; called by draw_stars
                 lsr a
                 sta ptr1+0
                 lda #0
@@ -911,15 +922,15 @@ sub4            ; $872d; called by sub21
                 bne -
                 rts
 
-sub5            ; $8740; called by sub21
+sub5            ; $8740; called by draw_stars
                 eor #%11111111
-                sta ptr1+1
-                lda ptr1+0
+                sta temp2
+                lda temp1
                 eor #%11111111
                 add #1
-                sta ptr1+0
+                sta temp1
                 bcc +
-                inc ptr1+1
+                inc temp2
 +               rts
 
 inc_thrust_cntr ; $8752; increment amount of thrust used; called by accel_plr
@@ -1056,29 +1067,29 @@ to_decimal      ; $8814; in: byte in A; return tens in Y and ones in A;
                 adc #10
                 rts
 
-dec_time_left   ; decrement timer if on secret skill (time attack) ($881f)
-                ; (happens every frame)
-                ; out: carry: 0 if time has run out, else 1
+dec_time_left   ; decrement timer on secret skill ($881f; happens every frame)
+                ; out: carry: clear if time has run out, else set
                 ; called by accel_plr, icod7
                 ;
+                ; if on title screen or not secret skill, exit with carry set
                 lda skill
                 cmp #SKILL_SECRET
                 bne +
-                ;
                 lda mode
                 cmp #MODE_TITLE
                 beq +
                 ;
-                ldx #3                  ; OR numbers together
+                ; if no time left, exit with carry clear
+                ldx #3
                 lda #$00
 -               ora time_left,x
                 dex
                 bpl -
-                ;
-                cmp #1                  ; if zero, exit with carry clear
+                cmp #1
                 bcc rts2
                 ;
-                ldx #3                  ; actually decrement
+                ; decrement time left and exit with carry set
+                ldx #3
 -               dec time_left,x
                 bpl +
                 lda #9
@@ -1089,7 +1100,7 @@ dec_time_left   ; decrement timer if on secret skill (time attack) ($881f)
 +               sec
 rts2            rts
 
-sub12           ; $884a; called by sub31, sub48
+time_extend     ; increase amount of time left ($884a); called by sub31, sub48
                 ;
                 ; Y: NTSC=3, PAL=7, Dendy=11
                 ldy #3
@@ -1103,17 +1114,19 @@ sub12           ; $884a; called by sub31, sub48
 +               ldx #3
                 clc
 -               lda time_left,x
-                adc dat4,y              ; reads out of bounds?
-                cmp #$0a
+                adc time_extend_tbl,y   ; reads out of bounds?
+                cmp #10
                 bcc +
-                sbc #$0a
+                sbc #10
 +               sta time_left,x
                 dey
                 dex
                 bpl -
                 rts
 
-dat4            db 0, 9, 0, 0, 0, 7, 5, 0
+time_extend_tbl ; how much time to add
+                db 0, 9, 0, 0           ; NTSC
+                db 0, 7, 5, 0           ; PAL
 
 ; -----------------------------------------------------------------------------
 
@@ -1124,6 +1137,7 @@ sub13           ; $8874; called by icod5, icod7
                 lda gravity             ; apply gravity
                 beq +
                 jsr grav_acc_plr
+                ;
 +               ldx #0
                 jsr move_plr
                 jsr sub14
@@ -1282,7 +1296,7 @@ set_exhaust_spr ; $897a; set player's exhaust sprite; called by sub13
 rotate_plr      ; react to left/right arrow and update player rotation
                 ; variables ($89a2); called by sub13
                 ;
-if ROTATE_HACK
+if ROTATE_HACK  ;
                 ; this code written by qalle
                 lda buttons_held
                 ldx #7
@@ -1300,7 +1314,7 @@ rot_hack_tbl    db %1000, %1001, %0001, %0101, %0100, %0110, %0010, %1010
                 asl a
                 sta plr_rot
                 pad $89c1, $ea
-else
+else            ;
                 lda buttons_held        ; left pressed?
                 lsr a
                 bcc ++
@@ -1320,9 +1334,9 @@ else
                 bpl update_quadr
                 lda #47
                 sta plr_rot
-endif
-                ;
-update_quadr    lda plr_rot             ; update quadrant ($89c1)
+endif           ;
+update_quadr    ; update quadrant ($89c1)
+                lda plr_rot
                 ldy #255
 -               iny
                 sub #12
@@ -1346,11 +1360,11 @@ accel_plr       ; $89e2; accelerate player (add acceleration to speed);
                 ; called by sub13
                 ;
                 lda buttons_held
-if ROTATE_HACK
+if ROTATE_HACK  ;
                 and #%00001111
-else
+else            ;
                 and #%10000000
-endif
+endif           ;
                 bne +
 -               stz ram25
                 rts
@@ -1395,43 +1409,56 @@ endif
                 beq +
                 bpl ++
 +               copy #$14, ram25
-++              jsr sub16
+++              jsr limit_speed
                 rts
 
-sub16           ; $8a42; called by accel_plr
+limit_speed     ; limit player's X and Y speed ($8a42); called by accel_plr
+                ;
+                ; limit X speed according to region
+                ;
                 ldy region
                 lda plr_x_spd+0
                 bmi +
-                cmp dat5,y
+                ;
+                cmp max_pos_x_spds,y    ; positive
                 bcc +++
-                lda dat5,y
+                lda max_pos_x_spds,y
                 sta plr_x_spd+0
                 jmp ++
-+               cmp dat6,y
+                ;
++               cmp max_neg_x_spds,y    ; negative
                 bcs +++
-                lda dat6,y
+                lda max_neg_x_spds,y
                 sta plr_x_spd+0
-++              lda #0
+                ;
+++              lda #0                  ; clear fractional
                 sta plr_x_spd+2
                 sta plr_x_spd+1
-+++             lda plr_y_spd+0
+                ;
++++             ; limit Y speed regardless of region
+                ;
+                lda plr_y_spd+0
                 bmi +
-                cmp #$10
-                bcc rts7
-                lda #$10
+                ;
+                cmp #16                 ; positive
+                bcc +++
+                lda #16
                 sta plr_y_spd+0
                 jmp ++
-+               cmp #$f0
-                bcs rts7
-                lda #$f0
+                ;
++               cmp #(256-16)           ; negative
+                bcs +++
+                lda #(256-16)
                 sta plr_y_spd+0
-++              lda #0
+                ;
+++              lda #0                  ; clear fractional
                 sta plr_y_spd+2
                 sta plr_y_spd+1
-rts7            rts
+                ;
++++             rts
 
-dat5            hex 0e 0c 0c            ; $8a83
-dat6            hex f2 f4 f4
+max_pos_x_spds  db 14,     12,     12      ; NTSC/PAL/Dendy
+max_neg_x_spds  db 256-14, 256-12, 256-12  ; NTSC/PAL/Dendy
 
 grav_acc_plr    ; apply gravitational acceleration to player ($8a89)
                 ; called by sub13
@@ -1755,38 +1782,44 @@ move_plr        ; add player speed to position; called by sub13, sub29;
                 ;
                 rts
 
-sub21           ; $8c9a; called by sub28, icod5, icod7, icod8, icod10
+draw_stars      ; draw star sprites? ($8c9a);
+                ; called by sub28, icod5, icod7, icod8, icod10
                 ;
                 ldx free_spr_index      ; index on OAM page
                 beq rts11
-                ldy #$0b
-                sty ptr2+0
--               ldy ptr2+0
+                ;
+                ldy #11
+                sty temp3               ; loop counter
+                ;
+-               ldy temp3
                 lda ram27
                 beq +++
-                sta ptr1+1
+                ;
+                sta temp2
                 lda dat10,y
                 clc
                 adc arr32,y
                 jsr sub4
-                sta ptr1+1
+                sta temp2
                 bit plr_y_spd+0
                 bmi +
                 jsr sub5
-+               ldy ptr2+0
-                lda ptr1+0
++               ldy temp3
+                lda temp1
                 clc
                 adc arr31,y
                 sta arr31,y
                 lda arr30,y
-                adc ptr1+1
+                adc temp2
                 sta arr30,y
-                bit ptr1+1
+                bit temp2
                 bmi +
                 bcc +++
+                ;
                 lda #0
                 bcs ++
 +               bcs +++
+                ;
                 lda #$ff
 ++              sta arr30,y
                 lda dat9,y
@@ -1795,18 +1828,20 @@ sub21           ; $8c9a; called by sub28, icod5, icod7, icod8, icod10
                 lda ram31
                 and #%01111111
                 sta arr32,y
-+++             lda arr30,y
+                ;
++++             lda arr30,y             ; Y position
                 sta oam_page+0,x
-                lda arr29,y
+                lda arr29,y             ; X position
                 sta oam_page+3,x
-                lda #$23
+                lda #%00100011          ; attribute (behind BG, palette 3)
                 sta oam_page+2,x
-                lda #$fe
+                lda #$fe                ; tile (star)
                 sta oam_page+1,x
                 db AXS_IMM, $fc         ; X = (A & X) - value without borrow
                 beq +
-                dec ptr2+0
+                dec temp3
                 bpl -
+                ;
 +               stx free_spr_index
 rts11           rts
 
@@ -1816,6 +1851,7 @@ dat10           hex 20 28 30 38 40 48 50 58
                 hex 60 68 70 78
 
 sub22           ; $8d29; called by icod8
+                ;
                 ldx #0
                 ldy #0
 --              lda plr_x+0,y
@@ -1829,6 +1865,7 @@ sub22           ; $8d29; called by icod8
                 iny
                 cpy #$0c
                 bcc --
+                ;
                 ldy #7
 -               jsr sub3
                 lsr a
@@ -1857,6 +1894,7 @@ sub22           ; $8d29; called by icod8
                 sta deb_y_spds_hi,y
                 dey
                 bpl -
+                ;
                 rts
 
 move_debris     ; move debris ($8d7b); called by icod8, icod10
@@ -2080,7 +2118,7 @@ sub28           ; $8ec7; called by icod4, icod11
                 sta arr29,y
                 dey
                 bpl -
-                jsr sub21
+                jsr draw_stars
                 ;
                 lda #%00000010
                 sta oam_page+2*4+2
@@ -2192,7 +2230,7 @@ icod5           ; $8fb0
                 copy #6, ram5
                 copy #4, ram2
                 stz ram4
-+               jsr sub21
++               jsr draw_stars
                 jsr sub34
                 rts
 
@@ -2268,7 +2306,7 @@ icod7           ; $9074
                 copy #7, ram5
                 copy #4, ram2
 +++             jsr draw_hud
-                jsr sub21
+                jsr draw_stars
                 jsr sub34
                 jsr sub40
                 stz ram27
@@ -2306,7 +2344,7 @@ icod8           ; $90d7
                 lda #1
 +               sta ram5
                 copy #5, ram2
-++              jsr sub21
+++              jsr draw_stars
                 jsr move_debris
                 jsr sub40
                 rts
@@ -2339,7 +2377,7 @@ icod10          ; $9158
                 inc lives_left
                 jsr draw_hud
                 dec lives_left
-                jsr sub21
+                jsr draw_stars
                 jmp move_debris
 
 icod11          ; $916b
@@ -2570,7 +2608,7 @@ sub31           ; $9302; called by sub33
                 copy #$14, ram41
                 sty ptr1+0
                 jsr mark_chkp_touch
-                jsr sub12
+                jsr time_extend
                 ldy ptr1+0
                 ldx skill
                 lda lives_left
@@ -3428,7 +3466,7 @@ sub48           ; $a342; called by icod11
                 jsr sub58
                 jsr sub58
                 copy #$40, ram16
-                jsr sub12
+                jsr time_extend
                 copy #$7c, plr_x+0      ; set plr start pos in main game
                 copy #$80, plr_x+1
                 copy #$bf, plr_y+0
