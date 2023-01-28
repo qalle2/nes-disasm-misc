@@ -6,7 +6,7 @@
 ; See "famitone2.s"
 ; from "neslib + FamiTracker player" (cc65_neslib_famitracker.zip)
 ; from https://shiru.untergrund.net/code.shtml
-; ; there are some differences, however (e.g. sweep).
+; there are some differences, however (e.g. sweep).
 
 region          equ $10  ; 0=NTSC, 1=PAL, 2=Dendy
 
@@ -2781,7 +2781,3 @@ math_tbl2       ; $c61c; some 2D look-up table; 256 bytes
                 db  0, 6,12,18,24,30,35,40,45,49, 53, 56, 59, 61, 62, 63
                 db  0, 9,18,27,36,45,53,60,67,74, 79, 84, 88, 91, 94, 95
                 db  0,12,24,37,48,60,71,81,90,98,106,112,118,122,125,127
-
-                if $ <> $c71c
-                    error c71c
-                endif
