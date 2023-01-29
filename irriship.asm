@@ -77,6 +77,9 @@
 
 ; 'arr' = RAM array, 'ram' = RAM non-array, 'misc' = $2000-$7fff.
 ; Variables shared with sound engine: region, sq1_prev, sq2_prev.
+; mode_seq: 5 bytes; sequence of next game statuses, offset to mode_jump_table
+;           (not sure about this)
+;           (not what the game calls "mode"!)
 
 ptr1            equ $00  ; jump/data ptr (2 bytes, overlaps)
 temp1           equ $00
@@ -91,11 +94,7 @@ ppu_ctrl_copy1  equ $11
 ppu_ctrl_copy2  equ $12
 ppu_mask_copy1  equ $13
 ppu_mask_copy2  equ $14
-mode            equ $15  ; game status, offset to mode_jump_table (not skill!)
-next_mode       equ $16  ; not sure about this
-ram3            equ $17
-ram4            equ $18
-ram5            equ $19
+mode_seq        equ $15  ; 5 bytes, see above
 scroll_x        equ $1a  ; ppu_scroll X copy
 ram6            equ $1b
 scroll_y        equ $1c  ; ppu_scroll Y copy
@@ -105,11 +104,10 @@ free_spr_index  equ $20  ; next free index on OAM page
 nmi_flag        equ $21  ; do stuff if nonzero
 ptr3            equ $22  ; jump ptr (2 bytes)
 arr1            equ $24
-arr2            equ $25
 ram11           equ $26
 ram12           equ $27
 str_to_print    equ $29  ; which string to print (=id*2+2; 0=none; see consts)
-ram13           equ $2a
+ppu_buffer_len  equ $2a
 buttons_changed equ $2b  ; joypad - buttons having changed to "on"
 buttons_held    equ $2c  ; joypad - buttons being pressed
 ptr4            equ $2d  ; data ptr
@@ -130,14 +128,14 @@ ram27           equ $3e
 skill           equ $3f  ; what the game calls "mode"; see constants
 gravity         equ $40  ; 0=off, 1=on
 lives_left      equ $41
-ram28           equ $42
+warp_effect_on  equ $42  ; new game / finish game icon hit (0=no, 1=yes)
 ram29           equ $43
 ram30           equ $44
 ram31           equ $45
 ram32           equ $46
 ram_jump_code   equ $47  ; a JMP absolute instruction (3 bytes)
 ram36           equ $4a
-ram37           equ $4c
+last_ctrl_btns  equ $4c  ; last A/left/right pressed (%x00000xx)
 sel_press_cnt   equ $4d  ; how many times select pressed on title
 plr_x           equ $4e  ; 3 bytes, high first, unsigned
 plr_y           equ $51  ; 3 bytes, high first, unsigned (on screen)
@@ -150,9 +148,7 @@ plr_quad        equ $5c  ; quadrant (0-3, 0=top right, incr. clockwise)
 sq1_prev        equ $74
 sq2_prev        equ $75
 
-arr5            equ $0110  ; negative=no data in PPU buffer?
-arr6            equ $0113
-arr7            equ $0133
+ppu_buffer      equ $0110  ; 36 bytes? 1st byte negative = no data
 tile_row_top    equ $0150  ; 32*1 tiles (where are these read?)
 tile_row_btm    equ $0170  ; 32*1 tiles
 
@@ -162,9 +158,8 @@ str_buffer      equ $0400  ; 36 bytes; str_ptr_tbl points here
 ram40           equ $0424
 ram41           equ $0425
 warm_boot_ram   equ $0426  ; 6 bytes; string to check for warm boot
-arr15           equ $042c
-arr16           equ $0434
-ram42           equ $043b
+warp_sprites_x  equ $042c  ; 8 bytes; sprites trailing player
+warp_sprites_y  equ $0434  ; 8 bytes
 deb_x_hi        equ $043c  ; debris X positions - high bytes
 deb_x_mid       equ $0444  ; debris X positions - middle bytes
 deb_x_lo        equ $044c  ; debris X positions - low bytes
@@ -229,7 +224,7 @@ ppu_pal         equ $3f00
 ; updates NZC; 2 cycles
 AXS_IMM         equ $cb
 
-; values of "mode" variable
+; values of "mode_seq" variables
 ; intermediate states between title/ingame/dead:
 ;     boot to title:             MODE_PREP_TITLE
 ;     ingame to title:        4, MODE_PREP_TITLE
@@ -320,11 +315,11 @@ endr            ;
                 bne non_rle_blk
                 beq start_blk           ; unconditional
                 ;
---              txs                     ; restore SP, $ff -> arr5, 0 -> ram13
+--              txs                     ; restore SP
                 ldx #$ff
-                stx arr5
+                stx ppu_buffer+0
                 inx
-                stx ram13
+                stx ppu_buffer_len      ; reset
 -               rts
                 ;
 flush_ppu_buf   ; $804f; called by nmi
@@ -334,7 +329,7 @@ flush_ppu_buf   ; $804f; called by nmi
                 beq +
                 jsr print_strings
                 ;
-+               lda arr5
++               lda ppu_buffer+0
                 bmi -                   ; exit if negative
                 copy #$80, ptr1+1
                 copy #$80, ptr2+1
@@ -1103,7 +1098,7 @@ dec_time_left   ; decrement timer on secret skill ($881f; happens every frame)
                 lda skill
                 cmp #SKILL_SECRET
                 bne +
-                lda mode
+                lda mode_seq+0
                 cmp #MODE_TITLE
                 beq +
                 ;
@@ -1179,17 +1174,17 @@ sub13           ; $8874; called by mode_title, mode_ingame
                 lda #$f0
 +               add plr_y+0
                 sta plr_y+0
-                lda mode
+                lda mode_seq+0
                 cmp #MODE_INGAME
                 bne ++
                 ;
                 lda #1
                 ldy ram17
                 beq +
-                copy #1, ram4
-                lda #7
-+               sta ram5
-                copy #4, next_mode
+                copy #1, mode_seq+3
+                lda #MODE_VICTORY
++               sta mode_seq+4
+                copy #4, mode_seq+1
                 rts
                 ;
 ++              jsr set_exhaust_spr
@@ -1284,7 +1279,8 @@ pos_y_spd       ; $8914; positive Y speed; similar to "negative" section above
 rts4            rts
 
 set_ship_spr    ; $8962; set player ship sprite;
-                ; called by: sub13, sub29, mode_dead, sub47, sub48, sub49
+                ; called by: sub13, move_plr_warp, mode_dead, sub47, sub48,
+                ; sub49
                 ;
                 lda plr_rot_inquad      ; tile
                 sta oam_page+0*4+1
@@ -1491,7 +1487,8 @@ max_neg_x_spds  db 256-14, 256-12, 256-12  ; NTSC/PAL/Dendy
 grav_acc_plr    ; apply gravitational acceleration to player ($8a89)
                 ; called by sub13
                 ;
-                lda ram37
+                ; skip if A/left/right not pressed since last respawn
+                lda last_ctrl_btns
                 beq +
                 ;
                 ldy region
@@ -1768,9 +1765,13 @@ draw_timer      ; 4 digits
                 stx free_spr_index
                 rts
 
-sub20           ; $8c5a; called by mode_title, mode_ingame
+start_warp_eff  ; start warp effect (having hit new game / finish game icon);
+                ; $8c5a; called by mode_title, mode_ingame
                 ;
-                copy #1, ram28
+                lda #1
+                sta warp_effect_on
+                ;
+                ; point ship & set speed towards top of screen
                 lda #0
                 sta plr_rot_inquad
                 sta plr_quad
@@ -1779,11 +1780,11 @@ sub20           ; $8c5a; called by mode_title, mode_ingame
                 sta plr_x_spd+2
                 sta plr_y_spd+1
                 sta plr_y_spd+2
-                lda #$fa
+                lda #(256-6)
                 sta plr_y_spd+0
                 rts
 
-move_plr        ; add player speed to position; called by sub13, sub29;
+move_plr        ; add player speed to position; called by sub13, move_plr_warp;
                 ; in: X (always 0)
                 ;
                 lda plr_x+2,x
@@ -1946,7 +1947,7 @@ deb_mov_loop    lda deb_x_lo,x          ; X move
                 adc deb_x_spds_hi,x
                 sta deb_x_hi,x
                 sta oam_page+3,y
-                bit ram3
+                bit mode_seq+2
                 bmi +
                 ;
                 ror a                   ; ??
@@ -1965,7 +1966,7 @@ deb_mov_loop    lda deb_x_lo,x          ; X move
                 lda deb_y_hi,x
                 adc deb_y_spds_hi,x
                 sta deb_y_hi,x
-                bit ram3
+                bit mode_seq+2
                 bmi +
                 ;
                 ror a                   ; ??
@@ -1999,37 +2000,45 @@ sub24           ; $8dfc; called by move_debris
                 sta deb_y_spds_lo,x
                 rts
 
-sub25           ; $8e0b; called by sub29
-                lda ram28
-                beq rts12
-                ldy #0
+upd_warp_sprs   ; if warp effect on, copy warp sprite positions to OAM page;
+                ; $8e0b; called by move_plr_warp
+                ;
+                lda warp_effect_on
+                beq ++
+                ;
+                ldy #0                  ; sprite index (0-7)
                 ldx free_spr_index      ; index on OAM page
 -               cpy #8
                 bcs +
-                lda arr15,y
+                lda warp_sprites_x,y
                 sta oam_page+3,x
-                lda arr16,y
+                lda warp_sprites_y,y
                 sta oam_page+0,x
-                lda #0
-                sta oam_page+1,x
-                sta oam_page+2,x
+                lda #$00
+                sta oam_page+1,x        ; tile (ship pointing upwards)
+                sta oam_page+2,x        ; attributes (no flip, palette 0)
                 iny
                 lda #$ff
                 db AXS_IMM, $fc         ; X = (A & X) - value without borrow
                 jmp -
+                ;
 +               stx free_spr_index
                 ;
-sub26           ; $8e35
+shift_warp_sprs ; shift trailing ship sprites in warp effect ($8e35);
+                ; #6->#7, #5->#6, ..., #0->#1, actualShip->#0;
+                ; called immediately after start_warp_eff
+                ;
                 ldy #6
--               lda arr15,y
-                sta arr15+1,y
-                lda arr16,y
-                sta arr16+1,y
+-               lda warp_sprites_x+0,y
+                sta warp_sprites_x+1,y
+                lda warp_sprites_y+0,y
+                sta warp_sprites_y+1,y
                 dey
                 bpl -
-                copy plr_x+0, arr15
-                copy plr_y+0, arr16
-rts12           rts
+                ;
+                copy plr_x+0, warp_sprites_x+0
+                copy plr_y+0, warp_sprites_y+0
+++              rts
 
 ; -----------------------------------------------------------------------------
 
@@ -2081,8 +2090,8 @@ mode0           ; $8e8d; called by mode_jump_table
                 sta gravity             ; off
                 ;
 ++              lda #MODE_PREP_TITLE
-                sta mode
-                sta next_mode
+                sta mode_seq+0
+                sta mode_seq+1
                 jsr sub27
                 jmp mode_prep_title
 
@@ -2125,14 +2134,14 @@ sub28           ; $8ec7; called by mode_prep_title, mode6
                 ;
                 ldy #7
                 lda #$ef
--               sta arr16,y
+-               sta warp_sprites_y,y
                 dey
                 bpl -
                 ;
                 lda #0
                 sta ram36
                 sta ram27
-                sta ram37
+                sta last_ctrl_btns
                 lda #$ff
                 sta ram21
                 sta ram22
@@ -2165,7 +2174,7 @@ sub28           ; $8ec7; called by mode_prep_title, mode6
 mode_prep_title ; $8f48; called by mode_jump_table, mode0;
                 ; executed when entering title screen from boot/respawn/ingame
                 ;
-                lda ram3
+                lda mode_seq+2
                 cmp #1
                 beq ++
                 ;
@@ -2203,8 +2212,10 @@ mode_prep_title ; $8f48; called by mode_jump_table, mode0;
                 sta sel_press_cnt
                 copy #1, arr33+2
                 copy #2, arr33+1
-                copy #$0b, ram5
-                copy #1, ram4
+                lda #MODE_TITLE
+                sta mode_seq+4
+                copy #1, mode_seq+3
+                ;
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
                 lda #%10001000          ; enable NMI
@@ -2212,17 +2223,20 @@ mode_prep_title ; $8f48; called by mode_jump_table, mode0;
                 sta ppu_ctrl
                 ;
 ++              jsr mode_prep_ingam
-                lda mode
-                cmp next_mode
+                lda mode_seq+0
+                cmp mode_seq+1
                 beq +
-                copy #$80, ram4
+                copy #$80, mode_seq+3
 +               rts
 
-mode_title      ; $8fb0
+mode_title      ; on title screen ($8fb0)
+                ;
+                ; store which of A/left/right were last pressed
                 lda buttons_held
                 and #%10000011
                 beq +
-                sta ram37
+                sta last_ctrl_btns
+                ;
 +               lda buttons_changed
                 beq ++
                 ;
@@ -2234,54 +2248,61 @@ mode_title      ; $8fb0
                 sta sel_press_cnt
                 cmp #3
                 bne ++
-                copy #4, next_mode
-                copy #6, ram5
+                copy #4, mode_seq+1
+                copy #6, mode_seq+4
                 lda #0
-                sta ram4
+                sta mode_seq+3
                 sta gravity
                 lda #SKILL_SECRET
                 sta skill
                 lda #4
                 jsr snd_eng5
                 rts
-                ;
 +               stz sel_press_cnt
+                ;
 ++              stz ram27
                 jsr hide_sprites
-                lda ram28
+                lda warp_effect_on
                 bne ++
+                ;
                 jsr sub38
-                lda ram28
+                lda warp_effect_on
                 beq +
-                jsr sub20
-                jsr sub26
+                jsr start_warp_eff
+                jsr shift_warp_sprs
                 jmp ++
 +               jsr sub13
                 jmp +
-++              jsr sub29
-                lda ram28
+                ;
+++              jsr move_plr_warp
+                lda warp_effect_on
                 bne +
-                copy #6, ram5
-                copy #4, next_mode
-                stz ram4
+                copy #6, mode_seq+4
+                copy #4, mode_seq+1
+                stz mode_seq+3
 +               jsr draw_stars
                 jsr sub34
                 rts
 
-sub29           ; $9022
+move_plr_warp   ; move player during warp effect; $9022;
+                ; called by mode_title, mode_ingame
+                ;
                 ldx #0
                 jsr move_plr
+                ;
                 lda plr_y+0
-                cmp #$e0
+                cmp #224
                 bcc +
-                copy #$f0, plr_y+0
+                copy #240, plr_y+0
                 stz plr_y_spd+0
-+               lda ram42
-                cmp #$f0
+                ;
++               lda warp_sprites_y+7
+                cmp #240
                 bne +
-                stz ram28
+                ;
+                stz warp_effect_on
 +               jsr set_ship_spr
-                jsr sub25
+                jsr upd_warp_sprs
                 rts
 
 mode_prep_ingam ; $9047; called by mode_jump_table, mode_prep_title;
@@ -2293,16 +2314,18 @@ mode_prep_ingam ; $9047; called by mode_jump_table, mode_prep_title;
                 copy #9, ram26
 +               dec ram26
                 bne ++
-                ldy ram5
-                sty next_mode
-                cpy #$0b
+                ;
+                ldy mode_seq+4
+                sty mode_seq+1
+                cpy #MODE_TITLE
                 bcc +
                 lda buttons_held
-                and #%01111111
+                and #%01111111          ; mask out A button
                 sta buttons_held
-+               cpy #$0c
++               cpy #MODE_INGAME
                 bne ++
                 jsr snd_eng4
+                ;
 ++              lda ram26
                 add #3
                 and #%00001100
@@ -2310,39 +2333,48 @@ mode_prep_ingam ; $9047; called by mode_jump_table, mode_prep_title;
                 asl a
                 jmp sub30
 
-mode_ingame     ; $9074
+mode_ingame     ; in game proper ($9074)
+                ;
+                ; store which of A/left/right were last pressed
                 lda buttons_held
                 and #%10000011
                 beq +
-                sta ram37
+                sta last_ctrl_btns
+                ;
 +               jsr hide_sprites
-                lda ram28
+                lda warp_effect_on
                 bne ++
                 jsr sub33
-                lda ram28
+                lda warp_effect_on
                 beq +
-                jsr sub20
-                jsr sub26
+                jsr start_warp_eff
+                jsr shift_warp_sprs
                 jmp ++
-+               lda ram37
+                ;
++               ; skip if A/left/right not yet pressed
+                lda last_ctrl_btns
                 beq +
+                ;
                 jsr inc_time_spent
                 jsr dec_time_left
                 bcs +
                 lda buttons_changed
                 and #%00100000
                 beq +
-                copy #4, next_mode
-                copy #6, ram5
-                stz ram4
+                copy #4, mode_seq+1
+                copy #6, mode_seq+4
+                stz mode_seq+3
+                ;
 +               jsr sub13
-                jmp +++
-++              jsr sub29
-                lda ram28
-                bne +++
-                copy #7, ram5
-                copy #4, next_mode
-+++             jsr draw_hud
+                jmp +
+++              jsr move_plr_warp
+                lda warp_effect_on
+                bne +
+                lda #MODE_VICTORY
+                sta mode_seq+4
+                copy #4, mode_seq+1
+                ;
++               jsr draw_hud
                 jsr draw_stars
                 jsr sub34
                 jsr sub40
@@ -2374,13 +2406,13 @@ mode_dead       ; $90d7
                 jsr inc_crash_cnt
                 dec lives_left
                 bmi +
-                copy #1, ram4
+                copy #1, mode_seq+3
 +               lda #6
-                ldy ram3
+                ldy mode_seq+2
                 bpl +
-                lda #1
-+               sta ram5
-                copy #5, next_mode
+                lda #MODE_PREP_TITLE
++               sta mode_seq+4
+                copy #5, mode_seq+1
 ++              jsr draw_stars
                 jsr move_debris
                 jsr sub40
@@ -2393,7 +2425,8 @@ mode4           ; $912c; called by mode_jump_table, mode5
                 jsr snd_eng3
 +               dec ram26
                 bne +
-                copy ram5, next_mode
+                lda mode_seq+4
+                sta mode_seq+1
                 lda #%00000000
                 sta ppu_mask_copy2      ; disable rendering
                 sta ppu_ctrl_copy2      ; disable NMI on VBlank
@@ -2419,14 +2452,16 @@ mode5           ; $9158
 
 mode6           ; $916b
                 jsr sub28
-                lda ram3
+                lda mode_seq+2
                 bne +
                 jsr sub48
                 jmp ++
 +               jsr sub49
-++              copy #$0c, ram5
-                copy #MODE_PREP_INGAM, next_mode
-                copy #0, ram4
+++              lda #MODE_INGAME
+                sta mode_seq+4
+                lda #MODE_PREP_INGAM
+                sta mode_seq+1
+                stz mode_seq+3
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
                 lda ppu_ctrl_copy2
@@ -2449,7 +2484,7 @@ end_screen      ; $9195; show end screen
                 lda #(STR_ID_VICTORY3*2+2)
                 jmp ++
                 ;
-+               ldy ram3                ; looks like nonzero=good
++               ldy mode_seq+2          ; looks like nonzero=good
                 beq +
                 lda #(STR_ID_VICTORY2*2+2)
                 jmp ++
@@ -2554,9 +2589,11 @@ end_screen      ; $9195; show end screen
                 cpx #4
                 bcc -
 
-                copy #8, ram5
-                copy #MODE_PREP_INGAM, next_mode
-                copy #0, ram4
+                lda #MODE_WAIT_B
+                sta mode_seq+4
+                lda #MODE_PREP_INGAM
+                sta mode_seq+1
+                stz mode_seq+3
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
                 lda #%10001000          ; enable NMI, use PT1 for sprites
@@ -2564,7 +2601,7 @@ end_screen      ; $9195; show end screen
                 sta ppu_ctrl
                 rts
 
-time_separs     hex dc dc e1 24         ; time separators ("::. ", $9281)
+time_separs     hex dc dc e1 24         ; time separators ("::. ")
 
 credits_screen  ; $9285; show credits screen
                 ;
@@ -2573,46 +2610,53 @@ credits_screen  ; $9285; show credits screen
                 lda #(STR_ID_CREDITS*2+2)
                 jsr print_strings
                 ;
-                copy #$0a, ram5
-                copy #MODE_PREP_INGAM, next_mode
-                copy #0, ram4
+                lda #MODE_WAIT_A
+                sta mode_seq+4
+                lda #MODE_PREP_INGAM
+                sta mode_seq+1
+                stz mode_seq+3
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
-                lda #%10001000          ; enable NMI, PT1 for sprites
+                lda #%10001000          ; enable NMI, use PT1 for sprites
                 sta ppu_ctrl_copy2
                 sta ppu_ctrl
                 ;
 wait_for_b      ; $92a4; wait for button B
                 bit buttons_changed
                 bvc wait_for_a
-                copy #9, ram5
-                copy #4, next_mode
+                lda #MODE_CREDITS
+                sta mode_seq+4
+                copy #4, mode_seq+1
                 rts
                 ;
 wait_for_a      ; $92b1; wait for button A
                 bit buttons_changed
                 bpl +
-                copy #1, ram5
-                copy #4, next_mode
-                copy #0, ram4
+                lda #MODE_PREP_TITLE
+                sta mode_seq+4
+                copy #4, mode_seq+1
+                stz mode_seq+3
 +               rts
 
 sub30           ; $92c2; called by mode_prep_ingam, mode4
+                ; in: A = 0/16/32/48
                 ;
                 sta temp1
-                ldy ram13
-                lda #$3f
-                sta arr5+0,y
-                lda #$00
-                sta arr5+1,y
-                lda #$20
-                sta arr5+2,y
+                ;
+                ldy ppu_buffer_len      ; set up palette update
+                lda #>ppu_pal
+                sta ppu_buffer+0,y
+                lda #<ppu_pal
+                sta ppu_buffer+1,y
+                lda #32
+                sta ppu_buffer+2,y
                 lda #$ff
-                sta arr7,y
+                sta ppu_buffer+35,y
+                ;
                 tya
-                add #$1f
+                add #31
                 tay
-                ldx #$1f
+                ldx #31
                 ;
 -               lda str_buffer+3,x
                 and #%00001111
@@ -2622,14 +2666,14 @@ sub30           ; $92c2; called by mode_prep_ingam, mode4
                 sub temp1
                 bcs ++
 +               lda #$0f
-++              sta arr6,y
+++              sta ppu_buffer+3,y
                 dey
                 dex
                 bpl -
                 ;
                 tya
-                add #$20
-                sta ram13
+                add #32
+                sta ppu_buffer_len
                 rts
 
 sub31           ; $9302; called by sub33
@@ -2638,7 +2682,8 @@ sub31           ; $9302; called by sub33
                 tay
                 cmp #$0c
                 bne +
-                copy #1, ram28
+                lda #1
+                sta warp_effect_on
                 rts
                 ;
 +               sty ram40
@@ -2738,8 +2783,8 @@ sub33           ; $93af; called by mode_ingame
                 lda #$ff
                 sta arr33,y
 +               copy #$ff, ram22
-                ldy #3
                 ;
+                ldy #3
 -               lda arr33,y
                 cmp #$ff
                 beq cod4
@@ -2927,7 +2972,8 @@ sub39           ; $9510; called by sub38
                 adc #(STR_ID_OFF1*2+2)  ; "OFF"/" ON"
                 sta str_to_print
                 rts
-+               copy #1, ram28
++               lda #1
+                sta warp_effect_on
                 rts
 
 sub40           ; $953e; called by mode_ingame, mode_dead
@@ -3203,8 +3249,8 @@ sub42           ; $a15b
 sub43           ; $a161
                 ldy #0
                 jsr sub55
-                copy arr1, ram11
-                copy arr2, ram12
+                copy arr1+0, ram11
+                copy arr1+1, ram12
                 stz ptr1+0
                 ;
 -               ldy #0
@@ -3266,8 +3312,8 @@ sub44           ; $a1b5; called by sub14
                 sta ram19
                 bcs +
                 dec ram20
-+               copy arr1, ram11
-                copy arr2, ram12
++               copy arr1+0, ram11
+                copy arr1+1, ram12
                 ldy #2
                 jsr sub56
                 lda ram11
@@ -3521,8 +3567,8 @@ sub50           ; $a3fe; called by sub48, sub49
                 copy ptr5+0, ptr4+0
                 copy ptr5+1, ptr4+1
                 stz nmi_flag
-                copy #>ppu_at0, arr1
-                copy #<ppu_at0, arr2
+                copy #>ppu_at0, arr1+0
+                copy #<ppu_at0, arr1+1
                 lda ppu_ctrl_copy1
                 sta ppu_ctrl
                 rts
@@ -3570,43 +3616,43 @@ sub54           ; $a446; called by sub14
 
 sub55           ; $a45c; called by sub41, sub42, sub43
                 ;
-                lda arr2,y
+                lda arr1+1,y
                 sub #$40
-                sta arr2,y
-                lda arr1,y
+                sta arr1+1,y
+                lda arr1+0,y
                 sbc #0
                 ora #%00100000
                 and #%00101011
-                sta arr1,y
+                sta arr1+0,y
                 and #%00000011
                 cmp #3
                 bcc +
-                lda arr2,y
+                lda arr1+1,y
                 cmp #$c0
                 bcc +
                 lda #$80
-                sta arr2,y
+                sta arr1+1,y
 +               rts
 
 sub56           ; $a484; called by sub44
                 ;
-                lda arr2,y
+                lda arr1+1,y
                 add #$40
-                sta arr2,y
-                lda arr1,y
+                sta arr1+1,y
+                lda arr1+0,y
                 adc #0
                 sta arr1,y
                 and #%00000011
                 cmp #3
                 bne +
-                lda arr2,y
+                lda arr1+1,y
                 cmp #$c0
                 bcc +
                 lda #0
-                sta arr2,y
-                lda arr1,y
+                sta arr1+1,y
+                lda arr1+0,y
                 eor #%00001011
-                sta arr1,y
+                sta arr1+0,y
 +               rts
 
 sub57           ; $a4b0; called by sub31, sub41
@@ -3693,7 +3739,7 @@ reset           sei
                 stx dmc_len
                 dex
                 txs
-                stx arr5
+                stx ppu_buffer+0
                 stz dmc_start
                 lda #$4c                ; JMP absolute opcode
                 sta ram_jump_code+0
@@ -3789,10 +3835,11 @@ main_loop       ; $c8ec; called by: nothing (see use_jump_table)
                 inc ram7
                 jsr read_joypad
                 ;
-use_jump_table  ; $c8f5; indirect JSR to entry number mode in mode_jump_table
+use_jump_table  ; $c8f5; indirect JSR to entry number mode_seq+0 in
+                ; mode_jump_table
                 ; called by reset
                 ;
-                lda mode
+                lda mode_seq+0
                 asl a
                 tax
                 lda mode_jump_table+0,x
@@ -3801,8 +3848,10 @@ use_jump_table  ; $c8f5; indirect JSR to entry number mode in mode_jump_table
                 sta ram_jump_code+2
                 jsr ram_jump_code
                 ;
-                copy next_mode, mode
-                copy ram4, ram3
+                lda mode_seq+1
+                sta mode_seq+0
+                lda mode_seq+3
+                sta mode_seq+2
                 stz main_loop_flag
                 jmp main_loop
 
@@ -3831,7 +3880,7 @@ nmi             ; $c92e
                 pha
 
                 ; if MODE_TITLE or MODE_INGAME, store "sprite 0 hit" status
-                lda mode
+                lda mode_seq+0
                 cmp #MODE_TITLE
                 bcc +
                 lda ppu_status
@@ -3843,14 +3892,14 @@ nmi             ; $c92e
                 beq +
                 jmp nmi_end
 
-+               lda ram28
++               lda warp_effect_on
                 bne ++++
                 lda ram36
                 beq +++++
                 lda ram22
                 bmi +++
 
-                lda mode
+                lda mode_seq+0
                 cmp #MODE_INGAME
                 beq +
                 lda ram24
@@ -3873,8 +3922,8 @@ nmi             ; $c92e
 +++             lda #$30                ; 1st explosion tile in PT1
                 sta oam_page+0*4+1
                 lda #MODE_DEAD
-                sta mode
-                sta next_mode
+                sta mode_seq+0
+                sta mode_seq+1
                 lda #2                  ; play sound or stop music?
                 jsr snd_eng5
 
