@@ -348,7 +348,7 @@ start_blk       ; pull PPU address; exit if high byte is negative
                 pla
                 sta ppu_addr
                 ;
-                pla                     ; VRLLLLLL?
+                pla                     ; VRLLLLLL
                 asl a
                 tay
                 lda ppu_ctrl_copy1
@@ -356,7 +356,7 @@ start_blk       ; pull PPU address; exit if high byte is negative
                 ora #%00000100          ; vertical; address autoincrement 32
 +               sta ppu_ctrl
                 tya
-                bmi ++                  ; R set? (never taken)
+                bmi rle_blk             ; R set? (never taken)
                 lsr a
                 bne non_rle_blk
                 lda #64                 ; length 0=64
@@ -376,32 +376,34 @@ non_rle_blk     cmp #16
                 sta ptr1+0
                 jmp (ptr1)
                 ;
-++              lsr a
+rle_blk         lsr a                   ; get length (0=64)
                 and #%00111111
                 bne +
-                lda #$40
+                lda #64
 +               eor #%11111111
-                adc #$11
+                adc #17
                 sta temp4
                 pla
                 tay
                 lda temp4
                 sty temp4
                 bpl +
--               ;
+ppu_wr_16       ;
 rept 16         ;
                 sty ppu_data
 endr            ;
-                adc #$10
-                bmi -
+                adc #16
+                bmi ppu_wr_16
                 bcc start_blk
-+               tay
-                lda dat1,y
+                ;
++               ; jump to middle of 16 PPU writes above
+                tay
+                lda ppu_wr_jmp_tbl,y
                 sta ptr2+0
                 ldy temp4
                 lda #0
                 jmp (ptr2)
-                ; end unaccessed chunk
+                ; end unaccessed chunk ($80f6)
 
 ; -----------------------------------------------------------------------------
 
@@ -481,9 +483,15 @@ rle_string      lsr a
 
 ; -----------------------------------------------------------------------------
 
-dat1            ; unaccessed ($8159)
-                hex b3 b6 b9 bc bf c2 c5 c8
-                hex cb ce d1 d4 d7 da dd e0
+ppu_wr_jmp_tbl  ; low bytes of indirect jump addresses; unaccessed ($8159)
+                dl ppu_wr_16 +0*3, ppu_wr_16 +1*3
+                dl ppu_wr_16 +2*3, ppu_wr_16 +3*3
+                dl ppu_wr_16 +4*3, ppu_wr_16 +5*3
+                dl ppu_wr_16 +6*3, ppu_wr_16 +7*3
+                dl ppu_wr_16 +8*3, ppu_wr_16 +9*3
+                dl ppu_wr_16+10*3, ppu_wr_16+11*3
+                dl ppu_wr_16+12*3, ppu_wr_16+13*3
+                dl ppu_wr_16+14*3, ppu_wr_16+15*3
 
 cod1            ;
 rept 32         ;
@@ -500,7 +508,9 @@ nmisub2         ; called by nmi
                 lda nmi_flag
                 beq +
                 ;
-sub1            ; $8209; called by sub51, sub52
+sub1            ; $8209; called by sub51, sub52;
+                ; update NT when scrolling?
+                ;
                 tsx
                 stx temp1
                 ldx #$4f
@@ -535,7 +545,8 @@ icod2           ; $8233
                 stz nmi_flag
 +               rts
 
-nmisub3         ; $823b: write $24 four times to PPU; called by nmi
+remove_checkpt  ; delete a checkpoint icon from NT by printing 2*2 spaces;
+                ; called by nmi
                 ;
                 ldy ram22
                 lda arr34,y
@@ -547,16 +558,17 @@ nmisub3         ; $823b: write $24 four times to PPU; called by nmi
                 ora #%00100000
                 tay
                 ;
-                lda #$24
+                lda #$24                ; " "
                 sta ppu_data
                 sta ppu_data
+                ;
                 stx ppu_addr
                 sty ppu_addr
                 sta ppu_data
                 sta ppu_data
                 rts
 
-fill_nt0_space  ; fill NT0 with space character;
+clear_nt0       ; fill NT0 with space character;
                 ; called by end_screen, credits_screen, sub47
                 ;
                 lda #>ppu_nt0
@@ -1959,7 +1971,7 @@ dbr_mov_loop    lda dbr_x_lo,x          ; X move
                 ror a                   ; ??
                 eor dbr_x_spds_hi,x
                 bpl +
-                jsr hide_debris
+                jsr hide_debris         ; hide particle X
                 jmp ++
                 ;
 +               lda dbr_y_lo,x          ; Y move
@@ -1978,7 +1990,7 @@ dbr_mov_loop    lda dbr_x_lo,x          ; X move
                 ror a                   ; ??
                 eor dbr_y_spds_hi,x
                 bpl +
-                jsr hide_debris
+                jsr hide_debris         ; hide particle X
                 jmp ++
                 ;
 +               lda dbr_y_hi,x
@@ -2489,7 +2501,7 @@ end_screen      ; show end screen
 
                 jsr hide_sprites
                 stz scroll_y
-                jsr fill_nt0_space
+                jsr clear_nt0
 
                 ; print one of four victory messages
                 ;
@@ -2620,7 +2632,7 @@ time_separs     hex dc dc e1 24         ; time separators ("::. ")
 
 credits_screen  ; show credits screen
                 ;
-                jsr fill_nt0_space
+                jsr clear_nt0
                 ;
                 lda #(STR_ID_CREDITS*2+2)
                 jsr print_strings
@@ -2895,12 +2907,12 @@ mark_chkp_touch ; mark checkpoint as touched; called by sub31
                 rts
 
 was_chkp_touchd ; has checkpoint number Y been touched?
-                ; Z flag clear if yes; called by sub45, sub46
+                ; Z=1 if yes; called by draw_checkpts, sub46
                 ;
-                tya
+                tya                     ; which bit
                 and #%00000111
                 tax
-                tya
+                tya                     ; which byte
                 lsr a
                 lsr a
                 lsr a
@@ -3229,18 +3241,18 @@ level_data      ; what main game world looks like; also affects where
                 hex 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
 
 checkpts_y      ; Y positions of checkpoints ($a11e);
-                ; read by sub31, sub32, sub45, sub46
+                ; read by sub31, sub32, draw_checkpts, sub46
                 hex 1a 24 33 3b 3e 4a 52 56
                 hex 64 71 74 7a 83
                 hex ff
 
 checkpts_unkn   ; probably checkpoint-related ($a12c);
-                ; read by sub31, sub45, sub46
+                ; read by sub31, draw_checkpts, sub46
                 hex 00 00 00 00 00 00 00 00
                 hex 00 00 00 00 00 ff
 
 checkpts_x      ; X positions of checkpoints ($a13a);
-                ; read by sub31, sub32, sub45, sub46
+                ; read by sub31, sub32, draw_checkpts, sub46
                 hex 12 17 08 03 1c 1b 1c 02
                 hex 03 1c 03 1b 0f 00
 
@@ -3297,7 +3309,7 @@ sub43           ; $a161
                 lda ram20
                 adc #0
                 sta ptr1+1
-                jsr sub45
+                jsr draw_checkpts
                 copy #1, nmi_flag
                 sec
                 rts
@@ -3369,7 +3381,8 @@ sub44           ; $a1b5; called by sub14
                 sec
                 rts
 
-sub45           ; $a242; called by sub41, sub42, sub43
+draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
+                ; called by sub41, sub42, sub43;
                 ;
                 ldx ram21
 -               inx
@@ -3385,7 +3398,7 @@ sub45           ; $a242; called by sub41, sub42, sub43
                 ;
                 stx ram21
                 ldy ram21
-                jsr was_chkp_touchd
+                jsr was_chkp_touchd     ; in: Y, out: Z=1 if touched
                 bne ++
                 ;
                 ldx ram21
@@ -3453,7 +3466,7 @@ sub46           ; $a2b7; called by sub44
                 bne +++
 +               stx ram21
                 ldy ram21
-                jsr was_chkp_touchd
+                jsr was_chkp_touchd     ; in: Y, out: Z=1 if touched
                 bne ++
                 ;
                 ldx ram21
@@ -3495,7 +3508,7 @@ sub47           ; $a316; called by mode_prep_title
                 lda #(256-4)
                 sta scroll_x
                 copy #$c0, ram16
-                jsr fill_nt0_space
+                jsr clear_nt0
                 ;
                 lda #(STR_ID_TITLE*2+2)
                 jsr print_strings
@@ -3927,7 +3940,7 @@ nmi             pha                     ; push A, X, Y
 
                 dec ram24
                 bne ++
-+               jsr nmisub3
++               jsr remove_checkpt
 ++              lda arr36
                 sta oam_page+2*4+0
                 sta oam_page+3*4+0
