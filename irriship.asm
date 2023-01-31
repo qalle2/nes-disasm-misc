@@ -3985,5 +3985,5 @@ nmi_end         jsr snd_eng1
 ; --- CHR ROM -----------------------------------------------------------------
 
                 base $0000
-                incbin "irriship-bg.bin"
-                incbin "irriship-spr.bin"
+                incbin "irriship-chr.bin"
+                pad $2000
