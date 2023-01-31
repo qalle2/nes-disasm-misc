@@ -160,18 +160,18 @@ ram41           equ $0425
 warm_boot_ram   equ $0426  ; 6 bytes; string to check for warm boot
 warp_sprites_x  equ $042c  ; 8 bytes; sprites trailing player
 warp_sprites_y  equ $0434  ; 8 bytes
-deb_x_hi        equ $043c  ; debris X positions - high bytes
-deb_x_mid       equ $0444  ; debris X positions - middle bytes
-deb_x_lo        equ $044c  ; debris X positions - low bytes
-deb_y_hi        equ $0454  ; debris Y positions - high bytes
-deb_y_mid       equ $045c  ; debris Y positions - middle bytes
-deb_y_lo        equ $0464  ; debris Y positions - low bytes
-deb_x_spds_hi   equ $046c  ; debris X speeds - high bytes
-deb_x_spds_mid  equ $0474  ; debris X speeds - middle bytes
-deb_x_spds_lo   equ $047c  ; debris X speeds - low bytes
-deb_y_spds_hi   equ $0484  ; debris Y speeds - high bytes
-deb_y_spds_mid  equ $048c  ; debris Y speeds - middle bytes
-deb_y_spds_lo   equ $0494  ; debris Y speeds - low bytes
+dbr_x_hi        equ $043c  ; debris X positions - high bytes
+dbr_x_mid       equ $0444  ; debris X positions - middle bytes
+dbr_x_lo        equ $044c  ; debris X positions - low bytes
+dbr_y_hi        equ $0454  ; debris Y positions - high bytes
+dbr_y_mid       equ $045c  ; debris Y positions - middle bytes
+dbr_y_lo        equ $0464  ; debris Y positions - low bytes
+dbr_x_spds_hi   equ $046c  ; debris X speeds - high bytes
+dbr_x_spds_mid  equ $0474  ; debris X speeds - middle bytes
+dbr_x_spds_lo   equ $047c  ; debris X speeds - low bytes
+dbr_y_spds_hi   equ $0484  ; debris Y speeds - high bytes
+dbr_y_spds_mid  equ $048c  ; debris Y speeds - middle bytes
+dbr_y_spds_lo   equ $0494  ; debris Y speeds - low bytes
 stars_x         equ $049c  ; 12 bytes
 stars_y         equ $04a8  ; 12 bytes
 stars_unkn1     equ $04b4  ; star-related? (12 bytes)
@@ -219,6 +219,8 @@ ppu_at0         equ $23c0
 ppu_nt2         equ $2800
 ppu_at2         equ $2bc0
 ppu_pal         equ $3f00
+
+JMP_ABS         equ $4c  ; JMP absolute opcode
 
 ; unofficial opcode AXS immediate; X = (A & X) - value without borrow;
 ; updates NZC; 2 cycles
@@ -306,7 +308,7 @@ endm
 
                 base $8000
 
-stack_to_ppu    ; $8000; copy 16 bytes from stack to PPU
+stack_to_ppu    ; copy 16 bytes from stack to PPU
 rept 16         ;
                 pla
                 sta ppu_data
@@ -322,7 +324,7 @@ endr            ;
                 stx ppu_buffer_len      ; reset
 -               rts
                 ;
-flush_ppu_buf   ; $804f; called by nmi
+flush_ppu_buf   ; called by nmi
                 ;
                 ; print string if there's any (STR_ID_NONE*2+2 = 0)
                 lda str_to_print
@@ -403,7 +405,7 @@ endr            ;
 
 ; -----------------------------------------------------------------------------
 
-print_strings   ; $80f6; print strings (palette/NT data) from str_ptr_tbl
+print_strings   ; print strings (palette/NT data) from str_ptr_tbl
                 ; in: A: string id*2+2
                 ; each set of strings:
                 ;   - zero or more strings:
@@ -479,11 +481,11 @@ rle_string      lsr a
 
 ; -----------------------------------------------------------------------------
 
-dat1            ; $8159, unaccessed
+dat1            ; unaccessed ($8159)
                 hex b3 b6 b9 bc bf c2 c5 c8
                 hex cb ce d1 d4 d7 da dd e0
 
-cod1            ; $8169
+cod1            ;
 rept 32         ;
                 pla
                 sta ppu_data
@@ -492,11 +494,11 @@ endr            ;
 
                 pad $8200, $00
 
-nmisub2         ; $8200; called by nmi
+nmisub2         ; called by nmi
                 lda ppu_ctrl_copy1
                 sta ppu_ctrl
                 lda nmi_flag
-                beq rts1
+                beq +
                 ;
 sub1            ; $8209; called by sub51, sub52
                 tsx
@@ -507,24 +509,31 @@ sub1            ; $8209; called by sub51, sub52
                 stx ppu_addr
                 ldy ram12
                 sty ppu_addr
-                copy #$20, ptr3+0
+                lda #<icod1
+                sta ptr3+0
                 jmp cod1
 
 icod1           ; $8220; jumped indirectly via ptr3
+                ;
+                ; X*$100 + (Y | $20) -> PPU address
                 stx ppu_addr
                 tya
                 ora #%00100000
                 sta ppu_addr
+                ;
                 ldx #$6f
                 txs
-                copy #$33, ptr3+0
+                ;
+                lda #<icod2
+                sta ptr3+0
+                ;
                 jmp cod1
 
 icod2           ; $8233
-                ldx temp1
+                ldx temp1               ; temp1 -> SP
                 txs
                 stz nmi_flag
-rts1            rts
++               rts
 
 nmisub3         ; $823b: write $24 four times to PPU; called by nmi
                 ;
@@ -547,7 +556,7 @@ nmisub3         ; $823b: write $24 four times to PPU; called by nmi
                 sta ppu_data
                 rts
 
-fill_nt0_space  ; $8262: fill NT0 with space character;
+fill_nt0_space  ; fill NT0 with space character;
                 ; called by end_screen, credits_screen, sub47
                 ;
                 lda #>ppu_nt0
@@ -587,7 +596,7 @@ macro at0_fill _byte
                 db _byte
 endm
 
-str_ptr_tbl     ; string data pointer table ($8280); read by print_strings
+str_ptr_tbl     ; string data pointer table; read by print_strings
                 ;
                 dw pal_black            ;  0
                 dw pal_default          ;  1
@@ -614,7 +623,7 @@ str_ptr_tbl     ; string data pointer table ($8280); read by print_strings
                 dw str_pal              ; 22
                 dw str_pal              ; 23
 
-pal_black       ; $82b0; fill palette with black
+pal_black       ; fill palette with black
                 ;
                 pal_str 1, 32
                 hex 0f                  ; byte to repeat
@@ -904,7 +913,7 @@ str_credits     ; credits screen after victory screen
                 ;
                 hex ff
 
-                hex b4 b4 b5 b5         ; $8704, unaccessed
+                hex b4 b4 b5 b5         ; unaccessed ($8704)
 
 ; -----------------------------------------------------------------------------
 
@@ -956,7 +965,7 @@ sub5            ; $8740; called by draw_stars
                 inc temp2
 +               rts
 
-inc_thrust_cntr ; $8752; increment amount of thrust used; called by accel_plr
+inc_thrust_cntr ; increment amount of thrust used; called by accel_plr
                 ;
                 ldy #6
                 sec
@@ -980,7 +989,7 @@ inc_thrust_cntr ; $8752; increment amount of thrust used; called by accel_plr
 +               sta thrust_used,y
                 rts
 
-inc_crash_cnt   ; $8775; increment number of ships crashed; called by mode_dead
+inc_crash_cnt   ; increment number of ships crashed; called by mode_dead
                 ;
                 ldy #2
                 sec
@@ -1004,8 +1013,8 @@ inc_crash_cnt   ; $8775; increment number of ships crashed; called by mode_dead
 +               sta crash_cnt,y
                 rts
 
-get_chex_skipd  ; $8798; return number of checkpoints skipped in temp1 (ones)
-                ; and temp2 (tens); called by end_screen
+get_chex_skipd  ; return number of checkpoints skipped in temp1 (ones) and
+                ; temp2 (tens); called by end_screen
                 ;
                 copy #$ff, temp2
                 ldy #1
@@ -1038,7 +1047,7 @@ get_chex_skipd  ; $8798; return number of checkpoints skipped in temp1 (ones)
                 copy #$24, temp2        ; space
 +               rts
 
-inc_time_spent  ; $87cc; increment amount of time spent; called by mode_ingame
+inc_time_spent  ; increment amount of time spent; called by mode_ingame
                 ;
                 ldy region
                 ;
@@ -1080,7 +1089,7 @@ inc_time_spent  ; $87cc; increment amount of time spent; called by mode_ingame
 console_fps     db 60, 50, 50           ; NTSC/PAL/Dendy
 console_fps_m1  db 59, 49, 49           ; NTSC/PAL/Dendy, minus one
 
-to_decimal      ; $8814; in: byte in A; return tens in Y and ones in A;
+to_decimal      ; in: byte in A; return tens in Y and ones in A;
                 ; called by end_screen
                 ;
                 ldy #$ff
@@ -1090,7 +1099,7 @@ to_decimal      ; $8814; in: byte in A; return tens in Y and ones in A;
                 adc #10
                 rts
 
-dec_time_left   ; decrement timer on secret skill ($881f; happens every frame)
+dec_time_left   ; decrement timer on secret skill (happens every frame);
                 ; out: carry: clear if time has run out, else set
                 ; called by accel_plr, mode_ingame
                 ;
@@ -1109,7 +1118,7 @@ dec_time_left   ; decrement timer on secret skill ($881f; happens every frame)
                 dex
                 bpl -
                 cmp #1
-                bcc rts2
+                bcc ++
                 ;
                 ; decrement time left and exit with carry set
                 ldx #3
@@ -1121,9 +1130,9 @@ dec_time_left   ; decrement timer on secret skill ($881f; happens every frame)
                 bpl -
                 ;
 +               sec
-rts2            rts
+++              rts
 
-time_extend     ; increase amount of time left ($884a); called by sub31, sub48
+time_extend     ; increase amount of time left; called by sub31, sub48
                 ;
                 ; Y: NTSC=3, PAL=7, Dendy=11
                 ldy #3
@@ -1165,13 +1174,13 @@ sub13           ; $8874; called by mode_title, mode_ingame
                 jsr move_plr
                 jsr sub14
                 lda plr_y+0
-                cmp #$f0
+                cmp #240
                 bcc ++
                 ;
                 lda #$10
                 bit plr_y_spd+0
                 bpl +
-                lda #$f0
+                lda #240
 +               add plr_y+0
                 sta plr_y+0
                 lda mode_seq+0
@@ -1198,14 +1207,15 @@ sub14           ; $88bc; called by sub13
                 ;
                 ; negative Y speed; similar to "positive" section below
                 bit ram16
-                bmi rts3
+                bmi +++
                 lda plr_y+0
-                cmp #$7b
-                bcs rts3
-                lda #$7c
+                cmp #123
+                bcs +++
+                lda #124
                 sbc plr_y+0
-                cmp #$11
-                bcs rts3
+                cmp #17
+                bcs +++
+                ;
                 sta ram27
                 lda ppu_ctrl_copy2
                 sta temp5
@@ -1236,19 +1246,20 @@ sub14           ; $88bc; called by sub13
                 add plr_y+0
                 rts
                 ;
-++              copy #$7b, plr_y+0
-rts3            rts
+++              copy #123, plr_y+0
++++             rts
                 ;
 pos_y_spd       ; $8914; positive Y speed; similar to "negative" section above
                 bit ram16
-                bvs rts4
+                bvs +++
                 lda plr_y+0
-                cmp #$9c
-                bcc rts4
+                cmp #156
+                bcc +++
                 lda plr_y+0
-                sbc #$9b
-                cmp #$11
-                bcs rts4
+                sbc #155
+                cmp #17
+                bcs +++
+                ;
                 sta ram27
                 jsr sub54
                 stz ram16
@@ -1258,6 +1269,7 @@ pos_y_spd       ; $8914; positive Y speed; similar to "negative" section above
                 bcc ++
                 jsr sub44
                 bcs ++
+                ;
                 copy #$40, ram16
                 lda scroll_y
                 and #%11110000
@@ -1275,12 +1287,11 @@ pos_y_spd       ; $8914; positive Y speed; similar to "negative" section above
                 sub ram27
                 rts
                 ;
-++              copy #$9b, plr_y+0
-rts4            rts
+++              copy #155, plr_y+0
++++             rts
 
-set_ship_spr    ; $8962; set player ship sprite;
-                ; called by: sub13, move_plr_warp, mode_dead, sub47, sub48,
-                ; sub49
+set_ship_spr    ; set player ship sprite; called by: sub13, move_plr_warp,
+                ; mode_dead, sub47, sub48, sub49
                 ;
                 lda plr_rot_inquad      ; tile
                 sta oam_page+0*4+1
@@ -1293,7 +1304,7 @@ set_ship_spr    ; $8962; set player ship sprite;
                 sta oam_page+0*4+0
                 rts
 
-set_exhaust_spr ; $897a; set player's exhaust sprite; called by sub13
+set_exhaust_spr ; set player's exhaust sprite; called by sub13
                 ;
                 lda ram25
                 beq ++
@@ -1318,10 +1329,9 @@ set_exhaust_spr ; $897a; set player's exhaust sprite; called by sub13
 ++              rts
 
 rotate_plr      ; react to left/right arrow and update player rotation
-                ; variables ($89a2); called by sub13
+                ; variables; called by sub13
                 ;
-if ROTATE_HACK  ;
-                ; this code written by qalle
+if ROTATE_HACK  ; this code written by qalle
                 lda buttons_held
                 ldx #7
 -               cmp rot_hack_tbl,x
@@ -1352,14 +1362,14 @@ else            ;
                 jmp update_quadr
                 ;
 ++              lsr a                   ; right pressed?
-                bcc rts6
+                bcc rts1
                 ;
                 dec plr_rot             ; rotate ship left
                 bpl update_quadr
                 lda #47
                 sta plr_rot
 endif           ;
-update_quadr    ; update quadrant ($89c1)
+update_quadr    ; update quadrant
                 lda plr_rot
                 ldy #255
 -               iny
@@ -1378,9 +1388,9 @@ update_quadr    ; update quadrant ($89c1)
                 jmp ++
 +               lda temp1
 ++              sta plr_rot_inquad
-rts6            rts
+rts1            rts
 
-accel_plr       ; $89e2; accelerate player (add acceleration to speed);
+accel_plr       ; accelerate player (add acceleration to speed);
                 ; called by sub13
                 ;
                 lda buttons_held
@@ -1436,7 +1446,7 @@ endif           ;
 ++              jsr limit_speed
                 rts
 
-limit_speed     ; limit player's X and Y speed ($8a42); called by accel_plr
+limit_speed     ; limit player's X and Y speed; called by accel_plr
                 ;
                 ; limit X speed according to region
                 ;
@@ -1484,8 +1494,7 @@ limit_speed     ; limit player's X and Y speed ($8a42); called by accel_plr
 max_pos_x_spds  db 14,     12,     12      ; NTSC/PAL/Dendy
 max_neg_x_spds  db 256-14, 256-12, 256-12  ; NTSC/PAL/Dendy
 
-grav_acc_plr    ; apply gravitational acceleration to player ($8a89)
-                ; called by sub13
+grav_acc_plr    ; apply gravitational acceleration to player; called by sub13
                 ;
                 ; skip if A/left/right not pressed since last respawn
                 lda last_ctrl_btns
@@ -1504,32 +1513,32 @@ grav_acc_plr    ; apply gravitational acceleration to player ($8a89)
                 sta plr_y_spd+0
 +               rts
 
-                ; gravity for NTSC/PAL/Dendy ($8aa5); PAL = ~1.44*NTSC
+                ; gravity for NTSC/PAL/Dendy; PAL = ~1.44*NTSC
 gravities_lo    dl 640, 922, 922
 gravities_hi    dh 640, 922, 922
 
 ; -----------------------------------------------------------------------------
 
-grav_acc_debris ; apply gravitational acceleration to debris ($8aab)
+grav_acc_debris ; apply gravitational acceleration to debris;
                 ; called by move_debris
                 ;
                 ldy region
                 ldx #7
--               lda deb_y_spds_lo,x
+-               lda dbr_y_spds_lo,x
                 clc
                 adc gravities_lo,y
-                sta deb_y_spds_lo,x
-                lda deb_y_spds_mid,x
+                sta dbr_y_spds_lo,x
+                lda dbr_y_spds_mid,x
                 adc gravities_hi,y
-                sta deb_y_spds_mid,x
-                lda deb_y_spds_hi,x
+                sta dbr_y_spds_mid,x
+                lda dbr_y_spds_hi,x
                 adc #0
-                sta deb_y_spds_hi,x
+                sta dbr_y_spds_hi,x
                 dex
                 bpl -
                 rts
 
-get_x_accel     ; $8ace; get player X acceleration; called by accel_plr
+get_x_accel     ; get player X acceleration; called by accel_plr;
                 ; in: X (always 0)
                 ; out: X acceleration in temp1 (2 bytes, low first)
                 ;
@@ -1558,7 +1567,7 @@ get_x_accel     ; $8ace; get player X acceleration; called by accel_plr
                 sta temp1+1
 +               rts
 
-get_y_accel     ; $8afb; get player Y acceleration; called by accel_plr
+get_y_accel     ; get player Y acceleration; called by accel_plr;
                 ; in: X (always 0)
                 ; out: Y acceleration in temp1 (2 bytes, low first)
                 ;
@@ -1638,8 +1647,7 @@ exhaust_y_ofs   db 6, 6, 6, 6
                 ; Y/X ratios (1.39, 1.14) = NES pixel aspect ratios
                 ; PAL/NTSC X ratio (1.19) is close to NTSC/PAL FPS ratio (1.20)
                 ;
-accels_y_hi     ; $8b6f
-                ; NTSC
+accels_y_hi     ; NTSC
                 dh 65536-2872, 65536-2847, 65536-2774, 65536-2653
                 dh 65536-2487, 65536-2278, 65536-2030, 65536-1748
                 dh 65536-1436, 65536-1099, 65536- 743, 65536- 374
@@ -1650,8 +1658,7 @@ accels_y_hi     ; $8b6f
                 dh 65536-2067, 65536-1582, 65536-1070, 65536- 539
                 dh 0
                 ;
-accels_y_lo     ; $8b89
-                ; NTSC
+accels_y_lo     ; NTSC
                 dl 65536-2872, 65536-2847, 65536-2774, 65536-2653
                 dl 65536-2487, 65536-2278, 65536-2030, 65536-1748
                 dl 65536-1436, 65536-1099, 65536- 743, 65536- 374
@@ -1662,8 +1669,7 @@ accels_y_lo     ; $8b89
                 dl 65536-2067, 65536-1582, 65536-1070, 65536- 539
                 dl 0
                 ;
-accels_x_hi     ; $8ba3
-                ; NTSC
+accels_x_hi     ; NTSC
                 dh    0,  328,  650,  961
                 dh 1256, 1529, 1776, 1993
                 dh 2176, 2321, 2427, 2491
@@ -1674,8 +1680,7 @@ accels_x_hi     ; $8ba3
                 dh 2583, 2756, 2881, 2957
                 dh 2983
                 ;
-accels_x_lo     ; $8bbd
-                ; NTSC
+accels_x_lo     ; NTSC
                 dl    0,  328,  650,  961
                 dl 1256, 1529, 1776, 1993
                 dl 2176, 2321, 2427, 2491
@@ -1686,11 +1691,11 @@ accels_x_lo     ; $8bbd
                 dl 2583, 2756, 2881, 2957
                 dl 2983
 
-quad_to_attr    ; player's ship's quadrant to sprite attribute byte ($8bd7)
-                ; no flip, V flip, V & H flip, H flip
+quad_to_attr    ; player's ship's quadrant to sprite attribute byte;
+                ; no flip / V flip / V & H flip / H flip
                 db %00000000, %10000000, %11000000, %01000000
 
-draw_hud        ; draw extra lives or timer ($8bdb)
+draw_hud        ; draw number of extra lives or timer
                 ; called by mode_ingame, mode_dead, mode5, sub48, sub49
                 ;
                 copy #$10, temp1
@@ -1700,61 +1705,61 @@ draw_hud        ; draw extra lives or timer ($8bdb)
                 beq draw_timer
                 ;
                 ldy lives_left          ; 0 / 1-4 / 5+ lives left?
-                beq rts10
+                beq ++
                 cpy #5
-                bcc cod2
+                bcc draw_lives
                 ldy #1
                 ;
-cod2            ; draw extra life icons (one if 5+ lives)
+draw_lives      ; draw extra life icons (one if 5+ lives)
                 lda temp1
-                sta oam_page+3,x
+                sta oam_page+3,x        ; X
                 add #8
                 sta temp1
                 lda #18
-                sta oam_page+0,x
-                lda #0
-                sta oam_page+1,x
-                sta oam_page+2,x
+                sta oam_page+0,x        ; Y
+                lda #$00
+                sta oam_page+1,x        ; tile (ship)
+                sta oam_page+2,x        ; attributes (palette 0, no flip)
                 inx
                 inx
                 inx
                 inx
                 dey
-                bne cod2
+                bne draw_lives
                 ;
                 lda lives_left
                 cmp #5
                 bcc +
                 ;
                 ; draw number of extra lives (5+)
-                ora #$f0                ; digits are $f0-$f9 on PT1
-                sta oam_page+1,x
+                ora #$f0                ; digit "0" on PT1
+                sta oam_page+1,x        ; tile
                 lda #18
-                sta oam_page+0,x
+                sta oam_page+0,x        ; Y
                 lda temp1
-                sta oam_page+3,x
+                sta oam_page+3,x        ; X
                 lda #%00000000
-                sta oam_page+2,x
+                sta oam_page+2,x        ; attributes (palette 0, no flip)
                 inx
                 inx
                 inx
                 inx
 +               stx free_spr_index
-rts10           rts
+++              rts
                 ;
 draw_timer      ; 4 digits
                 ldy #0
 -               lda time_left,y
                 ora #$f0
-                sta oam_page+1,x
-                lda #$12
-                sta oam_page+0,x
+                sta oam_page+1,x        ; tile (digits "0"-"9")
+                lda #18
+                sta oam_page+0,x        ; Y
                 lda temp1
-                sta oam_page+3,x
+                sta oam_page+3,x        ; X
                 add #8
                 sta temp1
                 lda #%00000000
-                sta oam_page+2,x
+                sta oam_page+2,x        ; attributes (palette 0, no flip)
                 inx
                 inx
                 inx
@@ -1762,11 +1767,12 @@ draw_timer      ; 4 digits
                 iny
                 cpy #4
                 bcc -
+                ;
                 stx free_spr_index
                 rts
 
 start_warp_eff  ; start warp effect (having hit new game / finish game icon);
-                ; $8c5a; called by mode_title, mode_ingame
+                ; called by mode_title, mode_ingame
                 ;
                 lda #1
                 sta warp_effect_on
@@ -1815,7 +1821,7 @@ draw_stars      ; draw 12 star sprites? ($8c9a);
                 ; called by sub28, mode_title, mode_ingame, mode_dead, mode5
                 ;
                 ldx free_spr_index      ; index on OAM page
-                beq rts11
+                beq rts2
                 ;
                 ldy #11
                 sty temp3               ; loop counter
@@ -1862,7 +1868,7 @@ draw_stars      ; draw 12 star sprites? ($8c9a);
                 sta oam_page+0,x
                 lda stars_x,y           ; X position
                 sta oam_page+3,x
-                lda #%00100011          ; attribute (behind BG, palette 3)
+                lda #%00100011          ; attributes (behind BG, palette 3)
                 sta oam_page+2,x
                 lda #$fe                ; tile (star)
                 sta oam_page+1,x
@@ -1873,7 +1879,7 @@ draw_stars      ; draw 12 star sprites? ($8c9a);
                 bpl -
                 ;
 +               stx free_spr_index
-rts11           rts
+rts2            rts
 
 dat9            hex ec 42 73 61 2d 94 28 22  ; $8d11
                 hex c9 e1 62 a9
@@ -1887,7 +1893,7 @@ sub22           ; $8d29; called by mode_dead
 --              lda plr_x+0,y
                 sty temp1
                 ldy #8
--               sta deb_x_hi,x
+-               sta dbr_x_hi,x
                 inx
                 dey
                 bne -
@@ -1903,31 +1909,31 @@ sub22           ; $8d29; called by mode_dead
                 sub #$20
                 php
                 clc
-                adc deb_x_spds_mid,y
-                sta deb_x_spds_mid,y
-                lda deb_x_spds_hi,y
+                adc dbr_x_spds_mid,y
+                sta dbr_x_spds_mid,y
+                lda dbr_x_spds_hi,y
                 adc #0
                 plp
                 sbc #0
-                sta deb_x_spds_hi,y
+                sta dbr_x_spds_hi,y
                 txa
                 lsr a
                 sub #$20
                 php
                 clc
-                adc deb_y_spds_mid,y
-                sta deb_y_spds_mid,y
-                lda deb_y_spds_hi,y
+                adc dbr_y_spds_mid,y
+                sta dbr_y_spds_mid,y
+                lda dbr_y_spds_hi,y
                 adc #0
                 plp
                 sbc #0
-                sta deb_y_spds_hi,y
+                sta dbr_y_spds_hi,y
                 dey
                 bpl -
                 ;
                 rts
 
-move_debris     ; move debris ($8d7b); called by mode_dead, mode5
+move_debris     ; move debris; called by mode_dead, mode5
                 ;
                 lda gravity
                 beq +
@@ -1936,46 +1942,46 @@ move_debris     ; move debris ($8d7b); called by mode_dead, mode5
 +               ldy free_spr_index      ; index on OAM page
                 ldx #7                  ; debris index (7...0)
                 ;
-deb_mov_loop    lda deb_x_lo,x          ; X move
+dbr_mov_loop    lda dbr_x_lo,x          ; X move
                 clc
-                adc deb_x_spds_lo,x
-                sta deb_x_lo,x
-                lda deb_x_mid,x
-                adc deb_x_spds_mid,x
-                sta deb_x_mid,x
-                lda deb_x_hi,x
-                adc deb_x_spds_hi,x
-                sta deb_x_hi,x
+                adc dbr_x_spds_lo,x
+                sta dbr_x_lo,x
+                lda dbr_x_mid,x
+                adc dbr_x_spds_mid,x
+                sta dbr_x_mid,x
+                lda dbr_x_hi,x
+                adc dbr_x_spds_hi,x
+                sta dbr_x_hi,x
                 sta oam_page+3,y
                 bit mode_seq+2
                 bmi +
                 ;
                 ror a                   ; ??
-                eor deb_x_spds_hi,x
+                eor dbr_x_spds_hi,x
                 bpl +
-                jsr sub24
+                jsr hide_debris
                 jmp ++
                 ;
-+               lda deb_y_lo,x          ; Y move
++               lda dbr_y_lo,x          ; Y move
                 clc
-                adc deb_y_spds_lo,x
-                sta deb_y_lo,x
-                lda deb_y_mid,x
-                adc deb_y_spds_mid,x
-                sta deb_y_mid,x
-                lda deb_y_hi,x
-                adc deb_y_spds_hi,x
-                sta deb_y_hi,x
+                adc dbr_y_spds_lo,x
+                sta dbr_y_lo,x
+                lda dbr_y_mid,x
+                adc dbr_y_spds_mid,x
+                sta dbr_y_mid,x
+                lda dbr_y_hi,x
+                adc dbr_y_spds_hi,x
+                sta dbr_y_hi,x
                 bit mode_seq+2
                 bmi +
                 ;
                 ror a                   ; ??
-                eor deb_y_spds_hi,x
+                eor dbr_y_spds_hi,x
                 bpl +
-                jsr sub24
+                jsr hide_debris
                 jmp ++
                 ;
-+               lda deb_y_hi,x
++               lda dbr_y_hi,x
                 sta oam_page+0,y
                 lda #%00000000
                 sta oam_page+2,y
@@ -1987,21 +1993,21 @@ deb_mov_loop    lda deb_x_lo,x          ; X move
                 iny
                 iny
 ++              dex
-                bpl deb_mov_loop
+                bpl dbr_mov_loop
                 ;
                 sty free_spr_index
                 rts
 
-sub24           ; $8dfc; called by move_debris
+hide_debris     ; called by move_debris
                 lda #$ff
-                sta deb_y_hi,x
-                sta deb_y_spds_hi,x
-                sta deb_y_spds_mid,x
-                sta deb_y_spds_lo,x
+                sta dbr_y_hi,x
+                sta dbr_y_spds_hi,x
+                sta dbr_y_spds_mid,x
+                sta dbr_y_spds_lo,x
                 rts
 
 upd_warp_sprs   ; if warp effect on, copy warp sprite positions to OAM page;
-                ; $8e0b; called by move_plr_warp
+                ; called by move_plr_warp
                 ;
                 lda warp_effect_on
                 beq ++
@@ -2024,7 +2030,7 @@ upd_warp_sprs   ; if warp effect on, copy warp sprite positions to OAM page;
                 ;
 +               stx free_spr_index
                 ;
-shift_warp_sprs ; shift trailing ship sprites in warp effect ($8e35);
+shift_warp_sprs ; shift trailing ship sprites in warp effect;
                 ; #6->#7, #5->#6, ..., #0->#1, actualShip->#0;
                 ; called immediately after start_warp_eff
                 ;
@@ -2042,7 +2048,7 @@ shift_warp_sprs ; shift trailing ship sprites in warp effect ($8e35);
 
 ; -----------------------------------------------------------------------------
 
-mode_jump_table ; $8e51; read by use_jump_table; offset = mode variable
+mode_jump_table ; read by use_jump_table; offset = mode variable
                 ;
                 dw mode0                ;  0
                 dw mode_prep_title      ;  1
@@ -2058,7 +2064,7 @@ mode_jump_table ; $8e51; read by use_jump_table; offset = mode variable
                 dw mode_title           ; 11
                 dw mode_ingame          ; 12
 
-write_ppu       ; $8e6b; write A to PPU Y*8 times
+write_ppu       ; write A to PPU Y*8 times
 rept 8          ;
                 sta ppu_data
 endr            ;
@@ -2066,7 +2072,7 @@ endr            ;
                 bne write_ppu
                 rts
 
-warm_boot_chk   ; $8e87; string to check for warm boot
+warm_boot_chk   ; string to check for warm boot
                 db %01010101, "SHIP", %10101010
 
 mode0           ; $8e8d; called by mode_jump_table
@@ -2092,10 +2098,10 @@ mode0           ; $8e8d; called by mode_jump_table
 ++              lda #MODE_PREP_TITLE
                 sta mode_seq+0
                 sta mode_seq+1
-                jsr sub27
+                jsr def_pal_to_buf
                 jmp mode_prep_title
 
-sub27           ; $8eb6; copy default palette to str_buffer
+def_pal_to_buf  ; copy default palette to str_buffer
                 ldy #(36-1)
 -               lda pal_default,y
                 sta str_buffer,y
@@ -2284,7 +2290,7 @@ mode_title      ; on title screen ($8fb0)
                 jsr sub34
                 rts
 
-move_plr_warp   ; move player during warp effect; $9022;
+move_plr_warp   ; move player during warp effect;
                 ; called by mode_title, mode_ingame
                 ;
                 ldx #0
@@ -2381,13 +2387,15 @@ mode_ingame     ; in game proper ($9074)
                 stz ram27
                 rts
 
-mode_dead       ; $90d7
+mode_dead       ; player's ship has been destroyed ($90d7)
+                ;
                 jsr hide_sprites
                 lda ram26
                 bne +
                 copy #$6c, ram26
                 jsr snd_eng3
                 jsr sub22
+                ;
 +               lda oam_page+0*4+1
                 cmp #$30
                 bcc +
@@ -2400,6 +2408,7 @@ mode_dead       ; $90d7
                 sta oam_page+0*4+1
                 lda #%00000001
                 sta oam_page+0*4+2
+                ;
 +               jsr draw_hud
                 dec ram26
                 bne ++
@@ -2407,22 +2416,27 @@ mode_dead       ; $90d7
                 dec lives_left
                 bmi +
                 copy #1, mode_seq+3
+                ;
 +               lda #6
                 ldy mode_seq+2
                 bpl +
                 lda #MODE_PREP_TITLE
+                ;
 +               sta mode_seq+4
                 copy #5, mode_seq+1
+                ;
 ++              jsr draw_stars
                 jsr move_debris
                 jsr sub40
                 rts
 
 mode4           ; $912c; called by mode_jump_table, mode5
+                ;
                 lda ram26
                 bne +
                 copy #$0d, ram26
                 jsr snd_eng3
+                ;
 +               dec ram26
                 bne +
                 lda mode_seq+4
@@ -2430,6 +2444,7 @@ mode4           ; $912c; called by mode_jump_table, mode5
                 lda #%00000000
                 sta ppu_mask_copy2      ; disable rendering
                 sta ppu_ctrl_copy2      ; disable NMI on VBlank
+                ;
 +               lda ram26
                 cmp #$0d
                 bcs +
@@ -2470,7 +2485,7 @@ mode6           ; $916b
                 sta ppu_ctrl
                 rts
 
-end_screen      ; $9195; show end screen
+end_screen      ; show end screen
 
                 jsr hide_sprites
                 stz scroll_y
@@ -2603,7 +2618,7 @@ end_screen      ; $9195; show end screen
 
 time_separs     hex dc dc e1 24         ; time separators ("::. ")
 
-credits_screen  ; $9285; show credits screen
+credits_screen  ; show credits screen
                 ;
                 jsr fill_nt0_space
                 ;
@@ -2621,7 +2636,7 @@ credits_screen  ; $9285; show credits screen
                 sta ppu_ctrl_copy2
                 sta ppu_ctrl
                 ;
-wait_for_b      ; $92a4; wait for button B
+wait_for_b      ; wait for button B
                 bit buttons_changed
                 bvc wait_for_a
                 lda #MODE_CREDITS
@@ -2629,7 +2644,7 @@ wait_for_b      ; $92a4; wait for button B
                 copy #4, mode_seq+1
                 rts
                 ;
-wait_for_a      ; $92b1; wait for button A
+wait_for_a      ; wait for button A
                 bit buttons_changed
                 bpl +
                 lda #MODE_PREP_TITLE
@@ -2678,9 +2693,10 @@ sub30           ; $92c2; called by mode_prep_ingam, mode4
 
 sub31           ; $9302; called by sub33
                 ;
+                ; "finish game" checkpoint hit?
                 lda arr33,y
                 tay
-                cmp #$0c
+                cmp #12
                 bne +
                 lda #1
                 sta warp_effect_on
@@ -2743,7 +2759,6 @@ cod3            jsr sub57
                 bcs cod3
                 rts
 
-                ; $9380
 lives_to_add    db 2, 1, 0, 0           ; normal/hard/expert/secret
 max_lives       db 9, 3, 0, 0           ; normal/hard/expert/secret
 
@@ -2837,7 +2852,8 @@ sub34           ; $9424; called by mode_title, mode_ingame
 +               sub ram27
 ++              sta arr36
                 bit arr36+1
-                bmi rts13
+                bmi +
+                ;
                 sta oam_page+2*4+0
                 sta oam_page+3*4+0
                 add #8
@@ -2850,7 +2866,7 @@ sub34           ; $9424; called by mode_title, mode_ingame
                 sta oam_page+3*4+1
                 sta oam_page+4*4+1
                 sta oam_page+5*4+1
-rts13           rts
++               rts
                 ;
 sub35           ; $9460; called by sub33, sub38
                 ;
@@ -2862,7 +2878,7 @@ sub35           ; $9460; called by sub33, sub38
                 lda #5
                 jmp -
 
-mark_chkp_touch ; $9474; mark checkpoint as touched; called by sub31
+mark_chkp_touch ; mark checkpoint as touched; called by sub31
                 ;
                 ldy ram22
                 lda arr33,y
@@ -2878,7 +2894,7 @@ mark_chkp_touch ; $9474; mark checkpoint as touched; called by sub31
                 sta chex_touched,y
                 rts
 
-was_chkp_touchd ; $948d; has checkpoint number Y been touched?
+was_chkp_touchd ; has checkpoint number Y been touched?
                 ; Z flag clear if yes; called by sub45, sub46
                 ;
                 tya
@@ -2893,9 +2909,7 @@ was_chkp_touchd ; $948d; has checkpoint number Y been touched?
                 and powers_of_2,x       ; 1<<x
                 rts
 
-powers_of_2     ; $949d
-                db %00000001, %00000010, %00000100, %00001000
-                db %00010000, %00100000, %01000000, %10000000
+powers_of_2     hex 01 02 04 08 10 20 40 80
 
 sub38           ; $94a5; called by mode_title
                 ;
@@ -2979,15 +2993,17 @@ sub39           ; $9510; called by sub38
 sub40           ; $953e; called by mode_ingame, mode_dead
                 ;
                 lda ram41
-                beq rts14
+                beq ++
                 dec ram41
                 and #%00000011
-                bne rts14
+                bne ++
+                ;
                 lda str_buffer+4
                 add #1
                 cmp #$0d
                 bcc +
                 lda #1
+                ;
 +               sta str_buffer+4
                 ora #%00010000
                 sta str_buffer+5
@@ -2995,14 +3011,14 @@ sub40           ; $953e; called by mode_ingame, mode_dead
                 sta str_buffer+6
                 lda #(STR_ID_BUFFER*2+2)
                 sta str_to_print
-rts14           rts
+++              rts
 
                 ; unaccessed ($9568)
                 copy #4, ram41
                 rts
 
-; $956e; lvl_blks_tl, lvl_blks_tr, lvl_blks_bl, lvl_blks_br are 192 bytes each,
-; indexed by level data bytes and read by sub43, sub44
+; lvl_blks_tl, lvl_blks_tr, lvl_blks_bl, lvl_blks_br are 192 bytes each,
+; indexed by level_data bytes and read by sub43, sub44;
 ; tiles used: 24-34, 39-66, 6b-72, 75, 77-78, 7b-7e, 80, 87, 8a-8b, 8f
 
 lvl_blks_tl     ; top left tile of each level data block
@@ -3360,15 +3376,17 @@ sub45           ; $a242; called by sub41, sub42, sub43
                 lda checkpts_unkn,x
                 cmp ptr1+1
                 bcc -
-                bne ++
+                bne +++
+                ;
                 lda checkpts_y,x
                 cmp ptr1+0
                 bcc -
-                bne ++
+                bne +++
+                ;
                 stx ram21
                 ldy ram21
                 jsr was_chkp_touchd
-                bne rts15
+                bne ++
                 ;
                 ldx ram21
                 ldy #3
@@ -3377,7 +3395,8 @@ sub45           ; $a242; called by sub41, sub42, sub43
                 beq +
                 dey
                 bpl -
-                bmi rts15
+                bmi ++                  ; unconditional
+                ;
 +               txa
                 sta arr33,y
                 lda ram11
@@ -3389,6 +3408,8 @@ sub45           ; $a242; called by sub41, sub42, sub43
                 lda arr33,y
                 cmp #$0c
                 beq +
+                ;
+                ; draw checkpoint at tile pos X (at least the first three)
                 lda #$f0
                 sta tile_row_top+0,x
                 lda #$f1
@@ -3397,13 +3418,14 @@ sub45           ; $a242; called by sub41, sub42, sub43
                 sta tile_row_btm+0,x
                 lda #$f3
                 sta tile_row_btm+1,x
-rts15           rts
+++              rts
                 ;
-++              dex
++++             dex
                 stx ram21
                 rts
                 ;
-+               lda #$ec
++               ; draw end-of-game item at tile pos X?
+                lda #$ec
                 sta tile_row_top+0,x
                 lda #$ed
                 sta tile_row_top+1,x
@@ -3418,21 +3440,21 @@ sub46           ; $a2b7; called by sub44
                 ldx ram21
                 inx
 -               dex
-                bmi ++
+                bmi +++
                 lda checkpts_unkn,x
                 cmp ptr1+1
                 beq +
                 bcs -
-                bne ++
+                bne +++
 +               lda checkpts_y,x
                 cmp ptr1+0
                 beq +
                 bcs -
-                bne ++
+                bne +++
 +               stx ram21
                 ldy ram21
                 jsr was_chkp_touchd
-                bne rts16
+                bne ++
                 ;
                 ldx ram21
                 ldy #3
@@ -3441,7 +3463,8 @@ sub46           ; $a2b7; called by sub44
                 beq +
                 dey
                 bpl -
-                bmi rts16
+                bmi ++                  ; unconditional
+                ;
 +               txa
                 sta arr33,y
                 lda ram11
@@ -3458,8 +3481,9 @@ sub46           ; $a2b7; called by sub44
                 sta tile_row_btm+0,x
                 lda #$f3
                 sta tile_row_btm+1,x
-rts16           rts
-++              stx ram21
+++              rts
+                ;
++++             stx ram21
                 rts
 
 sub47           ; $a316; called by mode_prep_title
@@ -3488,7 +3512,7 @@ sub48           ; $a342; called by mode6
                 lda #0
                 jsr snd_eng2
                 jsr snd_eng4
-                jsr sub27
+                jsr def_pal_to_buf
                 lda #0
                 sta ram6
                 sta scroll_y
@@ -3741,16 +3765,14 @@ reset           sei
                 txs
                 stx ppu_buffer+0
                 stz dmc_start
-                lda #$4c                ; JMP absolute opcode
+                lda #JMP_ABS
                 sta ram_jump_code+0
                 bit temp1
+rept 6          ;
                 nop
-                nop
-                nop
-                nop
-                nop
-                nop
-                copy #$82, ptr3+1
+endr            ;
+                lda #>icod1             ; or #>icod2
+                sta ptr3+1
                 copy #$0f, dmc_freq
                 nop
                 bit temp1
@@ -3791,10 +3813,10 @@ reset           sei
                 ;
                 jmp use_jump_table
 
-loop_counts     db 197, 182, 159, 79, 72, 60  ; $c8b4
+loop_counts     db 197, 182, 159, 79, 72, 60
 regions         db 0, 2, 1, 0, 2, 1, 0
 
-read_joypad     ; $c8c1; called by main_loop
+read_joypad     ; called by main_loop
                 ;
                 ; init joypads
                 ldx #1
@@ -3836,8 +3858,7 @@ main_loop       ; $c8ec; called by: nothing (see use_jump_table)
                 jsr read_joypad
                 ;
 use_jump_table  ; $c8f5; indirect JSR to entry number mode_seq+0 in
-                ; mode_jump_table
-                ; called by reset
+                ; mode_jump_table; called by reset
                 ;
                 lda mode_seq+0
                 asl a
@@ -3855,8 +3876,8 @@ use_jump_table  ; $c8f5; indirect JSR to entry number mode_seq+0 in
                 stz main_loop_flag
                 jmp main_loop
 
-hide_sprites    ; $c915; called by sub28, mode_title, mode_ingame, mode_dead,
-                ; mode5, icod12
+hide_sprites    ; called by sub28, mode_title, mode_ingame, mode_dead, mode5,
+                ; icod12
                 ;
                 lda #$ff
                 ldx #60
@@ -3872,8 +3893,7 @@ hide_sprites    ; $c915; called by sub28, mode_title, mode_ingame, mode_dead,
 
 ; -----------------------------------------------------------------------------
 
-nmi             ; $c92e
-                pha                     ; push A, X, Y
+nmi             pha                     ; push A, X, Y
                 txa
                 pha
                 tya
@@ -3986,4 +4006,4 @@ nmi_end         jsr snd_eng1
 
                 base $0000
                 incbin "irriship-chr.bin"
-                pad $2000
+                pad $2000, $ff
