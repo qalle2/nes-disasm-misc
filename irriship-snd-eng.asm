@@ -1,12 +1,9 @@
-; Irritating Ship - sound engine
+; Irritating Ship - sound engine (Famitone2)
 ;
-; Entry points: snd_eng1, snd_eng2, snd_eng3, snd_eng4, snd_eng5, snd_eng6.
+; Entry points: snd_eng1, snd_eng2, stop_music, snd_eng4, play_sfx, snd_eng6.
 ; Variables shared with main: region, sq1_prev, sq2_prev.
 ;
-; See "famitone2.s"
-; from "neslib + FamiTracker player" (cc65_neslib_famitracker.zip)
-; from https://shiru.untergrund.net/code.shtml
-; there are some differences, however (e.g. sweep).
+; See "famitone2.txt" for the original source.
 
 region          equ $10  ; 0=NTSC, 1=PAL, 2=Dendy
 
@@ -217,7 +214,7 @@ snd_eng2        ; $a561; called by sub48, sub49
                 copy #1, ram2
                 rts
 
-snd_eng3        ; $a573; called by icod8, icod9, sub59
+stop_music      ; $a573; called by icod8, icod9, sub59
                 ldx #<idat1
                 stx ram3
                 ldx #>idat1
@@ -247,7 +244,7 @@ snd_eng4        ; $a5b0
                 sta ram2
                 rts
 
-snd_eng5        ; $a5bc; called by accel_plr, sub28, nmi
+play_sfx        ; play sound effect in A ($a5bc)
                 ; ram23 = (ram23+1)&3
                 ; X = ram23*15
                 ;
@@ -424,43 +421,39 @@ idat8           ; $a7ce; read via ptr5 by sub8, sub9
 
 ; -----------------------------------------------------------------------------
 
-region_values   ; $adfb; read via ptr2 by snd_eng6 on boot
-                dw dat_ptrs_ntsc        ; NTSC
-                dw dat_ptrs_pal         ; PAL
-                dw dat_ptrs_dendy       ; Dendy
+sfx_region_ptrs ; pointers to sound effect data by region ($adfb);
+                ; read via ptr2 by snd_eng6
+                dw sfx_ptrs_ntsc, sfx_ptrs_pal, sfx_ptrs_dendy
 
-                ; $ae01; data pointer tables
-dat_ptrs_ntsc   dw dat_ntsc1, dat_ntsc2, dat_ntsc3,  dat_ntsc4, dat_ntsc5
-dat_ptrs_pal    dw dat_pal1,  dat_pal2,  dat_pal3,   dat_ntsc4, dat_pal5
-dat_ptrs_dendy  dw dat_ntsc1, dat_ntsc2, dat_dendy3, dat_ntsc4, dat_dendy5
+                ; pointers to sound effect data ($ae01)
+sfx_ptrs_ntsc   dw sfx_thrust_ntsc, sfx_blip_ntsc, sfx_crash_ntsc, sfx_warp
+                dw sfx_secret_ntsc
+sfx_ptrs_pal    dw sfx_thrust_pal, sfx_blip_pal, sfx_crash_pal, sfx_warp
+                dw sfx_secret_pal
+sfx_ptrs_dendy  dw sfx_thrust_ntsc, sfx_blip_ntsc, sfx_crash_dndy, sfx_warp
+                dw sfx_secret_dndy
 
-dat_ntsc1       ; $ae1f
-                hex 83 ba 84 df 85 01 89 39 8a 0d 01 84 3a 85 02 89
+sfx_thrust_ntsc hex 83 ba 84 df 85 01 89 39 8a 0d 01 84 3a 85 02 89  ; $ae1f
                 hex 35 8a 01 01 84 80 89 34 01 84 74 85 04 89 33 01
                 hex 84 9d 85 05 89 31 00
 
-dat_pal1        ; $ae46
-                hex 83 ba 84 bd 85 01 89 39 8a 0d 01 84 11 85 02 89
+sfx_thrust_pal  hex 83 ba 84 bd 85 01 89 39 8a 0d 01 84 11 85 02 89  ; $ae46
                 hex 35 8a 01 01 84 52 89 34 01 84 23 85 04 89 33 01
                 hex 84 37 85 05 89 31 00
 
-dat_ntsc2       ; $ae6d
-                hex 83 b5 84 7e 85 00 89 34 8a 80 01 83 b3 84 3f 01
+sfx_blip_ntsc   hex 83 b5 84 7e 85 00 89 34 8a 80 01 83 b3 84 3f 01  ; $ae6d
                 hex 83 b2 89 32 01 83 b1 89 30 02 00
 
-dat_pal2        ; $ae88
-                hex 83 b5 84 75 85 00 89 34 8a 80 01 83 b3 84 3a 01
+sfx_blip_pal    hex 83 b5 84 75 85 00 89 34 8a 80 01 83 b3 84 3a 01  ; $ae88
                 hex 83 b2 89 32 01 83 b1 89 30 02 00
 
-dat_ntsc4       ; $aea3
-                hex 89 3f 8a 03 01 89 3e 01 8a 05 01 89 3d 01 8a 07
+sfx_warp        hex 89 3f 8a 03 01 89 3e 01 8a 05 01 89 3d 01 8a 07  ; $aea3
                 hex 01 89 3c 01 8a 08 01 89 3b 01 8a 0a 01 89 3a 02
                 hex 89 39 8a 0c 02 89 38 8a 0b 02 89 37 02 89 36 02
                 hex 89 35 01 8a 0c 01 89 34 01 8a 0b 01 89 33 02 89
                 hex 32 02 89 31 04 00
 
-dat_ntsc3       ; $aee9
-                hex 80 be 81 eb 82 01 83 38 84 a8 85 06 89 3e 8a 0e
+sfx_crash_ntsc  hex 80 be 81 eb 82 01 83 38 84 a8 85 06 89 3e 8a 0e  ; $aee9
                 hex 01 80 bd 81 2b 82 02 01 81 6b 83 37 8a 09 01 80
                 hex bc 81 ab 01 80 bb 81 eb 89 3d 8a 03 01 81 2b 82
                 hex 03 83 36 01 80 ba 81 96 01 81 d6 01 80 b9 81 16
@@ -473,8 +466,7 @@ dat_ntsc3       ; $aee9
                 hex 04 89 37 04 89 36 8a 09 02 8a 03 02 89 35 04 89
                 hex 34 04 89 33 04 89 32 04 89 31 04 00
 
-dat_pal3        ; $afa5
-                hex 80 be 81 cc 82 01 83 38 84 2f 85 06 89 3e 8a 0e
+sfx_crash_pal   hex 80 be 81 cc 82 01 83 38 84 2f 85 06 89 3e 8a 0e  ; $afa5
                 hex 01 80 bd 81 0c 82 02 01 81 4c 83 37 8a 09 01 80
                 hex bc 81 8c 01 80 bb 81 cc 89 3d 8a 03 01 81 59 82
                 hex 03 83 36 01 80 ba 81 99 01 81 d9 01 80 b9 81 19
@@ -487,8 +479,7 @@ dat_pal3        ; $afa5
                 hex 03 8a 09 01 89 37 01 8a 03 03 89 36 04 89 35 04
                 hex 89 34 04 89 33 03 00
 
-dat_dendy3      ; $b05c
-                hex 80 be 81 eb 82 01 83 38 84 a8 85 06 89 3e 8a 0e
+sfx_crash_dndy  hex 80 be 81 eb 82 01 83 38 84 a8 85 06 89 3e 8a 0e  ; $b05c
                 hex 01 80 bd 81 2b 82 02 01 81 6b 83 37 8a 09 01 80
                 hex bc 81 ab 01 80 bb 81 eb 89 3d 8a 03 01 81 96 82
                 hex 03 83 36 01 80 ba 81 d6 01 81 16 82 04 01 80 b9
@@ -501,29 +492,26 @@ dat_dendy3      ; $b05c
                 hex 03 8a 09 01 89 37 01 8a 03 03 89 36 04 89 35 04
                 hex 89 34 04 89 33 03 00
 
-dat_ntsc5       ; $b113
-                hex 80 b9 81 d5 82 00 01 80 b8 81 46 01 81 d5 01 80
+sfx_secret_ntsc hex 80 b9 81 d5 82 00 01 80 b8 81 46 01 81 d5 01 80  ; $b113
                 hex b7 01 80 b6 01 80 b9 81 8e 01 80 b8 81 2f 01 81
                 hex 8e 01 80 b7 01 80 b9 81 6a 01 80 b8 81 23 01 81
                 hex 6a 01 80 b7 01 80 b9 81 5e 01 80 b8 81 1f 01 81
                 hex 5e 01 80 b7 01 80 b6 02 80 b5 02 80 b4 01 80 b3
                 hex 02 80 b2 01 80 b1 00
 
-dat_pal5        ; $b16a
-                hex 80 b9 81 c6 82 00 01 80 b8 81 41 01 81 c6 01 80
+sfx_secret_pal  hex 80 b9 81 c6 82 00 01 80 b8 81 41 01 81 c6 01 80  ; $b16a
                 hex b7 01 80 b9 81 84 01 80 b8 81 2b 01 81 84 01 80
                 hex b7 01 80 b9 81 62 01 80 b8 81 20 01 81 62 01 80
                 hex b9 81 57 01 80 b8 81 1d 01 81 57 01 80 b7 01 80
                 hex b6 02 80 b5 02 80 b4 01 80 b3 02 00
 
-dat_dendy5      ; $b1b6
-                hex 80 b9 81 d5 82 00 01 80 b8 81 46 01 81 d5 01 80
+sfx_secret_dndy hex 80 b9 81 d5 82 00 01 80 b8 81 46 01 81 d5 01 80  ; $b1b6
                 hex b7 01 80 b9 81 8e 01 80 b8 81 2f 01 81 8e 01 80
                 hex b7 01 80 b9 81 6a 01 80 b8 81 23 01 81 6a 01 80
                 hex b9 81 5e 01 80 b8 81 1f 01 81 5e 01 80 b7 01 80
                 hex b6 02 80 b5 02 80 b4 01 80 b3 02 00
 
-snd_eng6        ; $b202; reads indirectly from region_values on boot;
+snd_eng6        ; $b202; reads indirectly from sfx_region_ptrs on boot;
                 ; called by sub59
                 ;
                 stx ptr2+0
@@ -559,15 +547,15 @@ sub1            ; $b226; called by snd_eng6, sub2
                 sta arr3+9,x
                 rts
 
-sub2            ; $b240; called by snd_eng5
+sub2            ; $b240; called by play_sfx; sfx number in A
                 ;
                 asl a
                 tay
-                jsr sub1
-                copy arr1+0, ptr2+0
+                jsr sub1                ; doesn't access Y
+                copy arr1+0, ptr2+0     ; sfx_ptrs_ntsc -> ptr2
                 copy arr1+1, ptr2+1
                 lda (ptr2),y
-                sta arr2+1,x
+                sta arr2+1,x            ; e.g. sfx_secret_ntsc
                 iny
                 lda (ptr2),y
                 sta arr2+2,x
@@ -651,7 +639,7 @@ sfx_update      ; $b25b; "_FT2SfxUpdate"; called by snd_eng1
                 jmp sub3
                 jmp sub7
 
-sub3            ; $b2fd; called by snd_eng2, snd_eng3, sfx_update
+sub3            ; $b2fd; called by snd_eng2, stop_music, sfx_update
                 ;
                 asl a
                 jsr sub4

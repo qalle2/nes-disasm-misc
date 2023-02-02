@@ -1,9 +1,11 @@
-Note: this is a copy of "famitone2.s"
+A copy of "famitone2.s"
 from "neslib + FamiTracker player" (cc65_neslib_famitracker.zip)
 from https://shiru.untergrund.net/code.shtml
-There are some differences to the game (e.g. sweep).
-This is not the actual code used in Irritating Ship; it's in irri-snd-eng.asm.
-I was not involved in the development of IS/Famitone/Famitracker/neslib.
+
+This resembles the sound engine in Irritating Ship, but there are some
+differences (e.g. sweep).
+
+For the actual sound engine used in Irritating Ship, see "irri-snd-eng.asm".
 
 ; -----------------------------------------------------------------------------
 

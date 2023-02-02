@@ -22,7 +22,7 @@
 ; Tiles in pattern table 0 (background); all used except where noted (data may
 ; be incomplete):
 ;     00-09: digits "0"-"9"
-;     0a-23: letters "A"-"Z"          ("QZ" not rendered)
+;     0a-23: letters "A"-"Z" ("QZ" not rendered)
 ;     24:    " "
 ;     25-26: walls - vertical
 ;     27-28: walls - horizontal
@@ -30,15 +30,18 @@
 ;     31-34: walls - 16*16 px sphere
 ;     35-38: walls - ~10*10 px sphere (none rendered)
 ;     39-64: walls - other curved
-;     65-6a: walls - diagonal 2       (only 65, 66 rendered)
-;     6b-7a: walls - tight corner     (only 6b-72, 75, 77-78 rendered)
+;     65-6a: walls - diagonal 2 (only 65, 66 rendered)
+;     6b-7a: walls - tight corner (only 6b-72, 75, 77-78 rendered)
 ;     7b-7e: walls - 90-degree corner
-;     7f-8f: walls - misc             (only 80, 87, 8a-8b, 8f rendered)
+;     7f-8f: walls - misc (only 80, 87, 8a-8b, 8f rendered)
 ;     db-e1: ",:/?'!."
-;     e2-f3: checkpoints etc.
-;     f4-f7: end-game item?           (none rendered)
-;     f8-fb: solid colors 0-3         (only f9 rendered)
-;     fc-ff: 16*16 px diamond shape
+;     e2-e5: icon - mode/gravity (wrench)
+;     e6-eb: icon - new game (two up arrows, 3*2 tiles)
+;     ec-ef: icon - end of game (two up arrows)
+;     f0-f3: icon - checkpoint (one up arrow)
+;     f4-f7: icon - unknown (not rendered)
+;     f8-fb: solid colors 0-3 (only f9 rendered)
+;     fc-ff: 16*16 px diamond shape (game title)
 
 ; Tiles in pattern table 1 (sprites); all used:
 ;     00-0c: ship,      turning from top to right
@@ -77,9 +80,10 @@
 
 ; 'arr' = RAM array, 'ram' = RAM non-array, 'misc' = $2000-$7fff.
 ; Variables shared with sound engine: region, sq1_prev, sq2_prev.
-; mode_seq: 5 bytes; sequence of next game statuses, offset to mode_jump_table
-;           (not sure about this)
-;           (not what the game calls "mode"!)
+; mode_seq1/2/3: sequence of next game statuses, offset to mode_jump_table
+;     (not what the game calls "mode"!)
+;     although ram1, ram2 are in the middle, they look somewhat unrelated
+;     (ram2 only seems to have values 0, 1, $80)
 
 ptr1            equ $00  ; jump/data ptr (2 bytes, overlaps)
 temp1           equ $00
@@ -94,7 +98,11 @@ ppu_ctrl_copy1  equ $11
 ppu_ctrl_copy2  equ $12
 ppu_mask_copy1  equ $13
 ppu_mask_copy2  equ $14
-mode_seq        equ $15  ; 5 bytes, see above
+mode_seq1       equ $15  ; see above
+mode_seq2       equ $16
+ram1            equ $17  ; debris/victory conditions?
+ram2            equ $18
+mode_seq3       equ $19
 scroll_x        equ $1a  ; ppu_scroll X copy
 ram6            equ $1b
 scroll_y        equ $1c  ; ppu_scroll Y copy
@@ -116,14 +124,14 @@ ptr6            equ $31  ; data ptr
 ram16           equ $33
 ram17           equ $34
 ram18           equ $35
-ram19           equ $36
-ram20           equ $37
+scrl_mtiles_lo  equ $36  ; vertical scroll in rows of metatiles - low
+scrl_mtiles_hi  equ $37  ; vertical scroll in rows of metatiles - high
 ram21           equ $38
 ram22           equ $39
-ram23           equ $3a
+sfx_to_play     equ $3a
 ram24           equ $3b
 ram25           equ $3c
-ram26           equ $3d
+countdown       equ $3d  ; timer for various sequences
 ram27           equ $3e
 skill           equ $3f  ; what the game calls "mode"; see constants
 gravity         equ $40  ; 0=off, 1=on
@@ -208,9 +216,9 @@ joypad2         equ $4017
 ; external addresses in "irriship-snd-eng.bin"
 snd_eng1        equ snd_eng_bin+$0
 snd_eng2        equ snd_eng_bin+$88
-snd_eng3        equ snd_eng_bin+$9a
+stop_music      equ snd_eng_bin+$9a
 snd_eng4        equ snd_eng_bin+$d7
-snd_eng5        equ snd_eng_bin+$e3
+play_sfx        equ snd_eng_bin+$e3
 snd_eng6        equ snd_eng_bin+$d29
 
 ; PPU memory space
@@ -234,10 +242,14 @@ AXS_IMM         equ $cb
 ;     title to ingame:     4, 6, MODE_PREP_INGAM
 ;     respawn ingame:   3, 5, 6, MODE_PREP_INGAM
 ;
+MODE_BOOT       equ  0
 MODE_PREP_TITLE equ  1  ; prepare title screen
 MODE_PREP_INGAM equ  2  ; prepare game proper ("ingame")
 MODE_DEAD       equ  3  ; dead on title screen or game proper
-MODE_VICTORY    equ  7
+MODE_TRANSIT    equ  4  ; transition between title/ingame or vice versa
+MODE_DEBRIS     equ  5  ; debris flying
+MODE_SPAWN_ING  equ  6  ; spawn player ingame (incl. checkpoints)
+MODE_END_SCREEN equ  7
 MODE_WAIT_B     equ  8  ; wait for button B
 MODE_CREDITS    equ  9
 MODE_WAIT_A     equ 10  ; wait for button A
@@ -266,6 +278,13 @@ STR_ID_CREDITS  equ 14
 STR_ID_NORMAL2  equ 15
 STR_ID_OFF2     equ 19
 STR_ID_NTSC     equ 21
+
+; sound effects
+SFX_BLIP        equ 1  ; short blip (toggle option; touch checkpoint)
+SFX_CRASH       equ 2  ; ship crash
+SFX_WARP        equ 3  ; blast off (start non-secret skill game; finish game)
+SFX_SECRET      equ 4  ; start secret skill game
+SFX_THRUST      equ 5  ; thrust
 
 ; use my rotation hack (0=no, 1=yes); just press d-pad to accelerate in that
 ; direction
@@ -418,8 +437,8 @@ print_strings   ; print strings (palette/NT data) from str_ptr_tbl
                 ;           LLLLLL: output length (0=64)
                 ;       - data (1 byte if R=1, else outputLength bytes)
                 ;   - terminator ($80-$ff)
-                ; called by flush_ppu_buf, sub28, mode_prep_title, end_screen,
-                ; credits_screen, sub47
+                ; called by flush_ppu_buf, sub28, mode_prep_title,
+                ; mode_end_screen, mode_credits, sub47
 
                 tay                     ; ptr1 = source address
                 lda str_ptr_tbl-2,y
@@ -569,7 +588,7 @@ remove_checkpt  ; delete a checkpoint icon from NT by printing 2*2 spaces;
                 rts
 
 clear_nt0       ; fill NT0 with space character;
-                ; called by end_screen, credits_screen, sub47
+                ; called by mode_end_screen, mode_credits, sub47
                 ;
                 lda #>ppu_nt0
                 sta ppu_addr
@@ -1026,7 +1045,7 @@ inc_crash_cnt   ; increment number of ships crashed; called by mode_dead
                 rts
 
 get_chex_skipd  ; return number of checkpoints skipped in temp1 (ones) and
-                ; temp2 (tens); called by end_screen
+                ; temp2 (tens); called by mode_end_screen
                 ;
                 copy #$ff, temp2
                 ldy #1
@@ -1102,7 +1121,7 @@ console_fps     db 60, 50, 50           ; NTSC/PAL/Dendy
 console_fps_m1  db 59, 49, 49           ; NTSC/PAL/Dendy, minus one
 
 to_decimal      ; in: byte in A; return tens in Y and ones in A;
-                ; called by end_screen
+                ; called by mode_end_screen
                 ;
                 ldy #$ff
 -               iny
@@ -1119,7 +1138,7 @@ dec_time_left   ; decrement timer on secret skill (happens every frame);
                 lda skill
                 cmp #SKILL_SECRET
                 bne +
-                lda mode_seq+0
+                lda mode_seq1
                 cmp #MODE_TITLE
                 beq +
                 ;
@@ -1144,7 +1163,7 @@ dec_time_left   ; decrement timer on secret skill (happens every frame);
 +               sec
 ++              rts
 
-time_extend     ; increase amount of time left; called by sub31, sub48
+time_extend     ; increase amount of time left; called by sub31, spawn_at_start
                 ;
                 ; Y: NTSC=3, PAL=7, Dendy=11
                 ldy #3
@@ -1195,17 +1214,17 @@ sub13           ; $8874; called by mode_title, mode_ingame
                 lda #240
 +               add plr_y+0
                 sta plr_y+0
-                lda mode_seq+0
+                lda mode_seq1
                 cmp #MODE_INGAME
                 bne ++
                 ;
-                lda #1
+                lda #MODE_PREP_TITLE
                 ldy ram17
                 beq +
-                copy #1, mode_seq+3
-                lda #MODE_VICTORY
-+               sta mode_seq+4
-                copy #4, mode_seq+1
+                copy #1, ram2
+                lda #MODE_END_SCREEN
++               sta mode_seq3
+                copy #MODE_TRANSIT, mode_seq2
                 rts
                 ;
 ++              jsr set_exhaust_spr
@@ -1237,7 +1256,7 @@ sub14           ; $88bc; called by sub13
                 eor ram6
                 cmp #$10
                 bcc ++
-                jsr sub41
+                jsr render_frwd1
                 bcs ++
                 lda #$80
                 sta ram16
@@ -1279,7 +1298,7 @@ pos_y_spd       ; $8914; positive Y speed; similar to "negative" section above
                 eor ram6
                 cmp #$10
                 bcc ++
-                jsr sub44
+                jsr render_bkwd
                 bcs ++
                 ;
                 copy #$40, ram16
@@ -1303,7 +1322,7 @@ pos_y_spd       ; $8914; positive Y speed; similar to "negative" section above
 +++             rts
 
 set_ship_spr    ; set player ship sprite; called by: sub13, move_plr_warp,
-                ; mode_dead, sub47, sub48, sub49
+                ; mode_dead, sub47, spawn_at_start, sub49
                 ;
                 lda plr_rot_inquad      ; tile
                 sta oam_page+0*4+1
@@ -1419,7 +1438,7 @@ endif           ;
                 lda buttons_changed
                 bpl +
                 lda #0
-                jsr snd_eng5
+                jsr play_sfx
 +               jsr inc_thrust_cntr
                 ldy plr_rot
                 ;
@@ -1708,7 +1727,8 @@ quad_to_attr    ; player's ship's quadrant to sprite attribute byte;
                 db %00000000, %10000000, %11000000, %01000000
 
 draw_hud        ; draw number of extra lives or timer
-                ; called by mode_ingame, mode_dead, mode5, sub48, sub49
+                ; called by mode_ingame, mode_dead, mode_debris,
+                ; spawn_at_start, sub49
                 ;
                 copy #$10, temp1
                 ldx free_spr_index      ; index on OAM page
@@ -1830,7 +1850,8 @@ move_plr        ; add player speed to position; called by sub13, move_plr_warp;
                 rts
 
 draw_stars      ; draw 12 star sprites? ($8c9a);
-                ; called by sub28, mode_title, mode_ingame, mode_dead, mode5
+                ; called by sub28, mode_title, mode_ingame, mode_dead,
+                ; mode_debris
                 ;
                 ldx free_spr_index      ; index on OAM page
                 beq rts2
@@ -1945,7 +1966,7 @@ sub22           ; $8d29; called by mode_dead
                 ;
                 rts
 
-move_debris     ; move debris; called by mode_dead, mode5
+move_debris     ; move debris; called by mode_dead, mode_debris
                 ;
                 lda gravity
                 beq +
@@ -1965,7 +1986,7 @@ dbr_mov_loop    lda dbr_x_lo,x          ; X move
                 adc dbr_x_spds_hi,x
                 sta dbr_x_hi,x
                 sta oam_page+3,y
-                bit mode_seq+2
+                bit ram1
                 bmi +
                 ;
                 ror a                   ; ??
@@ -1984,7 +2005,7 @@ dbr_mov_loop    lda dbr_x_lo,x          ; X move
                 lda dbr_y_hi,x
                 adc dbr_y_spds_hi,x
                 sta dbr_y_hi,x
-                bit mode_seq+2
+                bit ram1
                 bmi +
                 ;
                 ror a                   ; ??
@@ -2060,19 +2081,19 @@ shift_warp_sprs ; shift trailing ship sprites in warp effect;
 
 ; -----------------------------------------------------------------------------
 
-mode_jump_table ; read by use_jump_table; offset = mode variable
+mode_jump_table ; read by use_jump_table; offset = mode variable ($8e51)
                 ;
-                dw mode0                ;  0
+                dw mode_boot            ;  0
                 dw mode_prep_title      ;  1
                 dw mode_prep_ingam      ;  2
                 dw mode_dead            ;  3
-                dw mode4                ;  4
-                dw mode5                ;  5
-                dw mode6                ;  6
-                dw end_screen           ;  7
-                dw wait_for_b           ;  8
-                dw credits_screen       ;  9
-                dw wait_for_a           ; 10
+                dw mode_transit         ;  4
+                dw mode_debris          ;  5
+                dw mode_spawn_ing       ;  6
+                dw mode_end_screen      ;  7
+                dw mode_wait_b          ;  8
+                dw mode_credits         ;  9
+                dw mode_wait_a          ; 10
                 dw mode_title           ; 11
                 dw mode_ingame          ; 12
 
@@ -2087,7 +2108,7 @@ endr            ;
 warm_boot_chk   ; string to check for warm boot
                 db %01010101, "SHIP", %10101010
 
-mode0           ; $8e8d; called by mode_jump_table
+mode_boot       ; $8e8d; called on boot
                 ;
                 ; copy warm boot check string to RAM
                 ldy #5
@@ -2108,8 +2129,8 @@ mode0           ; $8e8d; called by mode_jump_table
                 sta gravity             ; off
                 ;
 ++              lda #MODE_PREP_TITLE
-                sta mode_seq+0
-                sta mode_seq+1
+                sta mode_seq1
+                sta mode_seq2
                 jsr def_pal_to_buf
                 jmp mode_prep_title
 
@@ -2122,7 +2143,7 @@ def_pal_to_buf  ; copy default palette to str_buffer
                 stz ram40
                 rts
 
-sub28           ; $8ec7; called by mode_prep_title, mode6
+sub28           ; $8ec7; called by mode_prep_title, mode_spawn_ing
                 ;
                 lda #(STR_ID_BLAKPALS*2+2)  ; black palettes
                 jsr print_strings
@@ -2189,10 +2210,10 @@ sub28           ; $8ec7; called by mode_prep_title, mode6
                 sta oam_page+5*4+2
                 rts
 
-mode_prep_title ; $8f48; called by mode_jump_table, mode0;
+mode_prep_title ; $8f48; called by mode_jump_table, mode_boot;
                 ; executed when entering title screen from boot/respawn/ingame
                 ;
-                lda mode_seq+2
+                lda ram1
                 cmp #1
                 beq ++
                 ;
@@ -2230,9 +2251,8 @@ mode_prep_title ; $8f48; called by mode_jump_table, mode0;
                 sta sel_press_cnt
                 copy #1, arr33+2
                 copy #2, arr33+1
-                lda #MODE_TITLE
-                sta mode_seq+4
-                copy #1, mode_seq+3
+                copy #MODE_TITLE, mode_seq3
+                copy #1, ram2
                 ;
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
@@ -2241,10 +2261,10 @@ mode_prep_title ; $8f48; called by mode_jump_table, mode0;
                 sta ppu_ctrl
                 ;
 ++              jsr mode_prep_ingam
-                lda mode_seq+0
-                cmp mode_seq+1
+                lda mode_seq1
+                cmp mode_seq2
                 beq +
-                copy #$80, mode_seq+3
+                copy #$80, ram2
 +               rts
 
 mode_title      ; on title screen ($8fb0)
@@ -2266,15 +2286,15 @@ mode_title      ; on title screen ($8fb0)
                 sta sel_press_cnt
                 cmp #3
                 bne ++
-                copy #4, mode_seq+1
-                copy #6, mode_seq+4
+                copy #MODE_TRANSIT, mode_seq2
+                copy #MODE_SPAWN_ING, mode_seq3
                 lda #0
-                sta mode_seq+3
+                sta ram2
                 sta gravity
                 lda #SKILL_SECRET
                 sta skill
-                lda #4
-                jsr snd_eng5
+                lda #SFX_SECRET
+                jsr play_sfx            ; $8fdf
                 rts
 +               stz sel_press_cnt
                 ;
@@ -2295,9 +2315,9 @@ mode_title      ; on title screen ($8fb0)
 ++              jsr move_plr_warp
                 lda warp_effect_on
                 bne +
-                copy #6, mode_seq+4
-                copy #4, mode_seq+1
-                stz mode_seq+3
+                copy #MODE_SPAWN_ING, mode_seq3
+                copy #MODE_TRANSIT, mode_seq2
+                copy #0, ram2
 +               jsr draw_stars
                 jsr sub34
                 rts
@@ -2327,14 +2347,14 @@ mode_prep_ingam ; $9047; called by mode_jump_table, mode_prep_title;
                 ; executed when entering game proper ("ingame") from
                 ; respawn/title
                 ;
-                lda ram26
+                lda countdown
                 bne +
-                copy #9, ram26
-+               dec ram26
+                copy #9, countdown
++               dec countdown
                 bne ++
                 ;
-                ldy mode_seq+4
-                sty mode_seq+1
+                ldy mode_seq3
+                sty mode_seq2
                 cpy #MODE_TITLE
                 bcc +
                 lda buttons_held
@@ -2344,7 +2364,7 @@ mode_prep_ingam ; $9047; called by mode_jump_table, mode_prep_title;
                 bne ++
                 jsr snd_eng4
                 ;
-++              lda ram26
+++              lda countdown
                 add #3
                 and #%00001100
                 asl a
@@ -2379,18 +2399,17 @@ mode_ingame     ; in game proper ($9074)
                 lda buttons_changed
                 and #%00100000
                 beq +
-                copy #4, mode_seq+1
-                copy #6, mode_seq+4
-                stz mode_seq+3
+                copy #MODE_TRANSIT, mode_seq2
+                copy #MODE_SPAWN_ING, mode_seq3
+                copy #0, ram2
                 ;
 +               jsr sub13
                 jmp +
 ++              jsr move_plr_warp
                 lda warp_effect_on
                 bne +
-                lda #MODE_VICTORY
-                sta mode_seq+4
-                copy #4, mode_seq+1
+                copy #MODE_END_SCREEN, mode_seq3
+                copy #MODE_TRANSIT, mode_seq2
                 ;
 +               jsr draw_hud
                 jsr draw_stars
@@ -2402,10 +2421,10 @@ mode_ingame     ; in game proper ($9074)
 mode_dead       ; player's ship has been destroyed ($90d7)
                 ;
                 jsr hide_sprites
-                lda ram26
+                lda countdown
                 bne +
-                copy #$6c, ram26
-                jsr snd_eng3
+                copy #108, countdown    ; set up crash countdown
+                jsr stop_music
                 jsr sub22
                 ;
 +               lda oam_page+0*4+1
@@ -2422,43 +2441,46 @@ mode_dead       ; player's ship has been destroyed ($90d7)
                 sta oam_page+0*4+2
                 ;
 +               jsr draw_hud
-                dec ram26
+                dec countdown
                 bne ++
                 jsr inc_crash_cnt
                 dec lives_left
                 bmi +
-                copy #1, mode_seq+3
+                copy #1, ram2
                 ;
-+               lda #6
-                ldy mode_seq+2
++               lda #MODE_SPAWN_ING
+                ldy ram1
                 bpl +
                 lda #MODE_PREP_TITLE
                 ;
-+               sta mode_seq+4
-                copy #5, mode_seq+1
++               sta mode_seq3
+                copy #MODE_DEBRIS, mode_seq2
                 ;
 ++              jsr draw_stars
                 jsr move_debris
                 jsr sub40
                 rts
 
-mode4           ; $912c; called by mode_jump_table, mode5
+mode_transit    ; $912c;
+                ; called via mode_jump_table 13 times when transitioning
+                ; between title screen and ingame or vice versa;
+                ; also called by mode_debris
                 ;
-                lda ram26
+                lda countdown
                 bne +
-                copy #$0d, ram26
-                jsr snd_eng3
+                copy #13, countdown
+                jsr stop_music
                 ;
-+               dec ram26
++               dec countdown
                 bne +
-                lda mode_seq+4
-                sta mode_seq+1
+                ;
+                copy mode_seq3, mode_seq2
                 lda #%00000000
                 sta ppu_mask_copy2      ; disable rendering
                 sta ppu_ctrl_copy2      ; disable NMI on VBlank
                 ;
-+               lda ram26
-                cmp #$0d
++               lda countdown
+                cmp #13
                 bcs +
                 add #3
                 and #%00001100
@@ -2468,27 +2490,29 @@ mode4           ; $912c; called by mode_jump_table, mode5
                 jsr sub30
 +               rts
 
-mode5           ; $9158
+mode_debris     ; called 13 times during the fadeout after crash; debris still
+                ; flying ($9158)
+                ;
                 jsr hide_sprites
-                jsr mode4
+                jsr mode_transit
                 inc lives_left
                 jsr draw_hud
                 dec lives_left
                 jsr draw_stars
                 jmp move_debris         ; ends with RTS
 
-mode6           ; $916b
+mode_spawn_ing  ; spawn player ingame (incl. checkpoints; $916b)
+                ;
                 jsr sub28
-                lda mode_seq+2
+                lda ram1
                 bne +
-                jsr sub48
+                jsr spawn_at_start
                 jmp ++
 +               jsr sub49
-++              lda #MODE_INGAME
-                sta mode_seq+4
-                lda #MODE_PREP_INGAM
-                sta mode_seq+1
-                stz mode_seq+3
+                ;
+++              copy #MODE_INGAME, mode_seq3
+                copy #MODE_PREP_INGAM, mode_seq2
+                copy #0, ram2
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
                 lda ppu_ctrl_copy2
@@ -2497,13 +2521,17 @@ mode6           ; $916b
                 sta ppu_ctrl
                 rts
 
-end_screen      ; show end screen
+mode_end_screen ; show end screen
 
                 jsr hide_sprites
                 stz scroll_y
                 jsr clear_nt0
 
-                ; print one of four victory messages
+                ; print one of four victory messages:
+                ;   secret difficulty:  STR_ID_VICTORY3 ("INCREDIBLE")
+                ;   else if ram1 != 0:  STR_ID_VICTORY2 ("DID YOU GET LOST?")
+                ;   else if no crashes: STR_ID_VICTORY4 ("WOW")
+                ;   else:               STR_ID_VICTORY1 ("CONGRATULATIONS")
                 ;
                 lda skill               ; secret difficulty?
                 cmp #SKILL_SECRET
@@ -2511,7 +2539,7 @@ end_screen      ; show end screen
                 lda #(STR_ID_VICTORY3*2+2)
                 jmp ++
                 ;
-+               ldy mode_seq+2          ; looks like nonzero=good
++               ldy ram1                ; ram1 nonzero?
                 beq +
                 lda #(STR_ID_VICTORY2*2+2)
                 jmp ++
@@ -2616,11 +2644,9 @@ end_screen      ; show end screen
                 cpx #4
                 bcc -
 
-                lda #MODE_WAIT_B
-                sta mode_seq+4
-                lda #MODE_PREP_INGAM
-                sta mode_seq+1
-                stz mode_seq+3
+                copy #MODE_WAIT_B, mode_seq3
+                copy #MODE_PREP_INGAM, mode_seq2
+                copy #0, ram2
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
                 lda #%10001000          ; enable NMI, use PT1 for sprites
@@ -2630,42 +2656,38 @@ end_screen      ; show end screen
 
 time_separs     hex dc dc e1 24         ; time separators ("::. ")
 
-credits_screen  ; show credits screen
+mode_credits    ; show credits screen
                 ;
                 jsr clear_nt0
                 ;
                 lda #(STR_ID_CREDITS*2+2)
                 jsr print_strings
                 ;
-                lda #MODE_WAIT_A
-                sta mode_seq+4
-                lda #MODE_PREP_INGAM
-                sta mode_seq+1
-                stz mode_seq+3
+                copy #MODE_WAIT_A, mode_seq3
+                copy #MODE_PREP_INGAM, mode_seq2
+                copy #0, ram2
                 lda #%00011110          ; enable rendering
                 sta ppu_mask_copy2
                 lda #%10001000          ; enable NMI, use PT1 for sprites
                 sta ppu_ctrl_copy2
                 sta ppu_ctrl
                 ;
-wait_for_b      ; wait for button B
+mode_wait_b     ; wait for button B
                 bit buttons_changed
-                bvc wait_for_a
-                lda #MODE_CREDITS
-                sta mode_seq+4
-                copy #4, mode_seq+1
+                bvc mode_wait_a
+                copy #MODE_CREDITS, mode_seq3
+                copy #MODE_TRANSIT, mode_seq2
                 rts
                 ;
-wait_for_a      ; wait for button A
+mode_wait_a     ; wait for button A
                 bit buttons_changed
                 bpl +
-                lda #MODE_PREP_TITLE
-                sta mode_seq+4
-                copy #4, mode_seq+1
-                stz mode_seq+3
+                copy #MODE_PREP_TITLE, mode_seq3
+                copy #MODE_TRANSIT, mode_seq2
+                copy #0, ram2
 +               rts
 
-sub30           ; $92c2; called by mode_prep_ingam, mode4
+sub30           ; $92c2; called by mode_prep_ingam, mode_transit
                 ; in: A = 0/16/32/48
                 ;
                 sta temp1
@@ -2750,25 +2772,25 @@ sub31           ; $9302; called by sub33
                 ;
                 copy ptr5+0, ptr6+0
                 copy ptr5+1, ptr6+1
+                ;
                 lda checkpts_y,y
-                sub ram19
+                sub scrl_mtiles_lo
                 cmp #6
                 beq +
                 tay
                 ldx #2
-                bcs cod3
+                bcs ++
                 ;
--               jsr sub58
+-               jsr sub16_from_ptr      ; subtract 16 from ptr6
                 iny
                 cpy #6
                 bcc -
-                ;
 +               rts
-                ;
-cod3            jsr sub57
+++              ;
+-               jsr add16_to_ptr        ; add 16 to ptr6
                 dey
                 cpy #7
-                bcs cod3
+                bcs -
                 rts
 
 lives_to_add    db 2, 1, 0, 0           ; normal/hard/expert/secret
@@ -2777,19 +2799,21 @@ max_lives       db 9, 3, 0, 0           ; normal/hard/expert/secret
 sub32           ; $9388; called by sub33
                 ;
                 lda checkpts_y,x
-                sub ram19
+                sub scrl_mtiles_lo
                 sta temp3
                 asl a
                 asl a
                 asl a
                 asl a
                 sta temp1
+                ;
                 lda ram6
                 and #%00001111
                 ora temp1
                 eor #%11111111
-                sub #$0e
+                sub #14
                 sta temp1
+                ;
                 lda checkpts_x,x
                 asl a
                 asl a
@@ -2835,11 +2859,13 @@ sub33           ; $93af; called by mode_ingame
                 adc #$13
                 bcc cod4
                 sty ram22
-                lda #1
-                cpx #$0c
+                ;
+                lda #SFX_BLIP           ; "touch checkpoint" sfx
+                cpx #12
                 bne +
-                lda #3
-+               sta ram23
+                lda #SFX_WARP           ; "finish game" sfx
++               sta sfx_to_play
+                ;
                 lda temp1
                 sub #2
                 sta arr36
@@ -2953,7 +2979,7 @@ sub38           ; $94a5; called by mode_title
                 ;
                 sty ram22
                 lda dat17,x
-                sta ram23
+                sta sfx_to_play
                 lda dat16,x
                 sub #2
                 sta arr36
@@ -3030,7 +3056,7 @@ sub40           ; $953e; called by mode_ingame, mode_dead
                 rts
 
 ; lvl_blks_tl, lvl_blks_tr, lvl_blks_bl, lvl_blks_br are 192 bytes each,
-; indexed by level_data bytes and read by sub43, sub44;
+; indexed by level_data bytes and read by render_frwd3, render_bkwd;
 ; tiles used: 24-34, 39-66, 6b-72, 75, 77-78, 7b-7e, 80, 87, 8a-8b, 8f
 
 lvl_blks_tl     ; top left tile of each level data block
@@ -3091,7 +3117,7 @@ lvl_blks_br     ; bottom right tile of each level data block
 
 level_data      ; what main game world looks like; also affects where
                 ; collisions occur ($986e)
-                ; read by sub43 via ptr4 and by sub44 via ptr5
+                ; read by render_frwd3 via ptr4 and by render_bkwd via ptr5
                 ; length: 2224 (= 139*16; ~10 screens vertically)
                 ; contains values 0-191
                 ; each byte denotes a block (2*2 tiles) and is an index to
@@ -3239,6 +3265,7 @@ level_data      ; what main game world looks like; also affects where
                 hex 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
                 hex 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
                 hex 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
+level_data_end
 
 checkpts_y      ; Y positions of checkpoints ($a11e);
                 ; read by sub31, sub32, draw_checkpts, sub46
@@ -3256,30 +3283,36 @@ checkpts_x      ; X positions of checkpoints ($a13a);
                 hex 12 17 08 03 1c 1b 1c 02
                 hex 03 1c 03 1b 0f 00
 
-sub41           ; $a148; sub41/sub42/sub43 called by sub14, sub51, sub52
+render_frwd1    ; $a148; called by sub14
                 ;
+                ; if out of level data, exit with carry clear
                 lda ptr4+1
-                cmp #$a1
+                cmp #>level_data_end
                 bne +
                 lda ptr4+0
-                cmp #$1e
+                cmp #<level_data_end
                 bne +
                 clc
                 rts
+                ;
 +               ldx #0
-                jsr sub57
+                jsr add16_to_ptr        ; add 16 to ptr5
                 ;
-sub42           ; $a15b
-                inc ram19
-                bne sub43
-                inc ram20
+render_frwd2    ; increment vertical scroll value in metatile units ($a15b);
+                ; called by sub52
                 ;
-sub43           ; $a161
+                inc scrl_mtiles_lo
+                bne render_frwd3
+                inc scrl_mtiles_hi
+                ;
+render_frwd3    ; $a161; render level when scrolling forwards (up)
+                ; called for every row of metatiles; called by sub51
+                ;
                 ldy #0
                 jsr sub55
                 copy arr1+0, ram11
                 copy arr1+1, ram12
-                stz ptr1+0
+                stz temp1
                 ;
 -               ldy #0
                 lda (ptr4),y            ; block from level_data -> X
@@ -3288,7 +3321,7 @@ sub43           ; $a161
                 inc ptr4+1
 +               tax
                 ;
-                ldy ptr1+0              ; Y = target index
+                ldy temp1               ; Y = target index
                 lda lvl_blks_tl,x       ; read 2*2 tiles of block
                 sta tile_row_top+0,y
                 lda lvl_blks_tr,x
@@ -3299,47 +3332,52 @@ sub43           ; $a161
                 sta tile_row_btm+1,y
                 iny
                 iny
-                sty ptr1+0
+                sty temp1
                 cpy #32
                 bne -
                 ;
-                lda ram19
-                add #$0f
-                sta ptr1+0
-                lda ram20
+                lda scrl_mtiles_lo
+                add #15
+                sta temp1
+                lda scrl_mtiles_hi
                 adc #0
                 sta ptr1+1
                 jsr draw_checkpts
+                ;
                 copy #1, nmi_flag
                 sec
                 rts
 
-sub44           ; $a1b5; called by sub14
+render_bkwd     ; $a1b5; called by sub14;
+                ; render level when scrolling backwards (down);
+                ; called for every row of metatiles
                 ;
                 ldy #0
                 jsr sub56
+                ;
                 lda ptr4+0
-                sub #$10
+                sub #16
                 sta ptr4+0
                 bcs +
                 dec ptr4+1
-+               lda ram20
+                ;
++               lda scrl_mtiles_hi
                 bmi +
-                ora ram19
+                ora scrl_mtiles_lo
                 bne ++
 +               lda #$ff
-                sta ram19
-                sta ram20
+                sta scrl_mtiles_lo
+                sta scrl_mtiles_hi
                 ldx #0
-                jsr sub58
+                jsr sub16_from_ptr      ; subtract 16 from ptr5
                 clc
                 rts
                 ;
-++              lda ram19
+++              lda scrl_mtiles_lo
                 sub #1
-                sta ram19
+                sta scrl_mtiles_lo
                 bcs +
-                dec ram20
+                dec scrl_mtiles_hi
 +               copy arr1+0, ram11
                 copy arr1+1, ram12
                 ldy #2
@@ -3347,17 +3385,18 @@ sub44           ; $a1b5; called by sub14
                 lda ram11
                 eor #%00001000
                 sta ram11
-                copy #$1e, ptr1+0
+                copy #30, temp1
                 ;
--               lda ptr5+0
+-               lda ptr5+0              ; decrement ptr5
                 sub #1
                 sta ptr5+0
                 bcs +
                 dec ptr5+1
+                ;
 +               ldy #0
                 lda (ptr5),y            ; read level_data
                 tax
-                ldy ptr1+0
+                ldy temp1
                 lda lvl_blks_tl,x
                 sta tile_row_top+0,y
                 lda lvl_blks_tr,x
@@ -3368,21 +3407,23 @@ sub44           ; $a1b5; called by sub14
                 sta tile_row_btm+1,y
                 dey
                 dey
-                sty ptr1+0
+                sty temp1
                 bpl -
-                lda ram19
+                ;
+                lda scrl_mtiles_lo
                 sub #1
-                sta ptr1+0
-                lda ram20
+                sta temp1
+                lda scrl_mtiles_hi
                 sbc #0
-                sta ptr1+1
+                sta temp2
                 jsr sub46
+                ;
                 copy #1, nmi_flag
                 sec
                 rts
 
 draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
-                ; called by sub41, sub42, sub43;
+                ; called by render_frwd1, render_frwd2, render_frwd3
                 ;
                 ldx ram21
 -               inx
@@ -3419,10 +3460,10 @@ draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
                 ora ram12
                 sta arr35,y
                 lda arr33,y
-                cmp #$0c
+                cmp #12
                 beq +
                 ;
-                ; draw checkpoint at tile pos X (at least the first three)
+                ; draw checkpoint at tile pos X
                 lda #$f0
                 sta tile_row_top+0,x
                 lda #$f1
@@ -3437,7 +3478,7 @@ draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
                 stx ram21
                 rts
                 ;
-+               ; draw end-of-game item at tile pos X?
++               ; draw end-of-game item at tile pos X
                 lda #$ec
                 sta tile_row_top+0,x
                 lda #$ed
@@ -3448,7 +3489,7 @@ draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
                 sta tile_row_btm+1,x
                 rts
 
-sub46           ; $a2b7; called by sub44
+sub46           ; $a2b7; called by render_bkwd
                 ;
                 ldx ram21
                 inx
@@ -3520,7 +3561,7 @@ sub47           ; $a316; called by mode_prep_title
                 jsr set_ship_spr
                 rts
 
-sub48           ; $a342; called by mode6
+spawn_at_start  ; spawn player at start of main game; called by mode_spawn_ing
                 ;
                 lda #0
                 jsr snd_eng2
@@ -3537,36 +3578,39 @@ sub48           ; $a342; called by mode6
                 dey
                 bpl -
                 ;
+                ; reset thrust_used, crash_cnt, time_spent, time_left
                 ldy #17
                 lda #0
 -               sta thrust_used,y
                 dey
                 bpl -
                 ;
+                ; reset level data pointer
                 lda #<level_data
                 sta ptr5+0
                 lda #>level_data
                 sta ptr5+1
+                ;
                 lda #$ff
-                sta ram19
-                sta ram20
+                sta scrl_mtiles_lo
+                sta scrl_mtiles_hi
                 jsr sub50
                 copy #$0f, temp6
                 jsr sub51
                 ldx #0
-                jsr sub58
-                jsr sub58
+                jsr sub16_from_ptr      ; subtract 32 from ptr5
+                jsr sub16_from_ptr
                 copy #$40, ram16
                 jsr time_extend
-                copy #$7c, plr_x+0      ; set plr start pos in main game
-                copy #$80, plr_x+1
-                copy #$bf, plr_y+0
-                copy #$80, plr_y+1
+                copy #124, plr_x+0      ; set plr ingame start pos
+                copy #128, plr_x+1
+                copy #191, plr_y+0
+                copy #128, plr_y+1
                 jsr set_ship_spr
                 jsr draw_hud
                 rts
 
-sub49           ; $a3a9; called by mode6
+sub49           ; $a3a9; called by mode_spawn_ing
                 ;
                 lda #0
                 jsr snd_eng2
@@ -3580,12 +3624,14 @@ sub49           ; $a3a9; called by mode6
                 copy ram18, ram17
                 copy ptr6+0, ptr5+0
                 copy ptr6+1, ptr5+1
+                ;
                 lda arr36+3
-                sub #$11
-                sta ram19
+                sub #17
+                sta scrl_mtiles_lo
                 lda arr36+4
                 sbc #0
-                sta ram20
+                sta scrl_mtiles_hi
+                ;
                 jsr sub50
                 copy #$11, temp6
                 jsr sub52
@@ -3598,7 +3644,7 @@ sub49           ; $a3a9; called by mode6
                 jsr draw_hud
                 rts
 
-sub50           ; $a3fe; called by sub48, sub49
+sub50           ; $a3fe; called by spawn_at_start, sub49
                 ;
                 stz scroll_x
                 copy ptr5+0, ptr4+0
@@ -3610,15 +3656,15 @@ sub50           ; $a3fe; called by sub48, sub49
                 sta ppu_ctrl
                 rts
 
-sub51           ; $a41c; called by sub48
--               jsr sub43
+sub51           ; $a41c; called by spawn_at_start
+-               jsr render_frwd3
                 jsr sub1
                 dec temp6
                 bne -
                 rts
 
 sub52           ; $a427; called by sub49
--               jsr sub42
+-               jsr render_frwd2
                 jsr sub1
                 dec temp6
                 bne -
@@ -3651,7 +3697,7 @@ sub54           ; $a446; called by sub14
                 sta ppu_ctrl_copy2
 +               rts
 
-sub55           ; $a45c; called by sub41, sub42, sub43
+sub55           ; $a45c; called by render_frwd1, render_frwd2, render_frwd3
                 ;
                 lda arr1+1,y
                 sub #$40
@@ -3671,7 +3717,7 @@ sub55           ; $a45c; called by sub41, sub42, sub43
                 sta arr1+1,y
 +               rts
 
-sub56           ; $a484; called by sub44
+sub56           ; $a484; called by render_bkwd
                 ;
                 lda arr1+1,y
                 add #$40
@@ -3692,7 +3738,9 @@ sub56           ; $a484; called by sub44
                 sta arr1+0,y
 +               rts
 
-sub57           ; $a4b0; called by sub31, sub41
+add16_to_ptr    ; add 16 to ptr5 (if X=0) or ptr6 (if X=2);
+                ; called by sub31, render_frwd1
+                ;
                 lda ptr5,x
                 add #16
                 sta ptr5,x
@@ -3700,7 +3748,9 @@ sub57           ; $a4b0; called by sub31, sub41
                 inc ptr5+1,x
 +               rts
 
-sub58           ; $a4bc; called by sub31, sub44, sub48
+sub16_from_ptr  ; subtract 16 from ptr5 (if X=0) or ptr6 (if X=2);
+                ; called by sub31, render_bkwd, spawn_at_start
+                ;
                 lda ptr5,x
                 sub #16
                 sta ptr5,x
@@ -3709,10 +3759,11 @@ sub58           ; $a4bc; called by sub31, sub44, sub48
 +               rts
 
 sub59           ; $a4c8; called by mode_prep_title
+                ;
                 lda #$ff
                 sta sq1_prev
                 sta sq2_prev
-                jsr snd_eng3
+                jsr stop_music
                 ldx #$fb
                 ldy #$ad
                 jsr snd_eng6
@@ -3870,10 +3921,10 @@ main_loop       ; $c8ec; called by: nothing (see use_jump_table)
                 inc ram7
                 jsr read_joypad
                 ;
-use_jump_table  ; $c8f5; indirect JSR to entry number mode_seq+0 in
+use_jump_table  ; $c8f5; indirect JSR to entry number mode_seq1 in
                 ; mode_jump_table; called by reset
                 ;
-                lda mode_seq+0
+                lda mode_seq1
                 asl a
                 tax
                 lda mode_jump_table+0,x
@@ -3882,15 +3933,14 @@ use_jump_table  ; $c8f5; indirect JSR to entry number mode_seq+0 in
                 sta ram_jump_code+2
                 jsr ram_jump_code
                 ;
-                lda mode_seq+1
-                sta mode_seq+0
-                lda mode_seq+3
-                sta mode_seq+2
+                copy mode_seq2, mode_seq1
+                lda ram2
+                sta ram1
                 stz main_loop_flag
                 jmp main_loop
 
-hide_sprites    ; called by sub28, mode_title, mode_ingame, mode_dead, mode5,
-                ; icod12
+hide_sprites    ; called by sub28, mode_title, mode_ingame, mode_dead,
+                ; mode_debris, icod12
                 ;
                 lda #$ff
                 ldx #60
@@ -3913,7 +3963,7 @@ nmi             pha                     ; push A, X, Y
                 pha
 
                 ; if MODE_TITLE or MODE_INGAME, store "sprite 0 hit" status
-                lda mode_seq+0
+                lda mode_seq1
                 cmp #MODE_TITLE
                 bcc +
                 lda ppu_status
@@ -3932,7 +3982,7 @@ nmi             pha                     ; push A, X, Y
                 lda ram22
                 bmi +++
 
-                lda mode_seq+0
+                lda mode_seq1
                 cmp #MODE_INGAME
                 beq +
                 lda ram24
@@ -3948,17 +3998,17 @@ nmi             pha                     ; push A, X, Y
                 sta oam_page+4*4+0
                 sta oam_page+5*4+0
                 copy #4, arr36+1
-                lda ram23
-                jsr snd_eng5
+                lda sfx_to_play
+                jsr play_sfx
                 jmp +++++
 
 +++             lda #$30                ; 1st explosion tile in PT1
                 sta oam_page+0*4+1
                 lda #MODE_DEAD
-                sta mode_seq+0
-                sta mode_seq+1
-                lda #2                  ; play sound or stop music?
-                jsr snd_eng5
+                sta mode_seq1
+                sta mode_seq2
+                lda #SFX_CRASH
+                jsr play_sfx
 
 ++++            stz ram36
 
