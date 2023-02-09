@@ -118,9 +118,9 @@ str_to_print    equ $29  ; which string to print (=id*2+2; 0=none; see consts)
 ppu_buffer_len  equ $2a
 buttons_changed equ $2b  ; joypad - buttons having changed to "on"
 buttons_held    equ $2c  ; joypad - buttons being pressed
-ptr4            equ $2d  ; data ptr
-ptr5            equ $2f  ; data ptr
-ptr6            equ $31  ; data ptr
+lvl_dat_ptr1    equ $2d  ; level data pointer
+lvl_dat_ptr2    equ $2f  ; level data pointer
+lvl_dat_ptr_cp  equ $31  ; level data pointer (checkpoint to spawn at)
 ram16           equ $33
 ram17           equ $34
 ram18           equ $35
@@ -2745,8 +2745,9 @@ sub31           ; $9302; called by sub33
                 sbc #0
                 sta arr36+4
                 ;
-                copy ptr5+0, ptr6+0
-                copy ptr5+1, ptr6+1
+                ; store checkpoint position for respawn
+                copy lvl_dat_ptr2+0, lvl_dat_ptr_cp+0
+                copy lvl_dat_ptr2+1, lvl_dat_ptr_cp+1
                 ;
                 lda checkpts_y,y
                 sub scrl_mtiles_lo
@@ -2756,13 +2757,13 @@ sub31           ; $9302; called by sub33
                 ldx #2
                 bcs ++
                 ;
--               jsr sub16_from_ptr      ; subtract 16 from ptr6
+-               jsr sub16_from_ptr      ; subtract 16 from lvl_dat_ptr_cp
                 iny
                 cpy #6
                 bcc -
 +               rts
 ++              ;
--               jsr add16_to_ptr        ; add 16 to ptr6
+-               jsr add16_to_ptr        ; add 16 to lvl_dat_ptr_cp
                 dey
                 cpy #7
                 bcs -
@@ -3092,7 +3093,8 @@ lvl_blks_br     ; bottom right tile of each level data block
 
 level_data      ; what main game world looks like; also affects where
                 ; collisions occur ($986e)
-                ; read by render_frwd3 via ptr4 and by render_bkwd via ptr5
+                ; read by render_frwd3 via lvl_dat_ptr1 and by render_bkwd
+                ; via lvl_dat_ptr2;
                 ; length: 2224 (= 139*16; ~10 screens vertically)
                 ; contains values 0-191
                 ; each byte denotes a block (2*2 tiles) and is an index to
@@ -3261,17 +3263,17 @@ checkpts_x      ; X positions of checkpoints ($a13a);
 render_frwd1    ; $a148; called by sub14
                 ;
                 ; if out of level data, exit with carry clear
-                lda ptr4+1
+                lda lvl_dat_ptr1+1
                 cmp #>level_data_end
                 bne +
-                lda ptr4+0
+                lda lvl_dat_ptr1+0
                 cmp #<level_data_end
                 bne +
                 clc
                 rts
                 ;
 +               ldx #0
-                jsr add16_to_ptr        ; add 16 to ptr5
+                jsr add16_to_ptr        ; add 16 to lvl_dat_ptr2
                 ;
 render_frwd2    ; increment vertical scroll value in metatile units ($a15b);
                 ; called by sub52
@@ -3289,11 +3291,12 @@ render_frwd3    ; $a161; render level when scrolling forwards (up)
                 copy arr1+1, ram12
                 stz temp1
                 ;
--               ldy #0
-                lda (ptr4),y            ; block from level_data -> X
-                inc ptr4+0
+-               ; block from level_data -> X
+                ldy #0
+                lda (lvl_dat_ptr1),y
+                inc lvl_dat_ptr1+0
                 bne +
-                inc ptr4+1
+                inc lvl_dat_ptr1+1
 +               tax
                 ;
                 ldy temp1               ; Y = target index
@@ -3330,11 +3333,11 @@ render_bkwd     ; $a1b5; called by sub14;
                 ldy #0
                 jsr sub56
                 ;
-                lda ptr4+0
+                lda lvl_dat_ptr1+0
                 sub #16
-                sta ptr4+0
+                sta lvl_dat_ptr1+0
                 bcs +
-                dec ptr4+1
+                dec lvl_dat_ptr1+1
                 ;
 +               lda scrl_mtiles_hi
                 bmi +
@@ -3344,7 +3347,7 @@ render_bkwd     ; $a1b5; called by sub14;
                 sta scrl_mtiles_lo
                 sta scrl_mtiles_hi
                 ldx #0
-                jsr sub16_from_ptr      ; subtract 16 from ptr5
+                jsr sub16_from_ptr      ; subtract 16 from lvl_dat_ptr2
                 clc
                 rts
                 ;
@@ -3362,14 +3365,14 @@ render_bkwd     ; $a1b5; called by sub14;
                 sta ram11
                 copy #30, temp1
                 ;
--               lda ptr5+0              ; decrement ptr5
+-               lda lvl_dat_ptr2+0      ; decrement lvl_dat_ptr2
                 sub #1
-                sta ptr5+0
+                sta lvl_dat_ptr2+0
                 bcs +
-                dec ptr5+1
+                dec lvl_dat_ptr2+1
                 ;
 +               ldy #0
-                lda (ptr5),y            ; read level_data
+                lda (lvl_dat_ptr2),y    ; read level_data
                 tax
                 ldy temp1
                 lda lvl_blks_tl,x
@@ -3562,9 +3565,9 @@ spawn_at_start  ; spawn player at start of main game; called by mode_spawn_ing
                 ;
                 ; reset level data pointer
                 lda #<level_data
-                sta ptr5+0
+                sta lvl_dat_ptr2+0
                 lda #>level_data
-                sta ptr5+1
+                sta lvl_dat_ptr2+1
                 ;
                 lda #$ff
                 sta scrl_mtiles_lo
@@ -3573,7 +3576,7 @@ spawn_at_start  ; spawn player at start of main game; called by mode_spawn_ing
                 copy #$0f, temp6
                 jsr sub51
                 ldx #0
-                jsr sub16_from_ptr      ; subtract 32 from ptr5
+                jsr sub16_from_ptr      ; subtract 32 from lvl_dat_ptr2
                 jsr sub16_from_ptr
                 copy #$40, ram16
                 jsr time_extend
@@ -3597,8 +3600,10 @@ sub49           ; $a3a9; called by mode_spawn_ing
                 ora #%00000010          ; use NT2
                 sta ppu_ctrl_copy2
                 copy ram18, ram17
-                copy ptr6+0, ptr5+0
-                copy ptr6+1, ptr5+1
+                ;
+                ; restore position to spawn at (previous checkpoint)
+                copy lvl_dat_ptr_cp+0, lvl_dat_ptr2+0
+                copy lvl_dat_ptr_cp+1, lvl_dat_ptr2+1
                 ;
                 lda arr36+3
                 sub #17
@@ -3622,8 +3627,8 @@ sub49           ; $a3a9; called by mode_spawn_ing
 sub50           ; $a3fe; called by spawn_at_start, sub49
                 ;
                 stz scroll_x
-                copy ptr5+0, ptr4+0
-                copy ptr5+1, ptr4+1
+                copy lvl_dat_ptr2+0, lvl_dat_ptr1+0
+                copy lvl_dat_ptr2+1, lvl_dat_ptr1+1
                 stz nmi_flag
                 copy #>ppu_at0, arr1+0
                 copy #<ppu_at0, arr1+1
@@ -3713,24 +3718,24 @@ sub56           ; $a484; called by render_bkwd
                 sta arr1+0,y
 +               rts
 
-add16_to_ptr    ; add 16 to ptr5 (if X=0) or ptr6 (if X=2);
+add16_to_ptr    ; add 16 to lvl_dat_ptr2 (if X=0) or lvl_dat_ptr_cp (if X=2);
                 ; called by sub31, render_frwd1
                 ;
-                lda ptr5,x
+                lda lvl_dat_ptr2,x
                 add #16
-                sta ptr5,x
+                sta lvl_dat_ptr2,x
                 bcc +
-                inc ptr5+1,x
+                inc lvl_dat_ptr2+1,x
 +               rts
 
-sub16_from_ptr  ; subtract 16 from ptr5 (if X=0) or ptr6 (if X=2);
-                ; called by sub31, render_bkwd, spawn_at_start
+sub16_from_ptr  ; subtract 16 from lvl_dat_ptr2 (if X=0) or lvl_dat_ptr_cp
+                ; (if X=2); called by sub31, render_bkwd, spawn_at_start
                 ;
-                lda ptr5,x
+                lda lvl_dat_ptr2,x
                 sub #16
-                sta ptr5,x
+                sta lvl_dat_ptr2,x
                 bcs +
-                dec ptr5+1,x
+                dec lvl_dat_ptr2+1,x
 +               rts
 
 sub59           ; $a4c8; called by mode_prep_title
