@@ -286,10 +286,6 @@ SFX_WARP        equ 3  ; blast off (start non-secret skill game; finish game)
 SFX_SECRET      equ 4  ; start secret skill game
 SFX_THRUST      equ 5  ; thrust
 
-; use my rotation hack (0=no, 1=yes); just press d-pad to accelerate in that
-; direction
-ROTATE_HACK     equ 0
-
 ; --- Macros ------------------------------------------------------------------
 
 macro add _src
@@ -1362,24 +1358,6 @@ set_exhaust_spr ; set player's exhaust sprite; called by sub13
 rotate_plr      ; react to left/right arrow and update player rotation
                 ; variables; called by sub13
                 ;
-if ROTATE_HACK  ; this code written by qalle
-                lda buttons_held
-                ldx #7
--               cmp rot_hack_tbl,x
-                beq +
-                dex
-                bpl -
-                bmi update_quadr        ; nothing pressed (unconditional)
-                ; U, UR, R, DR, D, DL, L, UL
-rot_hack_tbl    db %1000, %1001, %0001, %0101, %0100, %0110, %0010, %1010
-+               txa
-                sta plr_rot             ; multiply by 6
-                asl a
-                adc plr_rot             ; carry is always clear
-                asl a
-                sta plr_rot
-                pad $89c1, $ea
-else            ;
                 lda buttons_held        ; left pressed?
                 lsr a
                 bcc ++
@@ -1390,17 +1368,17 @@ else            ;
                 lda #254
 +               adc #1
                 sta plr_rot
-                jmp update_quadr
+                jmp +
                 ;
 ++              lsr a                   ; right pressed?
                 bcc rts1
                 ;
                 dec plr_rot             ; rotate ship left
-                bpl update_quadr
+                bpl +
                 lda #47
                 sta plr_rot
-endif           ;
-update_quadr    ; update quadrant
+                ;
++               ; update quadrant
                 lda plr_rot
                 ldy #255
 -               iny
@@ -1425,14 +1403,11 @@ accel_plr       ; accelerate player (add acceleration to speed);
                 ; called by sub13
                 ;
                 lda buttons_held
-if ROTATE_HACK  ;
-                and #%00001111
-else            ;
                 and #%10000000
-endif           ;
                 bne +
 -               stz ram25
                 rts
+                ;
 +               jsr dec_time_left
                 bcc -
                 lda buttons_changed

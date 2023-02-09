@@ -31,7 +31,7 @@ Run the `.sh` files (under Linux) to assemble and validate the programs.
 ## Irritating Ship hack
 I have created a "simple controls" hack for *Irritating Ship*.
 Pressing the d-pad in any of the eight directions will instantly turn and accelerate the ship in that direction.
-The hack can be enabled by editing the disassembly or patching the original ROM with `irriship-simplecontrols.ips.gz`.
+The hack can be enabled by patching the original ROM with `irriship-simplecontrols.ips.gz`.
 The uncompressed IPS file in base64: `UEFUQ0gACbQAG6IH3bCJ8A3KEPgwEQgJAQUEBgIKioVaCmVaCgAJ9QABD0VPRg==`
 
 ([RHDN](https://www.romhacking.net) doesn't allow hacks of homebrew games.)
