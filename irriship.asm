@@ -127,7 +127,7 @@ ram18           equ $35
 scrl_mtiles_lo  equ $36  ; vertical scroll in rows of metatiles - low
 scrl_mtiles_hi  equ $37  ; vertical scroll in rows of metatiles - high
 ram21           equ $38
-ram22           equ $39
+chkpt_slot      equ $39  ; visible checkpoint slot (255=none)
 sfx_to_play     equ $3a
 ram24           equ $3b
 ram25           equ $3c
@@ -142,7 +142,7 @@ ram30           equ $44
 ram31           equ $45
 ram32           equ $46
 ram_jump_code   equ $47  ; a JMP absolute instruction (3 bytes)
-ram36           equ $4a
+sprite0_hit     equ $4a  ; zero=no, nonzero=yes
 last_ctrl_btns  equ $4c  ; last A/left/right pressed (%x00000xx)
 sel_press_cnt   equ $4d  ; how many times select pressed on title
 plr_x           equ $4e  ; 3 bytes, high first, unsigned
@@ -185,16 +185,16 @@ stars_y         equ $04a8  ; 12 bytes
 stars_unkn1     equ $04b4  ; star-related? (12 bytes)
 stars_unkn2     equ $04c0  ; star-related? (12 bytes)
 ; $04cc-$04d7 seem to be unaccessed
-arr33           equ $04d8
+visible_chkpts  equ $04d8  ; 4 bytes; 255=none; filled from end
 arr34           equ $04dc
 arr35           equ $04e0
-arr36           equ $04e4
-chex_touched    equ $04e9  ; checkpoints touched (2 bytes, LSB of 1st = 1st)
+arr36           equ $04e4  ; last checkpoint touched? bytes:
+                           ; ?, 255, X, scrl_mtiles_lo, 0?
+chkpts_touched  equ $04e9  ; checkpoints touched (2 bytes, LSB of 1st = 1st)
 thrust_used     equ $04eb  ; thrust used (7 bytes, each 0-9)
 crash_cnt       equ $04f2  ; number of ships crashed (3 bytes, each 0-9)
 time_spent      equ $04f5  ; time spent (4 bytes: hr, min, sec, frames)
 time_left       equ $04f9  ; 4 bytes; in time attack
-arr43           equ $04fd
 
 ppu_ctrl        equ $2000
 ppu_mask        equ $2001
@@ -563,7 +563,7 @@ icod2           ; $8233
 remove_checkpt  ; delete a checkpoint icon from NT by printing 2*2 spaces;
                 ; called by nmi
                 ;
-                ldy ram22
+                ldy chkpt_slot
                 lda arr34,y
                 sta ppu_addr
                 tax
@@ -1048,7 +1048,7 @@ get_chex_skipd  ; return number of checkpoints skipped in temp1 (ones) and
                 lda #0
                 ;
                 ; count checkpoints touched (bits set in 2 bytes)
---              ldx chex_touched,y
+--              ldx chkpts_touched,y
                 stx temp1
                 ldx #8
 -               lsr temp1
@@ -1159,7 +1159,8 @@ dec_time_left   ; decrement timer on secret skill (happens every frame);
 +               sec
 ++              rts
 
-time_extend     ; increase amount of time left; called by sub31, spawn_at_start
+time_extend     ; increase amount of time left; called by touch_chkpnt,
+                ; spawn_at_start
                 ;
                 ; Y: NTSC=3, PAL=7, Dendy=11
                 ldy #3
@@ -2153,15 +2154,16 @@ sub28           ; $8ec7; called by mode_prep_title, mode_spawn_ing
                 bpl -
                 ;
                 lda #0
-                sta ram36
+                sta sprite0_hit
                 sta ram27
                 sta last_ctrl_btns
+                ;
                 lda #$ff
                 sta ram21
-                sta ram22
+                sta chkpt_slot
                 sta arr36+1
                 ldy #3
--               sta arr33,y
+-               sta visible_chkpts,y    ; mark all slots unused
                 dey
                 bpl -
                 jsr hide_sprites
@@ -2221,11 +2223,11 @@ mode_prep_title ; $8f48; called by mode_jump_table, mode_boot;
                 jsr print_strings
                 ;
                 lda #0
-                sta arr33+3
+                sta visible_chkpts+3       ; assign checkpoint 0 to slot
                 sta ram24
                 sta sel_press_cnt
-                copy #1, arr33+2
-                copy #2, arr33+1
+                copy #1, visible_chkpts+2  ; assign checkpoint 1 to slot
+                copy #2, visible_chkpts+1  ; assign checkpoint 2 to slot
                 copy #MODE_TITLE, mode_seq3
                 copy #1, ram2
                 ;
@@ -2700,10 +2702,10 @@ sub30           ; $92c2; called by mode_prep_ingam, mode_transit
                 sta ppu_buffer_len
                 rts
 
-sub31           ; $9302; called by sub33
+touch_chkpnt    ; touched a checkpoint ($9302); called by sub33
                 ;
-                ; "finish game" checkpoint hit?
-                lda arr33,y
+                ; was it the "finish game" checkpoint?
+                lda visible_chkpts,y
                 tay
                 cmp #12
                 bne +
@@ -2731,6 +2733,7 @@ sub31           ; $9302; called by sub33
                 ;
                 copy ram17, ram18
                 ;
+                ; store X position for respawn
                 lda checkpts_x,y
                 asl a
                 asl a
@@ -2738,18 +2741,19 @@ sub31           ; $9302; called by sub33
                 add #4
                 sta arr36+2
                 ;
-                lda checkpts_y,y
+                ; store Y position for respawn
+                lda checkpts_y_lo,y
                 sub #6
                 sta arr36+3
-                lda checkpts_unkn,y
+                lda checkpts_y_hi,y
                 sbc #0
                 sta arr36+4
                 ;
-                ; store checkpoint position for respawn
+                ; store level data position for respawn
                 copy lvl_dat_ptr2+0, lvl_dat_ptr_cp+0
                 copy lvl_dat_ptr2+1, lvl_dat_ptr_cp+1
                 ;
-                lda checkpts_y,y
+                lda checkpts_y_lo,y
                 sub scrl_mtiles_lo
                 cmp #6
                 beq +
@@ -2772,9 +2776,14 @@ sub31           ; $9302; called by sub33
 lives_to_add    db 2, 1, 0, 0           ; normal/hard/expert/secret
 max_lives       db 9, 3, 0, 0           ; normal/hard/expert/secret
 
-sub32           ; $9388; called by sub33
+chkpt_on_scrn   ; called by sub33 when there's a checkpoint on screen ($9388);
+                ; these don't affect graphics (if these are wrong, you crash
+                ; to the checkpoint);
+                ; in:  X = checkpoint #
+                ; out: temp1 = Y pos in pixels, temp2 = X pos in pixels,
+                ;      temp3 = Y pos in metatiles
                 ;
-                lda checkpts_y,x
+                lda checkpts_y_lo,x
                 sub scrl_mtiles_lo
                 sta temp3
                 asl a
@@ -2798,44 +2807,50 @@ sub32           ; $9388; called by sub33
                 sta temp2
                 rts
 
-sub33           ; $93af; called by mode_ingame
+sub33           ; $93af; called by mode_ingame;
+                ; called all the time in game proper
                 ;
-                ldy ram22
+                ldy chkpt_slot
                 bmi +
-                lda ram36
+                lda sprite0_hit
                 beq +
-                stz ram36
-                jsr sub31
-                ldy ram22
+                stz sprite0_hit
+                jsr touch_chkpnt
+                ldy chkpt_slot
                 lda #$ff
-                sta arr33,y
-+               copy #$ff, ram22
+                sta visible_chkpts,y    ; mark slot unused
++               copy #$ff, chkpt_slot
+                ;
+                ; loop through visible checkpoints from last to first
                 ;
                 ldy #3
--               lda arr33,y
-                cmp #$ff
-                beq cod4
+-               lda visible_chkpts,y
+                cmp #$ff                ; unused slot?
+                beq next_chkpt
                 tax
-                jsr sub32
-                lda temp3
+                jsr chkpt_on_scrn       ; (see return values)
+                ;
+                lda temp3               ; Y pos in metatiles
                 cmp #$ff
                 beq +
                 cmp #$11
-                bcs ++
-+               lda temp1
+                bcs ++                  ; mark slot unused
+                ;
++               lda temp1               ; Y pos in pixels
                 sub #8
                 sub plr_y+0
-                bcs cod4
-                adc #$13
-                bcc cod4
-                lda temp2
+                bcs next_chkpt
+                adc #19
+                bcc next_chkpt
+                ;
+                lda temp2               ; X pos in pixels
                 sub #8
                 sub plr_x+0
-                bcs cod4
-                adc #$13
-                bcc cod4
-                sty ram22
+                bcs next_chkpt
+                adc #19
+                bcc next_chkpt
                 ;
+                sty chkpt_slot
                 lda #SFX_BLIP           ; "touch checkpoint" sfx
                 cpx #12
                 bne +
@@ -2848,13 +2863,14 @@ sub33           ; $93af; called by mode_ingame
                 lda temp2
                 sub #2
                 jsr sub35
-cod4            dey
+                ;
+next_chkpt      dey
                 bpl -
                 rts
                 ;
 ++              lda #$ff
-                sta arr33,y
-                jmp cod4
+                sta visible_chkpts,y    ; mark slot unused
+                jmp next_chkpt
 
 sub34           ; $9424; called by mode_title, mode_ingame
                 ;
@@ -2892,20 +2908,20 @@ sub35           ; $9460; called by sub33, sub38
                 lda #5
                 jmp -
 
-mark_chkp_touch ; mark checkpoint as touched; called by sub31
+mark_chkp_touch ; mark checkpoint as touched; called by touch_chkpnt
                 ;
-                ldy ram22
-                lda arr33,y
+                ldy chkpt_slot
+                lda visible_chkpts,y    ; get checkpoint # from slot
                 and #%00000111
                 tax
-                lda arr33,y
+                lda visible_chkpts,y
                 lsr a
                 lsr a
                 lsr a
                 tay
-                lda chex_touched,y
+                lda chkpts_touched,y
                 ora powers_of_2,x       ; 1<<x
-                sta chex_touched,y
+                sta chkpts_touched,y
                 rts
 
 was_chkp_touchd ; has checkpoint number Y been touched?
@@ -2919,7 +2935,7 @@ was_chkp_touchd ; has checkpoint number Y been touched?
                 lsr a
                 lsr a
                 tay
-                lda chex_touched,y
+                lda chkpts_touched,y
                 and powers_of_2,x       ; 1<<x
                 rts
 
@@ -2927,17 +2943,17 @@ powers_of_2     hex 01 02 04 08 10 20 40 80
 
 sub38           ; $94a5; called by mode_title
                 ;
-                ldy ram22
+                ldy chkpt_slot
                 bmi +
                 lda ram24
                 bpl +
                 copy #1, ram24
                 jsr sub39
-+               copy #$ff, ram22
++               copy #$ff, chkpt_slot
                 ;
                 ldy #3
--               lda arr33,y
-                cmp #$ff
+-               lda visible_chkpts,y
+                cmp #$ff                ; unused slot?
                 beq +
                 tax
                 lda dat16,x
@@ -2953,7 +2969,7 @@ sub38           ; $94a5; called by mode_title
                 adc #$13
                 bcc +
                 ;
-                sty ram22
+                sty chkpt_slot
                 lda dat17,x
                 sta sfx_to_play
                 lda dat16,x
@@ -2965,10 +2981,10 @@ sub38           ; $94a5; called by mode_title
 +               dey
                 bpl -
                 ;
-                lda ram36
+                lda sprite0_hit
                 bne +
                 sta ram24
-+               stz ram36
++               stz sprite0_hit
                 rts
 
 dat15           hex 3e b6 7a            ; $9507
@@ -2977,9 +2993,10 @@ dat17           hex 01 01 03
 
 sub39           ; $9510; called by sub38
                 ;
-                ldy ram22
-                ldx arr33,y
+                ldy chkpt_slot
+                ldx visible_chkpts,y    ; get checkpoint # from slot
                 bne ++
+                ;
                 lda skill
                 add #1
                 cmp #SKILL_SECRET
@@ -3244,21 +3261,23 @@ level_data      ; what main game world looks like; also affects where
                 hex 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
 level_data_end
 
-checkpts_y      ; Y positions of checkpoints ($a11e);
-                ; read by sub31, sub32, draw_checkpts, sub46
-                hex 1a 24 33 3b 3e 4a 52 56
-                hex 64 71 74 7a 83
+                ; Y positions of checkpoints, in units of 16 pixels;
+                ; read by touch_chkpnt, chkpt_on_scrn, draw_checkpts, sub46
+                ;
+checkpts_y_lo   dl  26,  36,  51,  59,  62,  74,  82,  86
+                dl 100, 113, 116, 122, 131
+                hex ff
+                ;
+checkpts_y_hi   dh  26,  36,  51,  59,  62,  74,  82,  86
+                dh 100, 113, 116, 122, 131
                 hex ff
 
-checkpts_unkn   ; probably checkpoint-related ($a12c);
-                ; read by sub31, draw_checkpts, sub46
-                hex 00 00 00 00 00 00 00 00
-                hex 00 00 00 00 00 ff
-
-checkpts_x      ; X positions of checkpoints ($a13a);
-                ; read by sub31, sub32, draw_checkpts, sub46
-                hex 12 17 08 03 1c 1b 1c 02
-                hex 03 1c 03 1b 0f 00
+checkpts_x      ; X positions of checkpoints, in units of 8 pixels;
+                ; read by touch_chkpnt, chkpt_on_scrn, draw_checkpts, sub46
+                ;
+                db 18, 23,  8,  3, 28, 27, 28,  2
+                db  3, 28,  3, 27, 15
+                hex 00
 
 render_frwd1    ; $a148; called by sub14
                 ;
@@ -3405,12 +3424,12 @@ draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
                 ;
                 ldx ram21
 -               inx
-                lda checkpts_unkn,x
+                lda checkpts_y_hi,x
                 cmp ptr1+1
                 bcc -
                 bne +++
                 ;
-                lda checkpts_y,x
+                lda checkpts_y_lo,x
                 cmp ptr1+0
                 bcc -
                 bne +++
@@ -3422,23 +3441,25 @@ draw_checkpts   ; draw checkpoints; called for every 16 vertical pixels ingame;
                 ;
                 ldx ram21
                 ldy #3
--               lda arr33,y
-                cmp #$ff
+-               lda visible_chkpts,y
+                cmp #$ff                ; unused slot?
                 beq +
                 dey
                 bpl -
                 bmi ++                  ; unconditional
                 ;
 +               txa
-                sta arr33,y
+                sta visible_chkpts,y
+                ;
                 lda ram11
                 sta arr34,y
                 lda checkpts_x,x
                 tax
                 ora ram12
                 sta arr35,y
-                lda arr33,y
-                cmp #12
+                ;
+                lda visible_chkpts,y
+                cmp #12                 ; end-of-game item?
                 beq +
                 ;
                 ; draw checkpoint at tile pos X
@@ -3473,12 +3494,12 @@ sub46           ; $a2b7; called by render_bkwd
                 inx
 -               dex
                 bmi +++
-                lda checkpts_unkn,x
+                lda checkpts_y_hi,x
                 cmp ptr1+1
                 beq +
                 bcs -
                 bne +++
-+               lda checkpts_y,x
++               lda checkpts_y_lo,x
                 cmp ptr1+0
                 beq +
                 bcs -
@@ -3490,21 +3511,24 @@ sub46           ; $a2b7; called by render_bkwd
                 ;
                 ldx ram21
                 ldy #3
--               lda arr33,y
-                cmp #$ff
+-               lda visible_chkpts,y
+                cmp #$ff                ; unused slot?
                 beq +
                 dey
                 bpl -
                 bmi ++                  ; unconditional
                 ;
 +               txa
-                sta arr33,y
+                sta visible_chkpts,y    ; assign checkpoint to slot
+                ;
                 lda ram11
                 sta arr34,y
                 lda checkpts_x,x
                 tax
                 ora ram12
                 sta arr35,y
+                ;
+                ; draw checkpoint at tile pos x
                 lda #$f0
                 sta tile_row_top+0,x
                 lda #$f1
@@ -3552,7 +3576,7 @@ spawn_at_start  ; spawn player at start of main game; called by mode_spawn_ing
                 sta ram17
                 lda #0
                 ldy #1
--               sta chex_touched,y
+-               sta chkpts_touched,y
                 dey
                 bpl -
                 ;
@@ -3719,7 +3743,7 @@ sub56           ; $a484; called by render_bkwd
 +               rts
 
 add16_to_ptr    ; add 16 to lvl_dat_ptr2 (if X=0) or lvl_dat_ptr_cp (if X=2);
-                ; called by sub31, render_frwd1
+                ; called by touch_chkpnt, render_frwd1
                 ;
                 lda lvl_dat_ptr2,x
                 add #16
@@ -3729,7 +3753,7 @@ add16_to_ptr    ; add 16 to lvl_dat_ptr2 (if X=0) or lvl_dat_ptr_cp (if X=2);
 +               rts
 
 sub16_from_ptr  ; subtract 16 from lvl_dat_ptr2 (if X=0) or lvl_dat_ptr_cp
-                ; (if X=2); called by sub31, render_bkwd, spawn_at_start
+                ; (if X=2); called by touch_chkpnt, render_bkwd, spawn_at_start
                 ;
                 lda lvl_dat_ptr2,x
                 sub #16
@@ -3948,25 +3972,26 @@ nmi             pha                     ; push A, X, Y
                 bcc +
                 lda ppu_status
                 and #%01000000
-                ora ram36
-                sta ram36
+                ora sprite0_hit
+                sta sprite0_hit
 
 +               lda main_loop_flag      ; skip stuff if flag set
                 beq +
                 jmp nmi_end
 
 +               lda warp_effect_on
-                bne ++++
-                lda ram36
-                beq +++++
-                lda ram22
-                bmi +++
+                bne +++
+                lda sprite0_hit
+                beq no_coll
+                lda chkpt_slot
+                bmi kill
 
+                ; warp effect not on, sprite 0 hit & there's a checkpoint (?)
                 lda mode_seq1
                 cmp #MODE_INGAME
                 beq +
                 lda ram24
-                bne +++++
+                bne no_coll
 
                 dec ram24
                 bne ++
@@ -3980,9 +4005,9 @@ nmi             pha                     ; push A, X, Y
                 copy #4, arr36+1
                 lda sfx_to_play
                 jsr play_sfx
-                jmp +++++
+                jmp no_coll
 
-+++             lda #$30                ; 1st explosion tile in PT1
+kill            lda #$30                ; 1st explosion tile in PT1
                 sta oam_page+0*4+1
                 lda #MODE_DEAD
                 sta mode_seq1
@@ -3990,9 +4015,9 @@ nmi             pha                     ; push A, X, Y
                 lda #SFX_CRASH
                 jsr play_sfx
 
-++++            stz ram36
++++             stz sprite0_hit
 
-+++++           bit ppu_status
+no_coll         bit ppu_status
                 jsr flush_ppu_buf
                 jsr nmisub2
                 lda ppu_mask_copy1
