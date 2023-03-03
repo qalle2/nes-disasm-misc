@@ -5,7 +5,7 @@ Table of contents:
 * [List of files](#list-of-files)
 * [How to assemble](#how-to-assemble)
 * [Tools used](#tools-used)
-* [Irritating Ship hack](#irritating-ship-hack)
+* [Irritating Ship hacks](#irritating-ship-hacks)
 
 ## List of files
 Programs:
@@ -28,10 +28,14 @@ Run the `.sh` files (under Linux) to assemble and validate the programs.
 * [my NES disassembler](https://github.com/qalle2/nes-disasm)
 * [my cdl-summary](https://github.com/qalle2/cdl-summary)
 
-## Irritating Ship hack
-I have created a "simple controls" hack for *Irritating Ship*.
-Pressing the d-pad in any of the eight directions will instantly turn and accelerate the ship in that direction.
-The hack can be enabled by patching the original ROM with `irriship-simplecontrols.ips.gz`.
-The uncompressed IPS file in base64: `UEFUQ0gACbQAG6IH3bCJ8A3KEPgwEQgJAQUEBgIKioVaCmVaCgAJ9QABD0VPRg==`
+## Irritating Ship hacks
+My hacks for *Irritating Ship*:
+* Simple Controls: Pressing the d-pad in any of the eight directions will
+instantly turn and accelerate the ship in that direction. Files:
+`irriship-simplecontrols.bps.gz`, `irriship-simplecontrols.ips.gz`. The
+uncompressed IPS file in base64:
+`UEFUQ0gACbQAG6IH3bCJ8A3KEPgwEQgJAQUEBgIKioVaCmVaCgAJ9QABD0VPRg==`
+* Straight Tunnel: Replaces the maze with a straight tunnel. Files:
+`irriship-tunnel.bps.gz`, `irriship-tunnel.ips.gz`.
 
 ([RHDN](https://www.romhacking.net) doesn't allow hacks of homebrew games.)
