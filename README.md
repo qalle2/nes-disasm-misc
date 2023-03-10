@@ -9,9 +9,9 @@ Table of contents:
 
 ## List of files
 Programs:
-* `bpm.asm`, `bpm-*`: *BPM - Nintendo's Beginnings* by retroadamshow. Disassembly not finished.
-* `dvd.asm`, `dvd-*`: *DVD Screensaver for NES* by Johnybot.
-* `irriship.asm`, `irriship-*`: *Irritating Ship* by Fiskbit, Trirosmos. Disassembly not finished.
+* `bpm.asm`, `bpm-*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
+* `dvd.asm`, `dvd-*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
+* `irriship.asm`, `irriship-*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
 
 Other files:
 * `famistudio.txt`: a file from [Famistudio](https://github.com/BleuBleu/FamiStudio) (similar to what's used in BPM)
@@ -32,9 +32,7 @@ Run the `.sh` files (under Linux) to assemble and validate the programs.
 My hacks for *Irritating Ship*:
 * Simple Controls: Pressing the d-pad in any of the eight directions will
 instantly turn and accelerate the ship in that direction. Files:
-`irriship-simplecontrols.bps.gz`, `irriship-simplecontrols.ips.gz`. The
-uncompressed IPS file in base64:
-`UEFUQ0gACbQAG6IH3bCJ8A3KEPgwEQgJAQUEBgIKioVaCmVaCgAJ9QABD0VPRg==`
+`irriship-simplecontrols.bps.gz`, `irriship-simplecontrols.ips.gz`.
 * Straight Tunnel: Replaces the maze with a straight tunnel. Files:
 `irriship-tunnel.bps.gz`, `irriship-tunnel.ips.gz`.
 
