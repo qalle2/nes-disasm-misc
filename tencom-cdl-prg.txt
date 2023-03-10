@@ -1,0 +1,107 @@
+CPU address (hexadecimal), length (hexadecimal),
+description ("-" = unaccessed):
+
+8000  1c0: code
+81c0    1: code, data
+81c1    b: code
+81cc    3: -
+81cf   17: code
+81e6    1: code, data
+81e7   1b: code
+8202    e: -
+8210    1: code, data
+8211   2d: -
+823e   2d: code
+826b    1: code, data
+826c   26: code
+8292   1c: -
+82ae    e: code
+82bc   34: -
+82f0    1: code, data
+82f1    a: code
+82fb   54: -
+834f   1c: code
+836b    2: -
+836d    9: code
+8376   5e: -
+83d4    7: code
+83db   4b: -
+8426    1: data
+8427    8: -
+842f    1: data
+8430   46: -
+8476    1: indirect data
+8477    c: -
+8483    1: indirect data
+8484    4: -
+8488    1: indirect data
+8489    b: -
+8494    1: indirect data
+8495    f: -
+84a4    1: indirect data
+84a5   4f: -
+84f4    4: code
+84f8    7: -
+84ff    1: code
+8500    1: code, data
+8501  1ab: code
+86ac    1: code, data
+86ad    2: code
+86af    c: -
+86bb   22: code
+86dd    6: -
+86e3   15: code
+86f8    3: -
+86fb    b: code
+8706    1: -
+8707    3: code
+870a    4: -
+870e    4: code
+8712    7: -
+8719    7: code
+8720    4: -
+8724   25: code
+8749    a: -
+8753    4: code
+8757    5: -
+875c    1: code
+875d   20: indirect data
+877d    1: -
+877e   20: indirect data
+879e    1: -
+879f   20: indirect data
+87bf    1: -
+87c0   20: indirect data
+87e0    1: -
+87e1   20: indirect data
+8801    1: -
+8802   20: indirect data
+8822    1: -
+8823   20: indirect data
+8843    1: -
+8844   20: indirect data
+8864    1: -
+8865   20: indirect data
+8885    1: -
+8886   20: indirect data
+88a6    1: -
+88a7   20: indirect data
+88c7    1: -
+88c8   20: indirect data
+88e8    1: -
+88e9   20: indirect data
+8909    1: -
+890a   20: indirect data
+892a    1: -
+892b   20: indirect data
+894b    1: -
+894c   20: indirect data
+896c    1: -
+896d   20: indirect data
+898d    1: -
+898e   20: indirect data
+89ae    1: -
+89af   41: indirect data
+89f0 760a: -
+fffa    4: data
+fffe    2: -

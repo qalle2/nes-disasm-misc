@@ -12,6 +12,7 @@ Programs:
 * `bpm.asm`, `bpm-*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
 * `dvd.asm`, `dvd-*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
 * `irriship.asm`, `irriship-*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
+* `tencom.asm`, `tencom-*`: *[The Ten Commandments on NES](https://debiru.itch.io/the-ten-commandments-on-nes)* by Debiru. Disassembly not finished.
 
 Other files:
 * `famistudio.txt`: a file from [Famistudio](https://github.com/BleuBleu/FamiStudio) (similar to what's used in BPM)
