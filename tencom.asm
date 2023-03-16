@@ -897,4 +897,4 @@ line1a          db "1.Thou shalt have no other ", $00       ; $89af
 
                 base $0000
                 incbin "tencom.chr"
-                pad $2000, $ff
+                pad $2000, $00
