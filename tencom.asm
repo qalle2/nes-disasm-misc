@@ -896,5 +896,5 @@ line1a          db "1.Thou shalt have no other ", $00       ; $89af
 ; --- CHR ROM -----------------------------------------------------------------
 
                 base $0000
-                incbin "tencom.chr"
+                incbin "tencom-chr.bin"
                 pad $2000, $00
