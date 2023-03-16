@@ -36,5 +36,8 @@ instantly turn and accelerate the ship in that direction. Files:
 `irriship-simplecontrols.bps.gz`, `irriship-simplecontrols.ips.gz`.
 * Straight Tunnel: Replaces the maze with a straight tunnel. Files:
 `irriship-tunnel.bps.gz`, `irriship-tunnel.ips.gz`.
+* Thin Walls: Makes all walls two pixels thinner on the inside of the maze,
+leaving you more room to maneuver. Affects CHR ROM only. Files:
+`irriship-thinwalls.bps.gz`, `irriship-thinwalls.ips.gz`.
 
 ([RHDN](https://www.romhacking.net) doesn't allow hacks of homebrew games.)
