@@ -9,10 +9,10 @@ Table of contents:
 
 ## List of files
 Programs:
-* `bpm.asm`, `bpm-*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
-* `dvd.asm`, `dvd-*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
-* `irriship.asm`, `irriship-*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
-* `tencom.asm`, `tencom-*`: *[The Ten Commandments on NES](https://debiru.itch.io/the-ten-commandments-on-nes)* by Debiru. Disassembly not finished.
+* `bpm.*`, `bpm-*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
+* `dvd.*`, `dvd-*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
+* `irriship.*`, `irriship-*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
+* `tencom.*`, `tencom-*`: *[The Ten Commandments on NES](https://debiru.itch.io/the-ten-commandments-on-nes)* by Debiru. Disassembly not finished.
 
 Other files:
 * `famistudio.txt`: a file from [Famistudio](https://github.com/BleuBleu/FamiStudio) (similar to what's used in BPM)
@@ -40,4 +40,4 @@ instantly turn and accelerate the ship in that direction. Files:
 leaving you more room to maneuver. Affects CHR ROM only. Files:
 `irriship-thinwalls.bps.gz`, `irriship-thinwalls.ips.gz`.
 
-([RHDN](https://www.romhacking.net) doesn't allow hacks of homebrew games.)
+([RHDN](https://www.romhacking.net) doesn't accept hacks of homebrew games.)
