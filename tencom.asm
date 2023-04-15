@@ -7,11 +7,11 @@
 
 ; 'arr' = RAM array, 'ram' = RAM non-array
 
-ram1            equ $00
-ram2            equ $01
-ram3            equ $02
-ram4            equ $03
-ptr1            equ $04
+vblank_flag     equ $00
+counter1        equ $01
+counter2        equ $02
+some_flag       equ $03
+ptr1            equ $04  ; unused
 ram5            equ $06
 ram6            equ $07
 ram7            equ $08
@@ -30,7 +30,7 @@ ptr5            equ $2a
 ptr6            equ $2c
 ram11           equ $32
 
-arr1            equ $01c0
+arr1            equ $01c0  ; 32 bytes?
 sprite_data     equ $0200
 arr2            equ $0300
 
@@ -67,7 +67,8 @@ endm
 
                 base $8000
 
-reset           sei
+reset           ; initialize the NES
+                sei
                 ldx #$ff
                 txs
                 inx
@@ -75,6 +76,7 @@ reset           sei
                 stx dmc_freq
                 stx ppu_ctrl            ; disable NMI on VBlank
 
+                ; wait for VBlanks
                 bit ppu_status
 -               bit ppu_status
                 bpl -
@@ -93,7 +95,7 @@ reset           sei
                 dex
                 bne -
 
-                ; clear NT0-NT3 (PPU $2000-$2fff)
+                ; clear all name tables (PPU $2000-$2fff)
                 txa                     ; 0 -> A
                 ldy #$20
                 sty ppu_addr
@@ -118,15 +120,15 @@ reset           sei
                 inx
                 bne -
 
-                lda #$04
+                lda #4
                 jsr sub4
                 jsr sub2
                 jsr hide_sprites
                 jsr sub18
                 jsr sub13
 
-                copy #$00, ptr4+0
-                copy #$08, ptr4+1
+                copy #<$0800, ptr4+0
+                copy #>$0800, ptr4+1
                 jsr clear_y
 
                 ; store "JMP indir_rts" at ram_indir_jmp
@@ -143,10 +145,11 @@ reset           sei
                 lda #%00000110          ; enable sprite & BG left column
                 sta ppu_mask_copy
                 ;
-                lda ram2
--               cmp ram2
+                lda counter1
+-               cmp counter1
                 beq -
 
+                ; delay
                 ldx #$34
                 ldy #$18
 -               dex
@@ -156,7 +159,7 @@ reset           sei
 
                 lda ppu_status
                 and #%10000000          ; VBlank flag
-                sta ram1
+                sta vblank_flag
                 jsr disable_render
 
                 lda #$00
@@ -164,7 +167,7 @@ reset           sei
                 sta ppu_scroll
                 sta oam_addr
 
-                jmp cod2
+                jmp main
 
 ; -----------------------------------------------------------------------------
 
@@ -190,7 +193,7 @@ nmi             ; $80bc
                 lda ram6
                 bne +
                 jmp ++
-+               ldx #$00
++               ldx #0
                 stx ram6
                 copy #$3f, ppu_addr
                 stx ppu_addr
@@ -237,9 +240,9 @@ nmi             ; $80bc
                 to_ppu arr1+30, ram9
                 to_ppu arr1+31, ram9
 
-++              lda ram4
+++              lda some_flag
                 beq +
-                copy #$00, ram4
+                copy #0, some_flag
                 lda ram5
                 beq +
                 jsr sub10
@@ -256,12 +259,12 @@ nmi             ; $80bc
 +++             lda ppu_mask_copy
                 sta ppu_mask
                 ;
-                inc ram2
-                inc ram3
-                lda ram3
+                inc counter1
+                inc counter2
+                lda counter2
                 cmp #6
                 bne nmi_end
-                copy #0, ram3
+                copy #0, counter2
                 ;
 nmi_end         jsr ram_indir_jmp
 
@@ -274,7 +277,7 @@ nmi_end         jsr ram_indir_jmp
 
 ; -----------------------------------------------------------------------------
 
-irq             ; $8202 (unaccessed chunk)
+irq             ; $8202 (unaccessed)
                 pha
                 txa
                 pha
@@ -292,10 +295,10 @@ indir_rts       rts                     ; $8210
                 ; $8211: unaccessed chunk
                 sta ptr2+0
                 stx ptr2+1
-                ldx #$00
-                lda #$20
+                ldx #0
+                lda #32
 --              sta ptr3+0
-                ldy #$00
+                ldy #0
 -               lda (ptr2),y
                 sta arr1,x
                 inx
@@ -306,7 +309,7 @@ indir_rts       rts                     ; $8210
                 rts
                 sta ptr2+0
                 stx ptr2+1
-                ldx #$00
+                ldx #0
                 lda #$10
                 bne --
                 sta ptr2+0
@@ -317,7 +320,7 @@ indir_rts       rts                     ; $8210
 
 ; -----------------------------------------------------------------------------
 
-sub1            ; $823e; called by cod2
+sub1            ; $823e; called by main
                 sta ptr2+0
                 jsr sub15
                 and #%00011111
@@ -327,9 +330,9 @@ sub1            ; $823e; called by cod2
                 inc ram6
                 rts
 
-sub2            ; $824e; called by reset
+sub2            ; $824e; called by reset; fill arr1 with $0f, set ram6=32
                 lda #$0f
-                ldx #$00
+                ldx #0
 -               sta arr1,x
                 inx
                 cpx #32
@@ -354,7 +357,7 @@ sub3            ; $825d; called by sub4
                 sta ram6
                 rts
                 ;
-sub4            ; $8279; called by reset
+sub4            ; $8279; called by reset with A=4
                 jsr sub3
                 txa
                 jmp -
@@ -365,7 +368,7 @@ disable_render  ; $8280; hide sprites & background; called by reset
                 sta ppu_mask_copy
                 jmp sub8
 
-enable_render   ; $8289; show sprites & background; called by cod2
+enable_render   ; $8289; show sprites & background; called by main
                 lda ppu_mask_copy
                 ora #%00011000
 -               sta ppu_mask_copy
@@ -380,7 +383,7 @@ enable_render   ; $8289; show sprites & background; called by cod2
                 bne -
                 sta ppu_mask_copy
                 rts
-                lda ram1
+                lda vblank_flag
                 ldx #$00
                 rts
                 lda ppu_ctrl_copy
@@ -390,7 +393,7 @@ enable_render   ; $8289; show sprites & background; called by cod2
                 rts
 
 hide_sprites    ; $82ae; called by reset
-                ldx #$00
+                ldx #0
                 lda #$ff
 -               sta sprite_data,x
                 inx
@@ -426,23 +429,23 @@ hide_sprites    ; $82ae; called by reset
                 rts
 
                 ; $82db: unaccessed chunk
-                copy #$01, ram4
-                lda ram2
--               cmp ram2
+                copy #1, some_flag
+                lda counter1
+-               cmp counter1
                 beq -
-                lda ram1
+                lda vblank_flag
                 beq +
--               lda ram3
-                cmp #$05
+-               lda counter2
+                cmp #5
                 beq -
 +               rts
 
 ; -----------------------------------------------------------------------------
 
 sub8            ; $82f0; called by disable_render, enable_render
-                copy #1, ram4
-                lda ram2
--               cmp ram2
+                copy #1, some_flag
+                lda counter1
+-               cmp counter1
                 beq -
                 rts
 
@@ -497,13 +500,13 @@ sub8            ; $82f0; called by disable_render, enable_render
 
 ; -----------------------------------------------------------------------------
 
-sub9            ; $834f; called by cod2
+sub9            ; $834f; called by main
                 sta ptr2+0
                 stx ptr2+1
                 jsr sub14
                 sta ptr3+0
                 stx ptr3+1
-                ldy #$00
+                ldy #0
 -               lda (ptr3),y
                 sta ppu_data
                 inc ptr3+0
@@ -526,10 +529,10 @@ sub9            ; $834f; called by cod2
                 rts
                 sta ptr1+0
                 stx ptr1+1
-sub10           ldy #$00
+sub10           ldy #0
 --              lda (ptr1),y
                 iny
-                cmp #$40
+                cmp #64
                 bcs +
                 sta ppu_addr
                 lda (ptr1),y
@@ -570,7 +573,7 @@ sub10           ldy #$00
 
 ; -----------------------------------------------------------------------------
 
-set_ppu_addr    ; $83d4; X*256+A -> PPU address; called by cod2
+set_ppu_addr    ; $83d4; X*256+A -> PPU address; called by main
                 stx ppu_addr
                 sta ppu_addr
                 rts
@@ -583,7 +586,7 @@ set_ppu_addr    ; $83d4; X*256+A -> PPU address; called by cod2
                 jsr sub15
                 ldx ptr3+1
                 beq +
-                ldx #$00
+                ldx #0
 -               sta ppu_data
                 dex
                 bne -
@@ -605,7 +608,7 @@ set_ppu_addr    ; $83d4; X*256+A -> PPU address; called by cod2
                 sta ppu_ctrl_copy
                 sta ppu_ctrl
                 rts
-                lda ram2
+                lda counter1
                 ldx #$00
                 rts
                 tax
@@ -676,7 +679,7 @@ macro copyline _src, _dst
                 jsr sub9
 endm
 
-cod2            ; $8500; called by reset
+main            ; $8500; called by reset
                 ;
                 lajs $00, $02
                 lajs $01, $14
@@ -733,7 +736,7 @@ sub13           ; $86bb; called by reset
                 copy #>arr2, ptr6+1
                 ldx #$da
                 copy #$ff, ram11
-                ldy #$00
+                ldy #0
                 ;
 -               inx
                 beq +
@@ -749,7 +752,7 @@ sub13           ; $86bb; called by reset
                 rts
 
 sub14           ; $86e8; called by sub9
-                ldy #$01
+                ldy #1
                 lda (ptr4),y
                 tax
                 dey
@@ -764,7 +767,7 @@ sub14           ; $86e8; called by sub9
                 rts
 
 sub15           ; $86fe; called by sub1
-                ldy #$00
+                ldy #0
                 lda (ptr4),y
                 inc ptr4+0
                 beq +
@@ -772,14 +775,14 @@ sub15           ; $86fe; called by sub1
 +               inc ptr4+1
                 rts
 
-                ldy #$00                ; $870a (unaccessed)
+                ldy #0                  ; $870a (unaccessed)
                 lda (ptr4),y            ; unaccessed
 
-sub16           ; $870e; called by cod2
+sub16           ; $870e; called by main
                 ldy ptr4+0
                 beq +
                 dec ptr4+0              ; $8712 (unaccessed)
-                ldy #$00                ; unaccessed
+                ldy #0                  ; unaccessed
                 sta (ptr4),y            ; unaccessed
                 rts                     ; unaccessed
 +               dec ptr4+1
@@ -790,7 +793,7 @@ sub16           ; $870e; called by cod2
                 lda #$00                ; $8720 (unaccessed)
                 ldx #$00                ; unaccessed
 
-sub17           ; $8724; called by cod2
+sub17           ; $8724; called by main
                 pha
                 lda ptr4+0
                 sec
@@ -798,7 +801,7 @@ sub17           ; $8724; called by cod2
                 sta ptr4+0
                 bcs +
                 dec ptr4+1
-+               ldy #$01
++               ldy #1
                 txa
                 sta (ptr4),y
                 pla
@@ -807,11 +810,11 @@ sub17           ; $8724; called by cod2
                 rts
 
 sub18           ; $873a; called by reset
-                copy #$25, ptr5+0
-                copy #$03, ptr5+1
+                copy #<$0325, ptr5+0
+                copy #>$0325, ptr5+1
                 lda #$00
                 tay
-                ldx #$00
+                ldx #0
                 beq +
 -               sta (ptr5),y            ; unaccessed
                 iny                     ; unaccessed
@@ -820,14 +823,14 @@ sub18           ; $873a; called by reset
                 dex                     ; unaccessed
                 bne -                   ; unaccessed
 +
--               cpy #$00                ; $8753
+-               cpy #0                  ; $8753
                 beq +
                 sta (ptr5),y            ; unaccessed
                 iny                     ; unaccessed
                 bne -                   ; unaccessed
 +               rts
 
-                ; $875d; read by cod2
+                ; $875d; read by main
 line_empty      db "                                ", $00
 line1b          db "      gods before me            ", $00
 line2a          db "    2.Thou shalt not make unto  ", $00
@@ -849,11 +852,21 @@ line10          db "    10.Thou shalt not covet     ", $00
 line1a          db "1.Thou shalt have no other ", $00
 
 dat12           ; $89cb; read by sub13
-                hex 8d 0e 03 8e 0f 03 8d 15
-                hex 03 8e 16 03 88 b9 ff ff
-                hex 8d 1f 03 88 b9 ff ff 8d
-                hex 1e 03 8c 21 03 20 ff ff
-                hex a0 ff d0 e8 60
+                sta arr2+14
+                stx arr2+15
+                sta arr2+21
+                stx arr2+22
+-               dey
+                lda $ffff,y
+                sta arr2+31
+                dey
+                lda $ffff,y
+                sta arr2+30
+                sty arr2+33
+                jsr $ffff
+                ldy #$ff
+                bne -
+                rts
 
                 pad $fffa, $00          ; $89f0 (unaccessed)
 
