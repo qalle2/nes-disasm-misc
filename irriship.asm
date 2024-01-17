@@ -58,6 +58,7 @@
 ; Sprite slots (8*8 px):
 ;     $00:     ship             (palette 0)
 ;     $01:     exhaust          (palette 1)
+;     $02-$05: circular flash on "start" circle?
 ;     $06-$09: extra life icons (palette 0)
 ;     $06-$15: stars            (palette 3)
 ;     $12-$19: debris           (palette 0)
@@ -100,7 +101,7 @@ ppu_ctrl_copy2  equ $12
 ppu_mask_copy1  equ $13
 ppu_mask_copy2  equ $14
 mode_seq1       equ $15  ; see above
-mode_seq2       equ $16
+mode_seq2       equ $16  ; almost always = ram1
 ram1            equ $17  ; debris/victory conditions?
 ram2            equ $18
 mode_seq3       equ $19
@@ -147,7 +148,7 @@ plr_x           equ $4e  ; 3 bytes, high first, unsigned
 plr_y           equ $51  ; 3 bytes, high first, unsigned (on screen)
 plr_x_spd       equ $54  ; 3 bytes, high first, signed (two's complement)
 plr_y_spd       equ $57  ; 3 bytes, high first, signed (two's complement)
-plr_rot         equ $5a  ; 0-47, 0=top, incr. clockwise
+plr_rot         equ $5a  ; 0-47, 0=top, increases clockwise
 plr_rot_inquad  equ $5b  ; within quadrant (0=up/down...12=left/right)
 plr_quad        equ $5c  ; quadrant (0-3, 0=top right, incr. clockwise)
 ; $5d seems to be unused
@@ -305,19 +306,23 @@ macro stz _dst
                 sta _dst
 endm
 
-; -----------------------------------------------------------------------------
+; --- NES 2.0 header ----------------------------------------------------------
 
-                ; iNES header; see https://www.nesdev.org/wiki/INES
-                db "NES", $1a
-                db 2, 1                 ; 32k PRG, 8k CHR
-                db %00000000, %00001000  ; NROM, horiz. mirr., NES 2.0 header
+                ; see https://www.nesdev.org/wiki/NES_2.0
+                db "NES", $1a      ; id
+                db 2, 1            ; 32 KiB PRG ROM, 8 KiB CHR ROM
+                hex 00 08          ; NROM, horizontal mirroring, NES 2.0 header
                 hex 00 00 00 00
-                hex 02 00 00 01         ; what are these?
+                hex 02 00 00 01    ; multi-region, standard controllers
 
 ; --- PRG ROM start -----------------------------------------------------------
 
-; labels: "sub" = subroutine, "cod" = code, "dat" = data, "icod" = indirectly
-; accessed code, "idat" = indirectly accessed data
+; labels:
+;     sub  = subroutine
+;     cod  = code
+;     icod = indirectly accessed code
+;     dat  = data
+;     idat = indirectly accessed data
 
                 base $8000
 
@@ -327,8 +332,8 @@ rept 16         ;
                 sta ppu_data
 endr            ;
                 tya
-                bne non_rle_blk
-                beq start_blk           ; unconditional
+                bne non_rle_block
+                beq start_block         ; unconditional
                 ;
 --              txs                     ; restore SP
                 ldx #$ff
@@ -354,7 +359,7 @@ flush_ppu_buf   ; called by nmi
                 txs
                 tax
                 ;
-start_blk       ; pull PPU address; exit if high byte is negative
+start_block     ; pull PPU address; exit if high byte is negative
                 pla
                 bmi --
                 sta ppu_addr
@@ -371,10 +376,10 @@ start_blk       ; pull PPU address; exit if high byte is negative
                 tya
                 bmi rle_blk             ; R set? (never taken)
                 lsr a
-                bne non_rle_blk
+                bne non_rle_block
                 lda #64                 ; length 0=64
                 ;
-non_rle_blk     cmp #16
+non_rle_block   cmp #16
                 bcc +                   ; never taken
                 sbc #16
                 tay
@@ -407,7 +412,7 @@ rept 16         ;
 endr            ;
                 adc #16
                 bmi ppu_wr_16
-                bcc start_blk
+                bcc start_block
                 ;
 +               ; jump to middle of 16 PPU writes above
                 tay
@@ -2191,7 +2196,7 @@ sub28           ; $8ec7; called by mode_prep_title, mode_spawn_ing
                 bpl -
                 jsr draw_stars
 
-                lda #%00000010
+                lda #%00000010          ; sprite 2-5 attributes
                 sta oam_page+2*4+2
                 lda #%01000010
                 sta oam_page+3*4+2
@@ -2523,6 +2528,10 @@ mode_end_screen ; show end screen
                 ;   else if ram1 != 0:  STR_ID_VICTORY2 ("DID YOU GET LOST?")
                 ;   else if no crashes: STR_ID_VICTORY4 ("WOW")
                 ;   else:               STR_ID_VICTORY1 ("CONGRATULATIONS")
+                ;
+                ;   secret, 0 crashes, very fast: victory3
+                ;   normal, 0 crashes, very fast: victory4
+                ;   normal, 1 crash,   very fast: victory1
                 ;
                 lda skill               ; secret difficulty?
                 cmp #SKILL_SECRET
@@ -2888,7 +2897,8 @@ next_chkpt      dey
                 sta visible_chkpts,y    ; mark slot unused
                 jmp next_chkpt
 
-sub34           ; $9424; called by mode_title, mode_ingame
+sub34           ; $9424; draw circular flash on the "start" circle?;
+                ; called by mode_title, mode_ingame
                 ;
                 lda arr36
                 bit plr_y_spd+0
@@ -2900,23 +2910,22 @@ sub34           ; $9424; called by mode_title, mode_ingame
                 bit arr36+1
                 bmi +
                 ;
-                sta oam_page+2*4+0
+                sta oam_page+2*4+0      ; sprite 2-5 Y
                 sta oam_page+3*4+0
                 add #8
                 sta oam_page+4*4+0
                 sta oam_page+5*4+0
                 lda arr36+1
                 dec arr36+1
--               ora #%11000000
-                sta oam_page+2*4+1
+-               ora #%11000000          ; from sub35
+                sta oam_page+2*4+1      ; sprite 2-5 tile
                 sta oam_page+3*4+1
                 sta oam_page+4*4+1
                 sta oam_page+5*4+1
 +               rts
                 ;
 sub35           ; $9460; called by sub33, sub38
-                ;
-                sta oam_page+2*4+3
+                sta oam_page+2*4+3      ; sprite 2-5 X
                 sta oam_page+4*4+3
                 add #8
                 sta oam_page+3*4+3
@@ -3039,19 +3048,22 @@ sub39           ; $9510; called by sub38
 
 sub40           ; $953e; called by mode_ingame, mode_dead
                 ;
+                ; if   ram41 = 0:      exit
+                ; elif ram41 & 3 != 0: decrement ram41 and exit
+                ; else:                decrement ram41 and continue
                 lda ram41
                 beq ++
                 dec ram41
                 and #%00000011
                 bne ++
                 ;
-                lda str_buffer+4
+                lda str_buffer+4        ; increment str_buffer+4 (but 13 -> 1)
                 add #1
-                cmp #$0d
+                cmp #13
                 bcc +
                 lda #1
-                ;
 +               sta str_buffer+4
+                ;
                 ora #%00010000
                 sta str_buffer+5
                 eor #%00110000
