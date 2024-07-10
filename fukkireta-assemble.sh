@@ -1,2 +1,2 @@
 asm6 fukkireta.asm fukkireta.nes
-md5sum -c fukkireta.md5
+md5sum -c --quiet fukkireta.md5

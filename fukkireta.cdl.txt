@@ -1,0 +1,128 @@
+Decoded FCEUX Code/Data Logger file of Fukkireta.
+cdl_summary.py from https://github.com/qalle2/cdl-summary was used.
+
+--- PRG ROM, part 1 (origin $a000) --------------------------------------------
+
+$ python3 cdl_summary.py --prg-size 512 --part p --bank-size 8 --origin 40 --output t fukkireta.cdl
+
+ROM address, bank, offset in bank, NES address, CDL byte repeat count, CDL byte, CDL byte description (all numbers in hexadecimal):
+000000 00 0000 a000 0002 00 unaccessed
+000002 00 0002 a002 1ffe 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+002000 01 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+004000 02 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+006000 03 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+008000 04 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+00a000 05 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+00c000 06 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+00e000 07 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+010000 08 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+012000 09 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+014000 0a 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+016000 0b 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+018000 0c 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+01a000 0d 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+01c000 0e 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+01e000 0f 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+020000 10 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+022000 11 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+024000 12 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+026000 13 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+028000 14 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+02a000 15 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+02c000 16 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+02e000 17 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+030000 18 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+032000 19 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+034000 1a 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+036000 1b 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+038000 1c 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+03a000 1d 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+03c000 1e 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+03e000 1f 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+040000 20 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+042000 21 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+044000 22 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+046000 23 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+048000 24 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+04a000 25 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+04c000 26 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+04e000 27 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+050000 28 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+052000 29 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+054000 2a 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+056000 2b 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+058000 2c 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+05a000 2d 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+05c000 2e 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+05e000 2f 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+060000 30 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+062000 31 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+064000 32 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+066000 33 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+068000 34 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+06a000 35 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+06c000 36 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+06e000 37 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+070000 38 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+072000 39 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+074000 3a 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+076000 3b 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+078000 3c 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+07a000 3d 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+07c000 3e 0000 a000 2000 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+07e000 3f 0000 a000 1008 26 data (indirectly accessed), CPU bank 0xa000-0xbfff
+(snip)
+
+--- PRG ROM, part 2 (origin $e000) --------------------------------------------
+
+$ python3 cdl_summary.py --prg-size 512 --part p --bank-size 8 --origin 56 --output t fukkireta.cdl
+
+ROM address, bank, offset in bank, NES address, CDL byte repeat count, CDL byte, CDL byte description (all numbers in hexadecimal):
+(snip)
+07f008 3f 1008 f008 0df8 00 unaccessed
+07fe00 3f 1e00 fe00 0079 0d code, CPU bank 0xe000-0xffff
+07fe79 3f 1e79 fe79 0069 0e data, CPU bank 0xe000-0xffff
+07fee2 3f 1ee2 fee2 001e 00 unaccessed
+07ff00 3f 1f00 ff00 00b2 0d code, CPU bank 0xe000-0xffff
+07ffb2 3f 1fb2 ffb2 000a 0e data, CPU bank 0xe000-0xffff
+07ffbc 3f 1fbc ffbc 003e 00 unaccessed
+07fffa 3f 1ffa fffa 0004 0e data, CPU bank 0xe000-0xffff
+07fffe 3f 1ffe fffe 0002 00 unaccessed
+
+--- CHR ROM -------------------------------------------------------------------
+
+$ python3 cdl_summary.py --prg-size 512 --part c --bank-size 4 --output t fukkireta.cdl
+
+ROM address, bank, offset in bank, NES address, CDL byte repeat count, CDL byte, CDL byte description (all numbers in hexadecimal):
+000000 00 0000 0000 1000 01 rendered
+001000 01 0000 0000 1000 01 rendered
+002000 02 0000 0000 1000 01 rendered
+003000 03 0000 0000 1000 01 rendered
+004000 04 0000 0000 1000 01 rendered
+005000 05 0000 0000 1000 01 rendered
+006000 06 0000 0000 1000 01 rendered
+007000 07 0000 0000 1000 01 rendered
+008000 08 0000 0000 1000 01 rendered
+009000 09 0000 0000 1000 01 rendered
+00a000 0a 0000 0000 1000 01 rendered
+00b000 0b 0000 0000 1000 01 rendered
+00c000 0c 0000 0000 1000 01 rendered
+00d000 0d 0000 0000 1000 01 rendered
+00e000 0e 0000 0000 1000 01 rendered
+00f000 0f 0000 0000 1000 01 rendered
+010000 10 0000 0000 1000 01 rendered
+011000 11 0000 0000 1000 01 rendered
+012000 12 0000 0000 1000 01 rendered
+013000 13 0000 0000 1000 01 rendered
+014000 14 0000 0000 1000 01 rendered
+015000 15 0000 0000 1000 01 rendered
+016000 16 0000 0000 1000 01 rendered
+017000 17 0000 0000 1000 01 rendered
+018000 18 0000 0000 1000 00 unaccessed
+019000 19 0000 0000 1000 00 unaccessed
+01a000 1a 0000 0000 1000 00 unaccessed
+01b000 1b 0000 0000 1000 00 unaccessed
+01c000 1c 0000 0000 1000 00 unaccessed
+01d000 1d 0000 0000 1000 00 unaccessed
+01e000 1e 0000 0000 1000 00 unaccessed
+01f000 1f 0000 0000 1000 00 unaccessed

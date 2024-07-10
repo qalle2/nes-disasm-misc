@@ -11,7 +11,7 @@ Table of contents:
 Programs:
 * `bpm.*`, `bpm-*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
 * `dvd.*`, `dvd-*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
-* `fukkireta.*`, `fukkireta-*`: binary posted on NESDev Discord server, "showcase" channel, on 1 July 2024, by devwizard. Disassembly at an early stage.
+* `fukkireta.*`, `fukkireta-*`: binary posted on NESDev Discord server, "showcase" channel, on 1 July 2024, by devwizard. Disassembly not finished.
 * `irriship.*`, `irriship-*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
 * `tencom.*`, `tencom-*`: *[The Ten Commandments on NES](https://debiru.itch.io/the-ten-commandments-on-nes)* by Debiru. Disassembly not finished.
 

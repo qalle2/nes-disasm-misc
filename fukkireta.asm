@@ -3,13 +3,11 @@
 ; 1 July 2024, by devwizard.
 ; Disassembled by qalle. Assembles with ASM6.
 ;
-; program runtime: ~5600 frames (~93 seconds)
-; assuming 32 PRG ROM banks of 16 KiB ($4000 bytes) each (looks like it's
-;     actually 64*8 KiB)
-; cdl_summary.py from https://github.com/qalle2/cdl-summary was used
+; The program runs for ~5600 frames (~93 seconds) before it starts to loop.
+; 64 PRG ROM banks of 8 KiB ($2000 bytes) each.
 ;
 ; animation:
-;   - animation frame changes every 4 frames
+;   - animation frame and CHR banks change every 4 frames
 ;   - pelvis changes sides every 6 animation frames
 ;   - 1st animation frame after pelvis has changed sides is fuzzy
 ;
@@ -30,60 +28,39 @@
 ;             011 = 2nd 1k CHR bank
 ;             100 = 3rd 1k CHR bank
 ;             101 = 4th 1k CHR bank
-;             110 = 8k PRG bank at $8000 or $c000 (depending on PRG configuration)
+;             110 = 8k PRG bank at $8000 or $c000 (depending on PRG config)
 ;             111 = 8k PRG bank at $a000
 ;     $8001: bank data: new bank value (see $8000)
 ;     $a000: mirroring (0=vertical, 1=horizontal)
 ;     $e000: IRQ disable (any value)
 ;     $e001: IRQ enable (any value)
 
-; --- Address constants at $0000-$7fff ----------------------------------------
+; --- RAM and memory-mapped registers -----------------------------------------
 
 ; 'arr' = RAM array, 'ram' = RAM non-array, 'misc' = $2000-$7fff
 ; note: unused hardware registers commented out
 
 ram1            equ $00  ; changes every frame
-ram2            equ $10  ; changes every frame
+dmc_raw_copy    equ $10  ; changes every frame
 ram3            equ $11  ; changes every frame
 pointer         equ $12  ; 2 bytes
-ram4            equ $14  ; increments by 1 every 85-86 frames, from 0 to 63
-frame_cntr      equ $15  ; increments by 1 every frame, from 0 to 47
-ram6            equ $f0  ; changes every frame
-ram7            equ $f1  ; changes every frame
+ram4            equ $14  ; increments by 1 every 85-86 frames, from 0 to 63;
+                         ; used as bank number
+anim_phase      equ $15  ; phase of animation; increments by 1 every frame,
+                         ; from 0 to 47
+a_backup        equ $f0  ; backup of A register in NMI routine
+x_backup        equ $f1  ; backup of X register in NMI routine
 
 ppu_ctrl        equ $2000
 ppu_mask        equ $2001
 ppu_status      equ $2002
-;oam_addr       equ $2003
-;oam_data       equ $2004
-;ppu_scroll     equ $2005
 ppu_addr        equ $2006
 ppu_data        equ $2007
-
-;sq1_vol        equ $4000
-;sq1_sweep      equ $4001
-;sq1_lo         equ $4002
-;sq1_hi         equ $4003
-;sq2_vol        equ $4004
-;sq2_sweep      equ $4005
-;sq2_lo         equ $4006
-;sq2_hi         equ $4007
-;tri_linear     equ $4008
-;tri_lo         equ $400a
-;tri_hi         equ $400b
-;noise_vol      equ $400c
-;noise_lo       equ $400e
-;noise_hi       equ $400f
 dmc_freq        equ $4010
 dmc_raw         equ $4011
-;dmc_start      equ $4012
-;dmc_len        equ $4013
-;oam_dma        equ $4014
-;snd_chn        equ $4015
 joypad2         equ $4017
-
-bank_select     equ $8000
-bank_data       equ $8001
+bank_select     equ $8000  ; MMC3
+bank_data       equ $8001  ; MMC3
 
 ; --- iNES header -------------------------------------------------------------
 
@@ -94,66 +71,84 @@ bank_data       equ $8001
                 db %01000000, %00000000  ; MMC3, horizontal NT mirroring
                 pad $0010, $00
 
-; --- PRG ROM banks 0-30 ------------------------------------------------------
+; --- PRG ROM banks 0-62 ------------------------------------------------------
 
-                ; CDL data:
-                ; - first 2 bytes unaccessed
-                ; - the rest are indirect data, last mapped to CPU $8000-$bfff
+                ; CDL info:
+                ; - first 2 bytes: unaccessed
+                ; - the rest: indirectly accessed as data via CPU bank
+                ;             $a000-$bfff
+                ;
+                ; Does not sound like music if interpreted as 8-bit mono signed
+                ; or unsigned raw audio data.
 
                 base $0000
-                incbin "fukkireta-prg-bank-0-30.bin"
-                pad $7c000, $ff
+                incbin "fukkireta-prg-bank-0-62.bin"
+                pad $7e000, $ff
 
-; --- PRG ROM bank 31 ---------------------------------------------------------
+; --- PRG ROM bank 63 ---------------------------------------------------------
 
-                ; CDL data:
-                ; Offset in bank, length, description:
-                ;     $0000 ($3008): indirect data, mapped to CPU $8000-$bfff
-                ;     $3008 ($0df8): unaccessed
+                ; CDL info:
+                ; - $0000-$1007: indirectly accessed as data via CPU bank
+                ;                $a000-$bfff
+                ; - $1008-$1dff: unaccessed
+                ; - $1e00-$1fff: accessed as code or data via CPU bank
+                ;                $e000-$ffff (details: fukkireta.cdl.txt)
+
+                base $0000
+                incbin "fukkireta-prg-bank-63a.bin"
+                pad $1e00, $ff
+
+                base $fe00
+
+sub1            ; called directly by reset with X = 0
                 ;
-                ;     $3e00 ($0079): direct code,   mapped to CPU $c000-$ffff
-                ;     $3e79 ($0069): direct data,   mapped to CPU $c000-$ffff
-                ;     $3ee2 ($001e): unaccessed
-                ;     $3f00 ($00b2): direct code,   mapped to CPU $c000-$ffff
-                ;     $3fb2 ($000a): direct data,   mapped to CPU $c000-$ffff
-                ;     $3fbc ($003e): unaccessed
-                ;     $3ffa ($0004): direct data,   mapped to CPU $c000-$ffff
-                ;     $3ffe ($0002): unaccessed
-
-                base $c000
-                incbin "fukkireta-prg-bank-31a.bin"
-                pad $fe00, $ff
-
-sub1            ; called directly by reset
-                stx bank_select
-                stx bank_data
-                lda #$01
-                sta bank_select
+                ; PRG configuration:
+                ;     $8000-$9fff: 8k, switchable
+                ;     $a000-$bfff: 8k, switchable
+                ;     $c000-$dfff: 8k, fixed to 2nd-to-last PRG bank
+                ;     $e000-$ffff: 8k, fixed to last PRG bank
+                ; CHR configuration:
+                ;     $0000-$07ff: 2k, switchable
+                ;     $0800-$0fff: 2k, switchable
+                ;     $1000-$13ff: 1k, switchable
+                ;     $1400-$17ff: 1k, switchable
+                ;     $1800-$1bff: 1k, switchable
+                ;     $1c00-$1fff: 1k, switchable
+                ;
+                stx bank_select         ; prepare to set PPU bank $0000-$07ff
+                stx bank_data           ; use cart CHR bank 0
+                lda #%00000001
+                sta bank_select         ; prepare to set PPU bank $0800-$0fff
                 asl a
-                sta bank_data
-                lda #$07
-                sta bank_select
-                lda #$20
+                sta bank_data           ; use cart CHR bank 2
+                ;
+                lda #%00000111
+                sta bank_select         ; prepare to set CPU bank $a000-$bfff
+
+                lda #$20                ; $2000 -> PPU address
                 sta ppu_addr
                 stx ppu_addr
                 stx ram1
---              ldy dirdat1,x
+                ;
+nt_loop         ldy nt_zerocnt,x        ; write Y zero bytes
                 lda #$00
 -               sta ppu_data
                 dey
                 bne -
-                ldy $feab,x
+                ;
+                ldy nt_nonzero_cnt,x    ; write Y preincremented bytes
                 beq +
                 lda ram1
                 clc
--               adc #$01
+-               adc #1
                 sta ppu_data
                 dey
                 bne -
+                ;
                 sta ram1
                 inx
-                bne --
-                ;
+                bne nt_loop
+
 +               lda #$3f                ; set 1st BG subpalette
                 ldx #$00
                 sta ppu_addr
@@ -163,121 +158,128 @@ sub1            ; called directly by reset
                 sta ppu_data
                 inx
                 bne -
-                ;
+
 +               ldx #$00
                 stx ppu_addr
                 stx ppu_addr
                 stx pointer+0
                 lda #$a0
-                sta pointer+1       ; $a000 -> pointer
-                asl a               ; $40
-                sta ram2
-                stx ram3            ; 0
-                asl a               ; $80
-                stx ram4            ; 0
-                stx bank_data       ; 0
+                sta pointer+1           ; $a000 -> pointer
+                asl a
+                sta dmc_raw_copy        ; $40 -> dmc_raw_copy
+                stx ram3                ; 0 -> ram3
+                asl a                   ; %10000000
+                stx ram4                ; 0 -> ram4
+                stx bank_data           ; use PRG bank 0 (for $a000-$bfff)
                 ldy #0
-                sty frame_cntr
-                sta ppu_ctrl        ; %10000000
+                sty anim_phase
+                sta ppu_ctrl            ; %10000000 (enable NMI on VBlank)
                 lda #%00001010
-                sta ppu_mask
+                sta ppu_mask            ; enable BG rendering
 empty_sub       rts
 
-dirdat1         ; direct data ($fe79)
-                hex 4c 1a 19 19 01 19 01 19
-                hex 19 16 15 13 04 11 04 10
-                hex 03 10 03 10 03 11 03 12
-                hex 01 12 12 01 01 12 01 13
-                hex 01 01 14 01 01 01 14 01
-                hex 15 01 16 17 01 01 18 01
-                hex 01 8c 06 06 07 05 01 05
-                hex 01 07 09 0a 0d 04 06 05
-                hex 06 07 06 07 06 07 06 06
-                hex 06 06 07 0e 07 02 03 03
-                hex 0a 02 06 02 02 03 02 02
-                hex 09 02 08 01 0a 02 02 02
-                hex 02 02 02 00
+nt_zerocnt      ; how many $00 bytes to write to NT0 ($fe79, 50 bytes)
+                db 76,  26, 25, 25, 1, 25,  1, 25
+                db 25,  22, 21, 19, 4, 17,  4, 16
+                db  3,  16,  3, 16, 3, 17,  3, 18
+                db  1,  18, 18,  1, 1, 18,  1, 19
+                db  1,   1, 20,  1, 1,  1, 20,  1
+                db 21,   1, 22, 23, 1,  1, 24,  1
+                db  1, 140
+
+nt_nonzero_cnt  ; how many times to write an incrementing value to NT0
+                ; ($feab, 49 bytes + terminator)
+                db 6,  6,  7, 5, 1, 5,  1, 7
+                db 9, 10, 13, 4, 6, 5,  6, 7
+                db 6,  7,  6, 7, 6, 6,  6, 6
+                db 7, 14,  7, 2, 3, 3, 10, 2
+                db 6,  2,  2, 3, 2, 2,  9, 2
+                db 8,  1, 10, 2, 2, 2,  2, 2
+                db 2
+                db 0                    ; terminator
+
+; note: the sum of the two previous arrays is 1024
 
 palette         ; $fedd; read by sub1
-                hex 30 1d 2d 10     ; white, black, dark grey, light grey
-                hex ff              ; terminator
+                hex 30 1d 2d 10         ; white, black, dark grey, light grey
+                hex ff                  ; terminator
 
-                ; unaccessed ($fee2)
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff
+                pad $ff00, $ff          ; unaccessed ($fee2)
 
-nmi             ; direct code ($ff00)
-                sta ram6
+nmi             ; direct code
+                sta a_backup
                 ;
-                lda frame_cntr      ; counts 0-47
+                lda anim_phase          ; counts 0-47
                 clc
                 adc #1
                 cmp #48
                 bcc +
                 lda #0
-+               sta frame_cntr
++               sta anim_phase
                 ;
-                stx ram7
+                stx x_backup
+                ;
                 ldx #$00
                 stx bank_select
                 asl a
                 and #%01111100
                 sta bank_data
+                ;
                 inx
                 stx bank_select
                 ora #%00000010
                 sta bank_data
+                ;
                 ldx #$07
-                stx bank_select
-                ldx ram7
+                stx bank_select         ; prepare to set CPU bank $a000-$bfff
+                ldx x_backup
+                ;
                 lda ram4
-                cmp #$3f
+                cmp #$3f                ; how soon animation & music restart
                 bcc +
                 lda pointer+1
                 cmp #$b0
                 bcs reset
                 ;
-+               lda ram6
++               lda a_backup
                 rti
 
 reset           ; direct code ($ff3b)
                 cld
                 ldx #$00
-                stx ppu_ctrl
+                stx ppu_ctrl            ; disable NMI on VBlank
                 stx ppu_mask
                 stx dmc_freq
-                dex                          ; $ff -> X
+                dex                     ; X = $ff
                 stx joypad2
                 txs
                 ;
-                dex                          ; $fe -> X
-                lda ppu_status
+                dex                     ; X = $fe
+                lda ppu_status          ; wait for start of VBlank twice
 -               lda ppu_status
                 bpl -
                 inx
                 bmi -
                 ;
-                jsr sub1
+                jsr sub1                ; X = 0
                 ;
-code1           lda (pointer),y              ; $ff5b
+code1           lda (pointer),y         ; $ff5b
                 sta ram3
                 ldy #4
                 ;
-                inc pointer+0               ; increment pointer
+                inc pointer+0           ; increment pointer
                 bne +
                 inc pointer+1
                 ;
 +               bit pointer+1
-                bvc code2
+                bvc code2               ; branch if bit 6 was clear
                 lda #$a0
                 sta pointer+1
                 inc ram4
                 lda ram4
                 sta bank_data
                 ;
-code2           lda dirdat3,x               ; $ff76
+code2           lda audio_table,x       ; $ff76
                 lsr ram3
                 bcc ++
                 lsr a
@@ -288,11 +290,11 @@ code2           lda dirdat3,x               ; $ff76
 +               bpl +
 ++              inx
                 inx
-                cpx #$0a
+                cpx #10
                 bcc +
-                ldx #$09
+                ldx #9
 +               sta ram1
-                lda ram2
+                lda dmc_raw_copy
                 lsr ram3
                 bcc ++
                 sbc ram1
@@ -302,25 +304,26 @@ code2           lda dirdat3,x               ; $ff76
 ++              adc ram1
                 bpl +
                 lda #$7f
-+               sta ram2
++               sta dmc_raw_copy
                 sta dmc_raw
                 jsr empty_sub
                 nop
                 nop
                 dey
                 bne code2
-                beq code1                    ; unconditional
+                beq code1               ; unconditional
 
-dirdat3         ; direct data ($ffb2)
-                hex 01 02 03 05 08 0d 15 22
-                hex 37 59 ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
-                hex ff ff ff ff ff ff ff ff
+audio_table     ; if replaced with other data, music is noisy but partially
+                ; intelligible; starts with the Fibonacci sequence ($ffb2)
+                db   1,   2,   3,   5,   8,  13,  21,  34
+                db  55,  89, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
+                db 255, 255, 255, 255, 255, 255, 255, 255
 
                 ; NMI, reset, IRQ vectors (IRQ unaccessed)
                 pad $fffa, $ff
