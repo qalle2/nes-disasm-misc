@@ -5,46 +5,23 @@
 ;
 ; The program runs for ~5600 frames (~93 seconds) before it starts to loop.
 ; 64 PRG ROM banks of 8 KiB ($2000 bytes) each.
+; See "mmc3-notes.txt".
 ;
 ; animation:
 ;   - animation frame and CHR banks change every 4 frames
 ;   - pelvis changes sides every 6 animation frames
 ;   - 1st animation frame after pelvis has changed sides is fuzzy
-;
-; MMC3 registers:
-;     $8000: bank select: CPxx xRRR:
-;         P: PRG configuration (always 4*8k):
-;             0 = switchable, switchable, fixed to 2nd-to-last bank, fixed to
-;                 last bank
-;             1 = fixed to 2nd-to-last bank, switchable, switchable, fixed to
-;                 last bank
-;         C: CHR configuration:
-;             0 = 2*2k + 4*1k
-;             1 = 4*1k + 2*2k
-;         RRR: bank to change on next write to $8001:
-;             000 = 1st 2k CHR bank
-;             001 = 2nd 2k CHR bank
-;             010 = 1st 1k CHR bank
-;             011 = 2nd 1k CHR bank
-;             100 = 3rd 1k CHR bank
-;             101 = 4th 1k CHR bank
-;             110 = 8k PRG bank at $8000 or $c000 (depending on PRG config)
-;             111 = 8k PRG bank at $a000
-;     $8001: bank data: new bank value (see $8000)
-;     $a000: mirroring (0=vertical, 1=horizontal)
-;     $e000: IRQ disable (any value)
-;     $e001: IRQ enable (any value)
 
 ; --- RAM and memory-mapped registers -----------------------------------------
 
 ; 'arr' = RAM array, 'ram' = RAM non-array, 'misc' = $2000-$7fff
 ; note: unused hardware registers commented out
 
-ram1            equ $00  ; changes every frame
-dmc_raw_copy    equ $10  ; changes every frame
-ram3            equ $11  ; changes every frame
+temp            equ $00
+dmc_raw_copy    equ $10
+audio_temp      equ $11
 pointer         equ $12  ; 2 bytes
-ram4            equ $14  ; increments by 1 every 85-86 frames, from 0 to 63;
+bank_number     equ $14  ; increments by 1 every 85-86 frames, from 0 to 63;
                          ; used as bank number
 anim_phase      equ $15  ; phase of animation; increments by 1 every frame,
                          ; from 0 to 47
@@ -80,19 +57,29 @@ bank_data       equ $8001  ; MMC3
                 ;
                 ; Does not sound like music if interpreted as 8-bit mono signed
                 ; or unsigned raw audio data.
+                ; Frequencies of bytes:
+                ;   most common:  45 55 59 5b 65 67 6d 71 76 d9
+                ;   least common: 08 0a 22 2a 82 88 a2 a8
+                ;                 (08 0a a2 not at all)
+                ;   % of bytes with bit 7-0 set:
+                ;       47% 67% 47% 67% 47% 67% 47% 67%
+                ;   byte & 0b01010101 != 0          for 99.99% of bytes
+                ;   byte & 0b10101010 != 0          for 93%    of bytes
+                ;   byte & 0b01000001 =  0b01000001 for 44%    of bytes
+                ; Bit pairs are probably a meaningful unit.
 
                 base $0000
                 incbin "fukkireta-prg-bank-0-62.bin"
                 pad $7e000, $ff
 
-; --- PRG ROM bank 63 ---------------------------------------------------------
+; --- PRG ROM bank 63 start ---------------------------------------------------
 
                 ; CDL info:
                 ; - $0000-$1007: indirectly accessed as data via CPU bank
                 ;                $a000-$bfff
                 ; - $1008-$1dff: unaccessed
                 ; - $1e00-$1fff: accessed as code or data via CPU bank
-                ;                $e000-$ffff (details: fukkireta.cdl.txt)
+                ;                $e000-$ffff (details: "fukkireta.cdl.txt")
 
                 base $0000
                 incbin "fukkireta-prg-bank-63a.bin"
@@ -100,7 +87,8 @@ bank_data       equ $8001  ; MMC3
 
                 base $fe00
 
-sub1            ; called directly by reset with X = 0
+init_program    ; initialise mapper and PPU;
+                ; called directly by reset with X = 0
                 ;
                 ; PRG configuration:
                 ;     $8000-$9fff: 8k, switchable
@@ -128,7 +116,7 @@ sub1            ; called directly by reset with X = 0
                 lda #$20                ; $2000 -> PPU address
                 sta ppu_addr
                 stx ppu_addr
-                stx ram1
+                stx temp
                 ;
 nt_loop         ldy nt_zerocnt,x        ; write Y zero bytes
                 lda #$00
@@ -138,14 +126,14 @@ nt_loop         ldy nt_zerocnt,x        ; write Y zero bytes
                 ;
                 ldy nt_nonzero_cnt,x    ; write Y preincremented bytes
                 beq +
-                lda ram1
+                lda temp
                 clc
 -               adc #1
                 sta ppu_data
                 dey
                 bne -
                 ;
-                sta ram1
+                sta temp
                 inx
                 bne nt_loop
 
@@ -167,9 +155,9 @@ nt_loop         ldy nt_zerocnt,x        ; write Y zero bytes
                 sta pointer+1           ; $a000 -> pointer
                 asl a
                 sta dmc_raw_copy        ; $40 -> dmc_raw_copy
-                stx ram3                ; 0 -> ram3
+                stx audio_temp          ; 0
                 asl a                   ; %10000000
-                stx ram4                ; 0 -> ram4
+                stx bank_number         ; 0
                 stx bank_data           ; use PRG bank 0 (for $a000-$bfff)
                 ldy #0
                 sty anim_phase
@@ -200,9 +188,11 @@ nt_nonzero_cnt  ; how many times to write an incrementing value to NT0
 
 ; note: the sum of the two previous arrays is 1024
 
-palette         ; $fedd; read by sub1
+palette         ; $fedd; read by init_program
                 hex 30 1d 2d 10         ; white, black, dark grey, light grey
                 hex ff                  ; terminator
+
+; -----------------------------------------------------------------------------
 
                 pad $ff00, $ff          ; unaccessed ($fee2)
 
@@ -234,7 +224,7 @@ nmi             ; direct code
                 stx bank_select         ; prepare to set CPU bank $a000-$bfff
                 ldx x_backup
                 ;
-                lda ram4
+                lda bank_number
                 cmp #$3f                ; how soon animation & music restart
                 bcc +
                 lda pointer+1
@@ -243,6 +233,8 @@ nmi             ; direct code
                 ;
 +               lda a_backup
                 rti
+
+; -----------------------------------------------------------------------------
 
 reset           ; direct code ($ff3b)
                 cld
@@ -261,57 +253,72 @@ reset           ; direct code ($ff3b)
                 inx
                 bmi -
                 ;
-                jsr sub1                ; X = 0
-                ;
-code1           lda (pointer),y         ; $ff5b
-                sta ram3
-                ldy #4
-                ;
+                jsr init_program        ; X = 0
+
+; -----------------------------------------------------------------------------
+
+main_loop       ; read bytes starting from start of PRG ROM; for each byte,
+                ; write 4 bytes to dmc_raw
+
+                lda (pointer),y         ; $ff5b
+                sta audio_temp
+                ldy #4                  ; writeaudio_loop counter
+
                 inc pointer+0           ; increment pointer
                 bne +
                 inc pointer+1
                 ;
-+               bit pointer+1
-                bvc code2               ; branch if bit 6 was clear
++               ; if pointer > $bfff, reset it to $a0xx and increment bank
+                bit pointer+1           ; bit 6 to overflow flag
+                bvc writeaudio_loop
                 lda #$a0
                 sta pointer+1
-                inc ram4
-                lda ram4
+                inc bank_number         ; try TZVNNYVT
+                lda bank_number
                 sta bank_data
+
+writeaudio_loop ; X is 0 after init_program. Afterwards, it's only changed
+                ; in this loop.
                 ;
-code2           lda audio_table,x       ; $ff76
-                lsr ram3
+                lda audio_table,x       ; $ff76
+                lsr audio_temp
                 bcc ++
+                ;
                 lsr a
                 lsr a
                 dex
                 bpl +
                 inx
 +               bpl +
-++              inx
-                inx
+                ;
+++              inx                     ; LSB of audio_temp was 0; increment
+                inx                     ; X up to 9
                 cpx #10
                 bcc +
                 ldx #9
-+               sta ram1
+                ;
++               sta temp
                 lda dmc_raw_copy
-                lsr ram3
+                lsr audio_temp
                 bcc ++
-                sbc ram1
+                ;
+                sbc temp
                 bpl +
                 lda #$00
 +               bpl +
-++              adc ram1
+                ;
+++              adc temp
                 bpl +
                 lda #$7f
+                ;
 +               sta dmc_raw_copy
-                sta dmc_raw
+                sta dmc_raw             ; $ffa5
                 jsr empty_sub
                 nop
                 nop
                 dey
-                bne code2
-                beq code1               ; unconditional
+                bne writeaudio_loop
+                beq main_loop           ; unconditional
 
 audio_table     ; if replaced with other data, music is noisy but partially
                 ; intelligible; starts with the Fibonacci sequence ($ffb2)
@@ -324,6 +331,8 @@ audio_table     ; if replaced with other data, music is noisy but partially
                 db 255, 255, 255, 255, 255, 255, 255, 255
                 db 255, 255, 255, 255, 255, 255, 255, 255
                 db 255, 255, 255, 255, 255, 255, 255, 255
+
+; -----------------------------------------------------------------------------
 
                 ; NMI, reset, IRQ vectors (IRQ unaccessed)
                 pad $fffa, $ff

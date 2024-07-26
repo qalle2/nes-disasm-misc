@@ -1,0 +1,24 @@
+MMC3 registers:
+
+$8000: bank select: CPxx xRRR:
+    P: PRG configuration (always 4*8k):
+        0 = switchable, switchable, fixed to 2nd-to-last bank, fixed to last
+            bank
+        1 = fixed to 2nd-to-last bank, switchable, switchable, fixed to last
+            bank
+    C: CHR configuration:
+        0 = 2*2k + 4*1k
+        1 = 4*1k + 2*2k
+    RRR: bank to change on next write to $8001:
+        000 = 1st 2k CHR bank
+        001 = 2nd 2k CHR bank
+        010 = 1st 1k CHR bank
+        011 = 2nd 1k CHR bank
+        100 = 3rd 1k CHR bank
+        101 = 4th 1k CHR bank
+        110 = 8k PRG bank at $8000 or $c000 (depending on PRG config)
+        111 = 8k PRG bank at $a000
+$8001: bank data: new bank value (see $8000)
+$a000: mirroring (0=vertical, 1=horizontal)
+$e000: IRQ disable (any value)
+$e001: IRQ enable (any value)
