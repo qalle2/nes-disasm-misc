@@ -1,0 +1,86 @@
+CHR ROM part of prox.cdl.
+Played until late part of third level.
+Converted with:
+    python3 cdl_summary.py --prg-size 32 --part c --bank-size 8 --output-format c prox.cdl
+    and LibreOffice Calc
+No partially-rendered tiles.
+No programmatically-read data.
+
+First tile (hex), tile count (dec), CDL byte description:
+
+000   1  rendered
+001   1  -
+002   2  rendered
+004   6  -
+00a   7  rendered
+011   1  -
+012   1  rendered
+013   1  -
+014   1  rendered
+015   1  -
+016   4  rendered
+01a   1  -
+01b   5  rendered
+020   2  -
+022   1  rendered
+023   1  -
+024   6  rendered
+02a   7  -
+031   1  rendered
+032   2  -
+034   2  rendered
+036   1  -
+037   3  rendered
+03a   6  -
+040   2  rendered
+042   2  -
+044   1  rendered
+045   1  -
+046   4  rendered
+04a   6  -
+050   2  rendered
+052   7  -
+059   1  rendered
+05a   7  -
+061   1  rendered
+062   7  -
+069   5  rendered
+06e   1  -
+06f   1  rendered
+070   1  -
+071   1  rendered
+072   7  -
+079   4  rendered
+07d   1  -
+07e   1  rendered
+07f   9  -
+088   4  rendered
+08c   1  -
+08d   1  rendered
+08e   1  -
+08f   1  rendered
+090   1  -
+091   1  rendered
+092   1  -
+093   2  rendered
+095   4  -
+099   1  rendered
+09a   4  -
+09e   2  rendered
+0a0   1  -
+0a1   1  rendered
+0a2  31  -
+0c1   1  rendered
+0c2  54  -
+0f8   2  rendered
+0fa   2  -
+0fc   4  rendered
+
+100    5  rendered
+105    9  -
+10e    2  rendered
+110   32  -
+130   11  rendered
+13b  195  -
+1fe    1  rendered
+1ff    1  -

@@ -9,11 +9,12 @@ Table of contents:
 
 ## List of files
 Programs:
-* `bpm.*`, `bpm-*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
-* `dvd.*`, `dvd-*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
-* `fukkireta.*`, `fukkireta-*`: binary posted on NESDev Discord server, "showcase" channel, on 1 July 2024, by devwizard. Disassembly not finished.
-* `irriship.*`, `irriship-*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
-* `tencom.*`, `tencom-*`: *[The Ten Commandments on NES](https://debiru.itch.io/the-ten-commandments-on-nes)* by Debiru. Disassembly not finished.
+* `bpm*`: *[BPM - Nintendo's Beginnings](https://retroadamshow.itch.io/bpm-nintendos-beginnings)* by retroadamshow. Disassembly not finished.
+* `dvd*`: *[DVD Screensaver for NES](https://johnybot.itch.io/nes-dvd-screensaver)* by Johnybot.
+* `fukkireta*`: binary posted on NESDev Discord server, "showcase" channel, on 1 July 2024, by devwizard. Disassembly not finished.
+* `irriship*`: *[Irritating Ship](https://fiskbit.itch.io/irritating-ship)* by Fiskbit, Trirosmos. Disassembly not finished.
+* `prox*`: *[Proximity Shift](https://fiskbit.itch.io/proximity-shift)* by Fiskbit, Trirosmos. Disassembly at an early stage.
+* `tencom*`: *[The Ten Commandments on NES](https://debiru.itch.io/the-ten-commandments-on-nes)* by Debiru. Disassembly not finished.
 
 Other files:
 * `famistudio.txt`: a file from [Famistudio](https://github.com/BleuBleu/FamiStudio) (similar to what's used in BPM)
