@@ -205,15 +205,15 @@ endm
 
                 base $8000
 
-cod0            rept 16                      ; 8000
+cod0            rept 16
                     pla
                     sta ppu_data
                 endr
-                tya                          ; 8040
+                tya
                 bne ++
                 beq cod1
                 ;
--               txs                          ; 8045
+-               txs
                 ldx #$ff
                 stx arr3+0
                 inx
@@ -233,7 +233,7 @@ sub1            lda ram18
                 ldx #15
                 txs
                 tax
-cod1            pla                          ; 8069
+cod1            pla
                 bmi -
                 ;
                 sta ppu_addr
@@ -244,28 +244,28 @@ cod1            pla                          ; 8069
                 tay
                 lda ram4
                 bcc +
-                ora #%00000100               ; 807a (unaccessed)
-+               sta ppu_ctrl                 ; 807c
+                ora #%00000100               ; $807a (unaccessed)
++               sta ppu_ctrl
                 tya
                 bmi cod2
                 lsr a
                 bne ++
-                lda #$40                     ; 8085 (unaccessed)
-++              cmp #$10                     ; 8087
+                lda #$40                     ; $8085 (unaccessed)
+++              cmp #$10
                 bcc +
                 sbc #$10
                 tay
                 jmp cod0
 
-                ; 8091-80f5: unaccessed code
-+               ldy #0                       ; 8091
+                ; $8091: unaccessed up to $80f5
++               ldy #0
                 sbc #0
                 eor #%00001111
                 asl a
                 asl a
                 sta ptr1+0
                 jmp (ptr1)
-cod2            lsr a                        ; 809e
+cod2            lsr a
                 and #%00111111
                 bne +
                 lda #$40
@@ -283,6 +283,7 @@ cod2            lsr a                        ; 809e
                 adc #16
                 bmi -
                 bcc cod1
+                ;
 +               tay
                 lda dat1,y
                 sta ptr2+0
@@ -291,14 +292,14 @@ cod2            lsr a                        ; 809e
                 jmp (ptr2)
 
 print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2;
-                ; called by sub1, sub25, sub26, sub33
+                ; called by sub1, sub22, sub23, sub30
                 tay
                 lda str_ptrs-2,y
                 sta ptr1+0
                 lda str_ptrs-1,y
                 sta ptr1+1
                 ;
---              ldy #0                       ; 8101
+--              ldy #0
                 lda (ptr1),y
                 bmi ++
                 sta ppu_addr
@@ -312,20 +313,20 @@ print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2;
                 tax
                 lda ram4
                 bcc +
-                ora #%00000100               ; 811a (unaccessed)
-+               sta ppu_ctrl                 ; 811c
+                ora #%00000100               ; $811a (unaccessed)
++               sta ppu_ctrl
                 txa
                 bmi cod3
                 lsr a
                 bne +
-                lda #$40                     ; 8125 (unaccessed)
-+               tax                          ; 8127
+                lda #$40                     ; $8125 (unaccessed)
++               tax
 -               lda (ptr1),y
                 sta ppu_data
                 iny
                 dex
                 bne -
----             tya                          ; 8131
+---             tya
                 add ptr1+0
                 sta ptr1+0
                 lda ptr1+1
@@ -333,9 +334,9 @@ print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2;
                 sta ptr1+1
                 jmp --
                 ;
-++              copy #0, ram18               ; 8140
+++              copy #0, ram18
                 rts
-cod3            lsr a                        ; 8145
+cod3            lsr a
                 and #%00111111
                 bne +
                 lda #$40
@@ -348,24 +349,25 @@ cod3            lsr a                        ; 8145
                 bne -
                 jmp ---
 
-                ; 8159-8168: unaccessed data
-dat1            hex b3 b6 b9 bc bf c2 c5 c8  ; 8159
+                ; $8159; unaccessed
+dat1            hex b3 b6 b9 bc bf c2 c5 c8
                 hex cb ce d1 d4 d7 da dd e0
 
-cod4            rept 32                      ; 8169
+cod4            ; $8169
+                rept 32
                     pla
                     sta ppu_data
                 endr
-                jmp (ptr3)                   ; 81e9
+                jmp (ptr3)
 
-                pad $8200, $00               ; 81ec (unaccessed)
+                pad $8200, $00               ; $81ec (unaccessed)
 
 sub2            ; $8200; called by nmi
                 copy ram4, ppu_ctrl
                 lda ram15
                 beq rts2
                 ;
-sub3            ; $8209; called by sub36, sub37, sub37b
+sub3            ; $8209; called by sub33, sub34, sub35
                 tsx
                 stx ptr1+0
                 ldx #$4f
@@ -377,7 +379,7 @@ sub3            ; $8209; called by sub36, sub37, sub37b
                 copy #$20, ptr3+0
                 jmp cod4
 
-sub3b           ; $8220; indirectly called by ??
+sub4            ; $8220; indirectly called by ??
                 stx ppu_addr
                 tya
                 ora #%00100000
@@ -387,14 +389,14 @@ sub3b           ; $8220; indirectly called by ??
                 copy #$33, ptr3+0
                 jmp cod4
 
-sub3c           ; $8233: indirectly called by ??
+sub5            ; $8233: indirectly called by ??
                 ldx ptr1+0
                 txs
                 copy #0, ram15
 rts2            rts
 
 clear_nt0       ; $823b; fill NT0 with a blank tile ($f8);
-                ; called by sub25, sub26, sub33
+                ; called by sub22, sub23, sub30
                 copy #>ppu_nt0, ppu_addr
                 copy #<ppu_nt0, ppu_addr
                 ldy #$f0
@@ -602,13 +604,18 @@ str_credits     ppustr ppu_nt0+5*32+8, 15
                 db "FAMITRACKER"-55
                 db STR_TERM
 
+; -----------------------------------------------------------------------------
+
                 hex b4 b4 b5 b5              ; $86c4 (unaccessed)
 
-sub4            sta ram38                    ; 86c8
+sub6            ; $86c8; called by reset
+                sta ram38
                 stx ram39
                 sta ram40
                 stx ram41
-sub5            clc                          ; 86d0
+                ;
+sub7            ; $86d0; called by sub16, sub21
+                clc
                 lda ram38
                 adc #$b3
                 sta ram38
@@ -625,7 +632,8 @@ sub5            clc                          ; 86d0
                 eor ram39
                 rts
 
-sub6            lsr a                        ; 86ed
+sub8            ; $86ed; called by sub15
+                lsr a
                 sta ptr1+0
                 lda #0
                 ldy #8
@@ -637,15 +645,16 @@ sub6            lsr a                        ; 86ed
                 bne -
                 rts
 
-                ; 8700-871c: unaccessed code
-                eor #%11111111               ; 8700
+
+sub9            ; $8700; unaccessed up to $871c
+                eor #%11111111
                 sta ptr1+1
                 lda ptr1+0
                 eor #%11111111
                 add #1
                 sta ptr1+0
                 bcc +
-                inc ptr1+1                   ; 870f
+                inc ptr1+1
 +               rts
                 ldy #$ff
 -               iny
@@ -654,7 +663,8 @@ sub6            lsr a                        ; 86ed
                 adc #$0a
                 rts
 
-sub7            bit buttons_changed          ; 871d
+sub10           ; $871d; called by in_game
+                bit buttons_changed
                 bpl +
                 lda ram28
                 eor #%00000001
@@ -662,40 +672,34 @@ sub7            bit buttons_changed          ; 871d
                 lda #1
                 jsr sndeng_entry5
                 copy #$10, ram35
-+               jsr sub8
++               jsr sub11
                 lda buttons_held
                 and #%01000000
                 beq +
-                jsr sub8
+                jsr sub11
 +               lda task2
                 cmp #3
                 beq +
-                jsr sub10
-                jmp sub9
-+               jsr sub9                     ; 8748 (unaccessed)
+                jsr sub13
+                jmp sub12
++               jsr sub12                    ; $8748 (unaccessed)
                 copy #$30, oam_copy+0*4+1    ; unaccessed
                 rts                          ; unaccessed
 
-dat2            hex 00 00 ff 00              ; 8751 (last byte unaccessed)
-                hex 00 00 ff 00              ; 8755 (last byte unaccessed)
-                hex 00 00 ff                 ; 8759
-dat3            hex 00 c0 40 00              ; 875c (last byte unaccessed)
-                hex 00 88 78 00              ; 8760 (last byte unaccessed)
-                hex 00 88 78                 ; 8764
-dat4            hex 00 00 00 00              ; 8767 (last byte unaccessed)
-                hex 00 00 00 00              ; 876b (last byte unaccessed)
-                hex ff ff ff                 ; 876f
-dat5            hex 00 00 00 00              ; 8772 (last byte unaccessed)
-                hex c0 88 88 00              ; 8776 (last byte unaccessed)
-                hex 40 78 78                 ; 877a
+                ; partially unaccessed data; read by sub11
+dat2            hex 00 00 ff 00 00 00 ff 00 00 00 ff ; $8751
+dat3            hex 00 c0 40 00 00 88 78 00 00 88 78 ; $875c
+dat4            hex 00 00 00 00 00 00 00 00 ff ff ff ; $8767
+dat5            hex 00 00 00 00 c0 88 88 00 40 78 78 ; $8772
 
-sub8            lda buttons_held             ; 877d
+sub11           ; $877d; called by sub10
+                lda buttons_held
                 and #%00001111
                 ldy arr2+2
                 cpy #0
                 bne +
-                and #%11110111               ; 8787 (unaccessed)
-+               cpy #$e7                     ; 8789
+                and #%11110111               ; $8787 (unaccessed)
++               cpy #$e7
                 bcc +
                 and #%11111011
 +               tax
@@ -728,9 +732,11 @@ sub8            lda buttons_held             ; 877d
                 sta arr2+2
                 rts
 
-dat6            hex 00 24 00                 ; 87cf
+dat6            ; $87cf; read by sub12
+                hex 00 24 00
 
-sub9            lda arr2+2                   ; 87d2
+sub12           ; $87d2; called by sub10, explode, sub31
+                lda arr2+2
                 sta oam_copy+0*4+0
                 sta oam_copy+3*4+0
                 ;
@@ -772,34 +778,34 @@ sub9            lda arr2+2                   ; 87d2
                 copy #0,     oam_copy+2*4+2
 +               rts
 
-sub10           lda ram29                    ; 882a
-                beq rts3
-
-                ; 882e-884d: unaccessed code
-                cmp #$0b                     ; 882e
+sub13           ; $882a; called by sub10
+                lda ram29
+                beq ++
+                ; unaccessed up to $884d
+                cmp #$0b                     ; $882e
                 lda #$10
                 bcc +
-                lda #$20                     ; 8834
+                lda #$20
 +               copy #$10,   oam_copy+1*4+1
                 copy #$01,   oam_copy+1*4+2
                 copy arr2+0, oam_copy+1*4+3
                 jsr arr2+2
                 add #6
                 sta oam_copy+1*4+0
+++              rts                          ; $884e
 
-rts3            rts                          ; 884e
-
-sub11           copy #$10, ptr1+0            ; 884f
+sub14           ; $884f; called by sub31
+                copy #$10, ptr1+0
                 ldx ram14
                 ldy ram37
-                beq rts4
-
-                ; 8859-889c: unaccessed code
-                cpy #5                       ; 8859
-                bcc cod5
-                ldy #1                       ; 885d
+                beq ++
                 ;
-cod5            lda ptr1+0
+                ; unaccessed up to $889c
+                cpy #5                       ; $8859
+                bcc loop1
+                ldy #1
+                ;
+loop1           lda ptr1+0
                 sta oam_copy+3,x
                 add #8
                 sta ptr1+0
@@ -813,12 +819,12 @@ cod5            lda ptr1+0
                 inx
                 inx
                 dey
-                bne cod5
+                bne loop1
                 ;
                 lda ram37
                 cmp #5
                 bcc +
-                ora #%11110000               ; 8883
+                ora #%11110000
                 sta oam_copy+1,x
                 lda #$12
                 sta oam_copy,x
@@ -831,9 +837,10 @@ cod5            lda ptr1+0
                 inx
                 inx
 +               stx ram14
+++              rts                          ; $889d
 
-rts4            rts                          ; 889d
-sub12           ldx ram14                    ; 889e
+sub15           ; $889e; called by sub21, in_game, explode, ingame_fadeout
+                ldx ram14
                 beq rts5
                 lda ram11
                 sub ram34
@@ -852,7 +859,7 @@ sub12           ldx ram14                    ; 889e
                 lda dat8,y
                 clc
                 adc arr23,y
-                jsr sub6
+                jsr sub8
                 sta ptr1+1
                 ldy ptr2+0
                 lda ptr1+0
@@ -868,16 +875,16 @@ sub12           ldx ram14                    ; 889e
                 lda #0
                 bcs ++                       ; always
                 ;
-+               bcs cod6                     ; 88e6 (unaccessed)
-                lda #$ff                     ; 88e8 (unaccessed)
-++              sta arr21,y                  ; 88ea
++               bcs cod6                     ; $88e6 (unaccessed)
+                lda #$ff                     ; unaccessed
+++              sta arr21,y                  ; $88ea
                 lda dat7,y
                 adc ram41
                 sta arr20,y
                 lda ram40
                 and #%01111111
                 sta arr23,y
-cod6            lda arr21,y                  ; 88fc
+cod6            lda arr21,y
                 sta oam_copy,x
                 lda arr20,y
                 sta oam_copy+3,x
@@ -885,24 +892,26 @@ cod6            lda arr21,y                  ; 88fc
                 sta oam_copy+2,x
                 lda #$fe
                 sta oam_copy+1,x
-                axs_imm $fc                  ; 8912: equiv. to 4*INX
+                axs_imm $fc                  ; $8912: equiv. to 4*INX
                 beq +
                 dec ptr2+0
                 bpl -
 +               stx ram14
 rts5            rts
 
-dat7            ; $891d (partially unaccessed)
+dat7            ; $891d; read by sub15; partially unaccessed
                 hex ec 42 73 61 2d 94 28 22
                 hex c9 e1 62 a9
 
-dat8            ; $8929
+dat8            ; $8929; read by sub15
                 db  4*8,  5*8,  6*8,  7*8, 8*8, 9*8, 10*8, 11*8
                 db 12*8, 13*8, 14*8, 15*8
 
-                ; 8935-899d: unaccessed code
-                rts                          ; 8935 (could be data byte $60)
-                lda arr2+0                   ; 8936
+                ; $8935 (unaccessed; could be data byte $60)
+                rts
+
+sub16           ; $8936; unaccessed up to $899d
+                lda arr2+0
                 pha
                 add #2
                 sta arr2+0
@@ -931,7 +940,7 @@ dat8            ; $8929
                 sta arr2+0
                 ldy #7
                 ;
--               jsr sub5
+-               jsr sub7
                 lsr a
                 lsr a
                 sub #$20
@@ -961,13 +970,13 @@ dat8            ; $8929
                 ;
                 rts
 
-rts6            rts                          ; 899e
+rts6            rts                          ; $899e
 
-                ; 899f-8a27: unaccessed code
-                ldy ram14                    ; 899f
+sub17           ; $899f; unaccessed up to $8a18
+                ldy ram14
                 ldx #7
                 ;
--               lda arr10,x                  ; 89a3
+-               lda arr10,x
                 clc
                 adc arr16,x
                 sta arr10,x
@@ -980,13 +989,13 @@ rts6            rts                          ; 899e
                 sta oam_copy+3,y
                 bit ram7
                 bmi +
-                ror a                        ; 89c6
+                ror a
                 eor arr14,x
                 bpl +
-                jsr sub13                    ; 89cc
+                jsr sub18
                 jmp ++
                 ;
-+               lda arr13,x                  ; 89d2
++               lda arr13,x
                 clc
                 adc arr19,x
                 sta arr13,x
@@ -1000,12 +1009,12 @@ rts6            rts                          ; 899e
                 sta arr11,x
                 bit ram7
                 bmi +
-                ror a                        ; 89f2
+                ror a
                 eor arr17,x
                 bpl +
-                jsr sub13                    ; 89f8
+                jsr sub18
                 jmp ++
-+               lda arr11,x                  ; 89fe
++               lda arr11,x
                 sta oam_copy,y
                 lda #0
                 sta oam_copy+2,y
@@ -1016,36 +1025,37 @@ rts6            rts                          ; 899e
                 iny
                 iny
                 iny
-++              dex                          ; 8a13
+++              dex
                 bpl -
                 ;
                 sty ram14
                 rts
 
-sub13           lda #$ff                     ; 8a19
+sub18           ; $8a19; unaccessed up to $8a27
+                lda #$ff
                 sta arr11,x
                 sta arr17,x
                 sta arr18,x
                 sta arr19,x
                 rts
 
-task_jump_table ; $8a28 (partially unaccessed)
-                dw sub14                     ;  0
+task_jump_table ; $8a28; called by main_loop; partially unaccessed
+                dw sub19                     ;  0
                 dw title_fadein              ;  1
                 dw ingame_fadein2            ;  2
                 dw explode                   ;  3
                 dw title_fadeout             ;  4
                 dw ingame_fadeout            ;  5
                 dw ingame_fadein1            ;  6
-                dw sub25                     ;  7
-                dw sub27                     ;  8
-                dw sub26                     ;  9
-                dw sub28                     ; 10
+                dw sub22                     ;  7
+                dw sub24                     ;  8
+                dw sub23                     ;  9
+                dw sub25                     ; 10
                 dw on_title                  ; 11
                 dw in_game                   ; 12
 
 ppu_fill        ; $8a42; write A to PPU Y*8 times
-                ; called by: sub16
+                ; called by: sub21
                 sta ppu_data
                 sta ppu_data
                 sta ppu_data
@@ -1058,16 +1068,16 @@ ppu_fill        ; $8a42; write A to PPU Y*8 times
                 bne ppu_fill
                 rts
 
-sub14           ; $8a5e
+sub19           ; $8a5e; called by task_jump_table
                 copy #0, stage
                 lda #1
                 sta task1
                 sta task2
-                jsr sub15
-                jsr sub42
+                jsr sub20
+                jsr sub41
                 jmp title_fadein
 
-sub15           ; $8a71
+sub20           ; $8a71; called by sub19
                 ldy #$23
 -               lda str_palette,y
                 sta arr7,y
@@ -1076,7 +1086,7 @@ sub15           ; $8a71
                 copy #0, ram50
                 rts
 
-sub16           ; $8a82
+sub21           ; $8a82; called by ingame_fadein1
                 bit ppu_status
                 ;
                 ; clear AT0
@@ -1104,18 +1114,18 @@ sub16           ; $8a82
                 jsr clear_oam_copy
                 ldy #11
                 ;
--               jsr sub5
+-               jsr sub7
                 sta arr21,y
-                jsr sub5
+                jsr sub7
                 sta arr20,y
                 dey
                 bpl -
                 ;
-                jsr sub12
-                jsr sub34
+                jsr sub15
+                jsr sub31
                 rts
 
-title_fadein    ; $8aca
+title_fadein    ; $8aca; called by task_jump_table, sub19
                 jsr clear_oam_copy
                 lda ram7
                 cmp #1
@@ -1125,7 +1135,7 @@ title_fadein    ; $8aca
                 sta ppu_mask_copy1
                 sta ppu_mask
                 jsr sndeng_entry3
-                jsr sub33
+                jsr sub30
                 copy #11, task3
                 copy #1,  ram8
                 copy #%00011110, ppu_mask_copy2
@@ -1139,7 +1149,7 @@ title_fadein    ; $8aca
                 copy #$80, ram8
 +               rts
 
-on_title        ; $8b03
+on_title        ; $8b03; called by task_jump_table
                 copy #0, ram33
                 jsr clear_oam_copy
                 lda buttons_changed
@@ -1153,7 +1163,7 @@ on_title        ; $8b03
                 copy #0, stage
 +               rts
 
-ingame_fadein2  ; $8b26
+ingame_fadein2  ; $8b26; called by task_jump_table, title_fadein
                 lda timer
                 bne +
                 copy #9, timer
@@ -1169,15 +1179,14 @@ ingame_fadein2  ; $8b26
 +               cpy #$0c
                 bne ++
                 jsr sndeng_entry4
-                ;
-++              lda timer                    ; $8b47
+++              lda timer
                 add #3
                 and #%00001100
                 asl a
                 asl a
-                jmp sub29
+                jmp sub26
 
-in_game         ; $8b53
+in_game         ; $8b53; called by task_jump_table
                 lda ppu_mask_copy1
                 ora #%00011110
                 sta ppu_mask_copy2
@@ -1193,6 +1202,7 @@ in_game         ; $8b53
                 and #%11100001
                 sta ppu_mask_copy2
                 rts
+                ;
 +               ldy stage
                 lda stages_dat2,y
                 sta ram32
@@ -1202,43 +1212,51 @@ in_game         ; $8b53
                 sta ram34
                 lda stages_dat3,y
                 sta ram33
+                ;
                 lda ram25
                 beq +
                 ldy #4
-                jmp cod7
+                jmp loop2
 +               lda buttons_held
                 and #%00100000
                 beq +
                 ldy #2
-cod7            asl ram32                    ; 8b97
+                ;
+loop2           asl ram32
                 rol ram31
                 asl ram34
                 rol ram33
                 dey
-                bne cod7
-+               jsr clear_oam_copy           ; 8ba2
-                jsr sub7
-                jsr sub12
-                jsr sub40
+                bne loop2
+                ;
++               jsr clear_oam_copy
+                jsr sub10
+                jsr sub15
+                jsr sub39
                 lda ram24
                 bne +
+                ;
+                ; if reached next stage's level data...
                 lda stage
                 asl a
                 tay
                 iny
                 iny
                 lda ptr4+0
-                cmp dat14,y
+                cmp level_data_ptrs,y
                 bne +
                 lda ptr4+1
-                cmp dat14+1,y
+                cmp level_data_ptrs+1,y
                 bne +
+                ;
+                ; ...do this
                 lda #$10
                 sta ram22
                 sta ram24
                 lda #0
                 sta ram27
                 sta ram26
+                ;
 +               lda ram24
                 beq +
                 lda ram27
@@ -1252,6 +1270,7 @@ cod7            asl ram32                    ; 8b97
                 cmp ram26
                 bcs +
                 copy #1, ram25
+                ;
 +               lda #0
                 sta ram31
                 sta ram32
@@ -1259,7 +1278,7 @@ cod7            asl ram32                    ; 8b97
                 sta ram34
                 rts
 
-explode         ; $8bfb
+explode         ; $8bfb; called by task_jump_table
                 jsr clear_oam_copy
                 lda timer
                 bne +
@@ -1269,12 +1288,13 @@ explode         ; $8bfb
                 bcc +
                 cmp #$3a
                 bcs +
-                adc #1
+                adc #1                       ; carry always clear
                 pha
-                jsr sub9
+                jsr sub12
                 pla
                 sta oam_copy+0*4+1
                 copy #1, oam_copy+0*4+2
+                ;
 +               dec timer
                 bne +
                 lda #0
@@ -1285,14 +1305,14 @@ explode         ; $8bfb
                 ldy ram7
                 sta task3
                 copy #5, task2
-+               jsr sub12
++               jsr sub15
                 jsr rts6
                 rts
 
-                ; $8c3f: unaccessed or maybe JMP ($5a5a)
-                hex 6c 5a 5a
+                hex 6c 5a 5a                 ; $8c3f (unaccessed)
 
-title_fadeout   ; $8c42; or maybe a general fadeout
+title_fadeout   ; $8c42; or maybe a general fadeout; called by task_jump_table,
+                ; ingame_fadeout
                 lda timer
                 bne +
                 copy #13, timer
@@ -1310,17 +1330,17 @@ title_fadeout   ; $8c42; or maybe a general fadeout
                 eor #%00001100
                 asl a
                 asl a
-                jsr sub29
+                jsr sub26
 +               rts
 
-ingame_fadeout  ; $8c6b
+ingame_fadeout  ; $8c6b; called by task_jump_table
                 jsr clear_oam_copy
                 jsr title_fadeout
-                jsr sub12
+                jsr sub15
                 jmp rts6
 
-ingame_fadein1  ; $8c77
-                jsr sub16
+ingame_fadein1  ; $8c77; called by task_jump_table
+                jsr sub21
                 copy #12, task3
                 copy #2,  task2
                 copy #0,  ram8
@@ -1331,7 +1351,7 @@ ingame_fadein1  ; $8c77
                 sta ppu_ctrl
                 rts
 
-sub25           ; $8c94; unaccessed up to $8cba
+sub22           ; $8c94; unaccessed up to $8cba
                 jsr clear_oam_copy
                 copy #0, vscroll2
                 jsr clear_nt0
@@ -1346,13 +1366,13 @@ sub25           ; $8c94; unaccessed up to $8cba
                 sta ppu_ctrl
                 rts
 
-                hex dc dc                    ; 8cbb (unaccessed)
+                hex dc dc                    ; $8cbb (unaccessed)
 
-                ; e1 24 = SBC (24,x)
+                ; e1 24 = SBC ($24,x)
                 ; 24 nn = BIT nn
-                hex e1 24                    ; 8cbd (unaccessed)
+                hex e1 24                    ; $8cbd (unaccessed)
 
-sub26           ; $8cbf; unaccessed up to $8cfb
+sub23           ; $8cbf; unaccessed
                 jsr clear_nt0
                 lda #16*2
                 jsr print_str
@@ -1364,20 +1384,23 @@ sub26           ; $8cbf; unaccessed up to $8cfb
                 sta ppu_ctrl_copy
                 sta ppu_ctrl
 
-sub27           bit buttons_changed          ; 8cde
-                bvc sub28
-                copy #9, task3               ; 8ce2
+sub24           ; $8cde; unaccessed
+                bit buttons_changed
+                bvc sub25
+                copy #9, task3
                 copy #4, task2
                 rts
 
-sub28           bit buttons_changed          ; 8ceb
+sub25           ; $8ceb; unaccessed
+                bit buttons_changed
                 bpl +
-                copy #1, task3               ; 8cef
+                copy #1, task3
                 copy #4, task2
                 copy #0, ram8
-+               rts                          ; 8cfb
++               rts
 
-sub29           sta ptr1+0                   ; 8cfc
+sub26           ; $8cfc; called by ingame_fadein2, title_fadeout
+                sta ptr1+0
                 ldy ram19
                 lda #$3f
                 sta arr3,y
@@ -1391,7 +1414,7 @@ sub29           sta ptr1+0                   ; 8cfc
                 add #$1f
                 tay
                 ldx #$1f
--               lda arr7+3,x                 ; 8d1b
+-               lda arr7+3,x
                 and #%00001111
                 cmp #$0d
                 bcs +
@@ -1399,7 +1422,7 @@ sub29           sta ptr1+0                   ; 8cfc
                 sub ptr1+0
                 bcs ++
 +               lda #$0f
-++              sta arr3+3,y                 ; 8d2e
+++              sta arr3+3,y
                 dey
                 dex
                 bpl -
@@ -1408,124 +1431,86 @@ sub29           sta ptr1+0                   ; 8cfc
                 sta ram19
                 rts
 
+                ; tiles for each 2*2-tile level block; 192 bytes/table;
+                ; read by sub29; bytes used (in hexadecimal):
+                ;     24-29, 30-35, 37-39, 40-42, 44, 46-49, 50-54, 59,
+                ;     60, 61, 63, 64, 69-6f, 71, 79-7c, 7e, 88-8b, 8d, 8f,
+                ;     91-94, 99, 9e, 9f, a1, a2, a5, a6, b5, b6, c1, f8
+
 lvlblkdat_tl    ; $8d3c; top left tile of each 2*2-tile level block
-                hex f8 38 f8 f8 40 a1 61 f8
-                hex 31 f8 50 c1 f8 f8 91 41
-                hex f8 51 f8 f8 71 59 34 f8
-                hex f8 f8 f8 f8 f8 40 38 38
-                hex f8 f8 37 38 38 37 28 69
-                hex 37 37 38 37 37 25 6f 38
-                hex 38 47 38 f8 37 37 48 79
-                hex 48 38 6d 28 6a 34 f8 39
-                hex 7e 9e 25 28 39 f8 f8 7a
-                hex 48 37 38 48 38 f8 f8 34
-                hex 34 99 25 89 25 88 f8 f8
-                hex f8 34 99 25 26 f8 35 34
-                hex f8 f8 f8 25 f8 f8 f8 39
-                hex f8 37 8b 8d 24 39 f8 34
-                hex f8 46 f8 f8 f8 60 31 40
-                hex 51 51 51 31 40 64 40 38
-                hex 38 64 51 64 31 53 38 31
-                hex f8 31 40 51 32 f8 42 f8
-                hex f8 f8 40 52 30 f8 30 40
-                hex 38 38 53 f8 53 f8 f8 42
-                hex 34 25 a2 f8 f8 25 25 92
-                hex 34 34 25 44 25 f8 33 f8
-                hex f8 50 41 a6 50 f8 61 f8
-                hex 41 61 40 f8 f8 f8 f8 f8
+                hex f8 38 f8 f8 40 a1 61 f8 31 f8 50 c1 f8 f8 91 41
+                hex f8 51 f8 f8 71 59 34 f8 f8 f8 f8 f8 f8 40 38 38
+                hex f8 f8 37 38 38 37 28 69 37 37 38 37 37 25 6f 38
+                hex 38 47 38 f8 37 37 48 79 48 38 6d 28 6a 34 f8 39
+                hex 7e 9e 25 28 39 f8 f8 7a 48 37 38 48 38 f8 f8 34
+                hex 34 99 25 89 25 88 f8 f8 f8 34 99 25 26 f8 35 34
+                hex f8 f8 f8 25 f8 f8 f8 39 f8 37 8b 8d 24 39 f8 34
+                hex f8 46 f8 f8 f8 60 31 40 51 51 51 31 40 64 40 38
+                hex 38 64 51 64 31 53 38 31 f8 31 40 51 32 f8 42 f8
+                hex f8 f8 40 52 30 f8 30 40 38 38 53 f8 53 f8 f8 42
+                hex 34 25 a2 f8 f8 25 25 92 34 34 25 44 25 f8 33 f8
+                hex f8 50 41 a6 50 f8 61 f8 41 61 40 f8 f8 f8 f8 f8
 
 lvlblkdat_tr    ; $8dfc; top right tile of each 2*2-tile level block
-                hex f8 39 37 f8 41 51 f8 f8
-                hex f8 f8 51 41 f8 40 61 31
-                hex 50 61 f8 50 31 31 f8 34
-                hex 34 34 f8 f8 7b 7c 38 39
-                hex f8 f8 38 38 39 6a 28 38
-                hex 39 38 39 39 8b 25 28 38
-                hex 39 9e 39 f8 39 7a 48 7a
-                hex 49 7a 28 8f 28 f8 37 f8
-                hex 48 25 6f 69 f8 f8 37 48
-                hex 79 38 38 79 38 34 f8 f8
-                hex f8 89 99 25 8a 25 f8 34
-                hex 34 f8 25 35 f8 88 25 f8
-                hex 34 f8 24 89 34 34 f8 f8
-                hex 34 38 25 38 25 f8 f8 f8
-                hex 44 f8 f8 f8 50 61 f8 41
-                hex 61 61 41 50 63 61 63 38
-                hex 38 61 63 41 50 38 54 50
-                hex 50 f8 41 61 f8 f8 f8 f8
-                hex f8 30 52 f8 31 32 31 61
-                hex 38 54 38 f8 54 50 30 f8
-                hex 93 94 f8 f8 44 25 46 f8
-                hex 34 24 26 25 46 33 f8 f8
-                hex f8 51 31 31 a5 60 40 40
-                hex 51 f8 52 f8 f8 f8 92 f8
+                hex f8 39 37 f8 41 51 f8 f8 f8 f8 51 41 f8 40 61 31
+                hex 50 61 f8 50 31 31 f8 34 34 34 f8 f8 7b 7c 38 39
+                hex f8 f8 38 38 39 6a 28 38 39 38 39 39 8b 25 28 38
+                hex 39 9e 39 f8 39 7a 48 7a 49 7a 28 8f 28 f8 37 f8
+                hex 48 25 6f 69 f8 f8 37 48 79 38 38 79 38 34 f8 f8
+                hex f8 89 99 25 8a 25 f8 34 34 f8 25 35 f8 88 25 f8
+                hex 34 f8 24 89 34 34 f8 f8 34 38 25 38 25 f8 f8 f8
+                hex 44 f8 f8 f8 50 61 f8 41 61 61 41 50 63 61 63 38
+                hex 38 61 63 41 50 38 54 50 50 f8 41 61 f8 f8 f8 f8
+                hex f8 30 52 f8 31 32 31 61 38 54 38 f8 54 50 30 f8
+                hex 93 94 f8 f8 44 25 46 f8 34 24 26 25 46 33 f8 f8
+                hex f8 51 31 31 a5 60 40 40 51 f8 52 f8 f8 f8 92 f8
 
 lvlblkdat_bl    ; $8ebc; bottom left tile of each 2*2-tile level block
-                hex f8 48 f8 28 f8 91 f8 f8
-                hex 41 f8 51 f8 71 f8 f8 40
-                hex a1 61 31 50 c1 c1 34 f8
-                hex 50 f8 89 25 25 f8 48 48
-                hex 94 f8 9f 38 38 37 38 38
-                hex 37 37 38 8d 37 f8 37 38
-                hex 79 f8 38 28 69 37 f8 37
-                hex f8 38 37 38 38 8f 28 39
-                hex 34 f8 f8 48 9e 6f f8 39
-                hex f8 8d 48 f8 7a 25 25 44
-                hex 99 f8 f8 34 f8 34 26 f8
-                hex 25 88 f8 f8 34 f8 34 35
-                hex 25 25 f8 f8 f8 25 25 49
-                hex f8 47 39 37 34 8b f8 46
-                hex f8 f8 6e 27 f8 f8 52 50
-                hex 41 52 61 41 50 41 f8 63
-                hex 38 61 61 61 41 38 38 54
-                hex 50 54 50 54 f8 50 41 32
-                hex f8 f8 f8 f8 40 f8 40 f8
-                hex 63 38 63 50 38 f8 50 61
-                hex 34 f8 26 24 25 25 25 34
-                hex 46 34 f8 f8 f8 f8 f8 f8
-                hex 33 b6 40 40 51 f8 f8 f8
-                hex 51 31 f8 31 42 f8 f8 30
+                hex f8 48 f8 28 f8 91 f8 f8 41 f8 51 f8 71 f8 f8 40
+                hex a1 61 31 50 c1 c1 34 f8 50 f8 89 25 25 f8 48 48
+                hex 94 f8 9f 38 38 37 38 38 37 37 38 8d 37 f8 37 38
+                hex 79 f8 38 28 69 37 f8 37 f8 38 37 38 38 8f 28 39
+                hex 34 f8 f8 48 9e 6f f8 39 f8 8d 48 f8 7a 25 25 44
+                hex 99 f8 f8 34 f8 34 26 f8 25 88 f8 f8 34 f8 34 35
+                hex 25 25 f8 f8 f8 25 25 49 f8 47 39 37 34 8b f8 46
+                hex f8 f8 6e 27 f8 f8 52 50 41 52 61 41 50 41 f8 63
+                hex 38 61 61 61 41 38 38 54 50 54 50 54 f8 50 41 32
+                hex f8 f8 f8 f8 40 f8 40 f8 63 38 63 50 38 f8 50 61
+                hex 34 f8 26 24 25 25 25 34 46 34 f8 f8 f8 f8 f8 f8
+                hex 33 b6 40 40 51 f8 f8 f8 51 31 f8 31 42 f8 f8 30
 
 lvlblkdat_br    ; $8f7c; bottom right tile of each 2*2-tile level block
-                hex f8 49 47 29 40 61 f8 27
-                hex 31 50 61 40 31 f8 f8 41
-                hex 51 f8 f8 51 41 41 f8 6b
-                hex 6c 34 25 25 8a 88 48 9e
-                hex f8 93 48 38 39 38 38 38
-                hex 39 38 8b 39 39 f8 38 7a
-                hex 39 f8 6a 28 39 39 f8 39
-                hex f8 39 38 6a 38 f8 69 f8
-                hex f8 f8 7e 48 25 28 37 f8
-                hex 7e 38 79 37 48 99 94 25
-                hex 25 34 f8 f8 34 f8 f8 88
-                hex 8a 25 f8 34 f8 34 f8 25
-                hex 46 89 34 34 44 35 26 f8
-                hex a2 48 f8 38 f8 25 24 f8
-                hex f8 f8 25 28 60 f8 f8 51
-                hex 31 f8 40 51 51 31 40 38
-                hex 64 f8 40 40 53 38 38 51
-                hex 53 31 53 31 f8 42 31 f8
-                hex 32 40 f8 f8 41 f8 52 f8
-                hex 64 64 38 31 38 40 51 f8
-                hex f8 f8 f8 25 25 25 25 f8
-                hex 34 34 34 f8 f8 f8 f8 33
-                hex f8 61 b5 41 61 f8 f8 50
-                hex 41 f8 30 50 f8 30 a2 31
+                hex f8 49 47 29 40 61 f8 27 31 50 61 40 31 f8 f8 41
+                hex 51 f8 f8 51 41 41 f8 6b 6c 34 25 25 8a 88 48 9e
+                hex f8 93 48 38 39 38 38 38 39 38 8b 39 39 f8 38 7a
+                hex 39 f8 6a 28 39 39 f8 39 f8 39 38 6a 38 f8 69 f8
+                hex f8 f8 7e 48 25 28 37 f8 7e 38 79 37 48 99 94 25
+                hex 25 34 f8 f8 34 f8 f8 88 8a 25 f8 34 f8 34 f8 25
+                hex 46 89 34 34 44 35 26 f8 a2 48 f8 38 f8 25 24 f8
+                hex f8 f8 25 28 60 f8 f8 51 31 f8 40 51 51 31 40 38
+                hex 64 f8 40 40 53 38 38 51 53 31 53 31 f8 42 31 f8
+                hex 32 40 f8 f8 41 f8 52 f8 64 64 38 31 38 40 51 f8
+                hex f8 f8 f8 25 25 25 25 f8 34 34 34 f8 f8 f8 f8 33
+                hex f8 61 b5 41 61 f8 f8 50 41 f8 30 50 f8 30 a2 31
 
-                ; stage-specific data
+                ; stage-specific data read by in_game
 stages_dat1     hex 00 00 00 ff 00 00 01     ; $903c
 stages_dat2     hex 00 00 00 80 00 80 00     ; $9043
 stages_dat3     hex 00 00 00 00 00 00 00     ; $904a
 stages_dat4     hex 80 40 20 80 80 80 40     ; $9051
+
+                ; stage-specific data read by sub27, sub31
 stages_hscroll  hex 04 00 00 00 04 00 34     ; $9058
 stages_dat5     hex 00 00 00 00 00 80 00     ; $905f
 
-level_data      ; $9066; level data; byte = which 2*2-tile block;
+                ; level data; byte = which 2*2-tile block;
                 ; first left to right, then up (forward);
                 ; the first row repeats ten times instead of one;
-                ; 172*16 = 2752 bytes
-                hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                hex 01 00 00 00 00 00 00 02 01 00 00 00 00 00 00 02
+                ; 172*16 = 2752 bytes; bytes used: $00-$bf;
+                ; read by sub27, sub33
+level_data      hex 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; $9066
+                ;
+level_data1     hex 01 00 00 00 00 00 00 02 01 00 00 00 00 00 00 02  ; $9076
                 hex 03 00 00 04 05 06 00 07 03 00 00 04 05 06 00 07
                 hex 00 00 04 08 09 0a 06 00 00 00 04 08 09 0a 06 00
                 hex 00 04 08 00 00 09 0a 06 00 04 08 00 00 09 0a 06
@@ -1543,7 +1528,8 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 1a 1b 1c 06 00 1d 1b 1b 1a 1b 1c 06 00 1d 1b 1b
                 hex 00 00 09 0a 0b 08 00 00 00 00 09 0a 0b 08 00 00
                 hex 00 00 00 09 0c 00 00 00 00 00 00 09 0c 00 00 00
-                hex 1e 1e 1e 1e 1e 1e 1f 20 21 22 1e 1e 1e 1e 1e 1e
+                ;
+level_data2     hex 1e 1e 1e 1e 1e 1e 1f 20 21 22 1e 1e 1e 1e 1e 1e  ; $9196
                 hex 23 23 23 23 23 23 24 00 00 25 26 26 27 23 23 23
                 hex 23 23 23 23 23 23 24 00 00 28 00 00 29 23 23 23
                 hex 23 23 23 23 23 23 2a 1b 1b 2b 00 00 29 23 23 23
@@ -1558,7 +1544,8 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 00 46 47 36 36 48 1f 1b 1b 49 3f 00 00 46 3f 00
                 hex 1e 4a 23 23 23 23 24 00 00 29 47 36 36 4b 4c 1e
                 hex 33 33 33 33 33 33 33 20 21 45 33 33 33 33 33 33
-                hex 1b 1b 1b 1b 4d 1b 4e 00 00 4f 1b 4d 1b 1b 50 1b
+                ;
+level_data3     hex 1b 1b 1b 1b 4d 1b 4e 00 00 4f 1b 4d 1b 1b 50 1b  ; $9286
                 hex 00 00 00 00 19 00 00 00 00 16 00 19 00 00 16 00
                 hex 2d 2d 2d 2d 51 2d 52 2d 2d 53 2d 54 00 00 55 2d
                 hex 00 00 00 00 16 00 19 00 00 00 00 19 00 00 16 00
@@ -1571,7 +1558,8 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 5f 1b 60 00 59 1b 61 4d 1a 1b 1b 58 00 00 59 1b
                 hex 16 00 19 00 16 00 00 19 00 00 00 19 00 00 16 00
                 hex 5c 00 62 2d 53 2d 2d 63 2d 2d 2d 63 2d 2d 53 2d
-                hex 1b 4e 00 64 1b 60 00 64 1b 4e 00 64 1b 60 00 64
+                ;
+level_data4     hex 1b 4e 00 64 1b 60 00 64 1b 4e 00 64 1b 60 00 64  ; $9356
                 hex 00 00 00 19 00 19 00 19 00 00 00 19 00 19 00 19
                 hex 00 64 1b 61 1b 65 1b 66 00 64 1b 61 1b 65 1b 66
                 hex 00 19 00 00 00 19 00 00 00 19 00 00 00 19 00 00
@@ -1592,7 +1580,8 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 00 64 1b 61 1b 65 1b 66 00 64 1b 61 1b 65 1b 66
                 hex 00 19 00 00 00 19 00 00 00 19 00 00 00 19 00 00
                 hex 1b 66 00 21 1b 61 1b 1b 1b 66 00 21 1b 61 1b 1b
-                hex 1e 1e 1e 67 00 68 00 00 00 00 68 00 00 69 1e 1e
+                ;
+level_data5     hex 1e 1e 1e 67 00 68 00 00 00 00 68 00 00 69 1e 1e  ; $94a6
                 hex 23 23 23 3f 00 5d 2d 2d 2d 2d 54 00 00 29 23 23
                 hex 23 23 23 3f 00 19 00 00 00 00 19 00 00 29 23 23
                 hex 23 23 23 6a 2d 54 00 00 00 00 19 00 00 29 23 23
@@ -1629,7 +1618,8 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 23 23 23 3f 00 5d 2d 2d 71 00 19 00 00 29 23 23
                 hex 23 23 23 3f 00 19 00 00 16 00 19 00 00 29 23 23
                 hex 33 33 33 72 1b 61 1b 1b 1a 1b 66 00 00 73 33 33
-                hex 00 00 00 00 00 00 00 74 11 00 00 00 00 75 04 76
+                ;
+level_data6     hex 00 00 00 00 00 00 00 74 11 00 00 00 00 75 04 76  ; $96f6
                 hex 00 75 00 00 00 00 00 00 13 11 00 00 00 77 78 00
                 hex 00 77 79 00 00 00 00 00 00 13 11 00 04 08 13 11
                 hex 7a 08 13 11 00 00 00 00 00 00 13 7a 08 00 00 13
@@ -1671,7 +1661,8 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 00 00 00 13 11 00 13 7a 08 00 00 00 04 08 13 11
                 hex 11 00 00 00 13 11 04 7b 11 00 00 91 08 00 00 13
                 hex 8d 00 00 00 00 9e 08 00 13 9f 00 00 00 00 00 00
-                hex 6f 00 00 4f 1b 1b 1b 1b 1b 1b 1b 1b 1b 1b 1b 1b
+                ;
+level_data7     hex 6f 00 00 4f 1b 1b 1b 1b 1b 1b 1b 1b 1b 1b 1b 1b  ; $9996
                 hex a0 2d a1 16 00 00 00 00 00 00 00 00 00 00 00 00
                 hex 16 00 00 16 00 00 00 00 00 00 00 00 00 00 00 00
                 hex a2 00 00 a3 1b a4 a5 a5 a5 a5 a6 1b 1b 1b 1b 1b
@@ -1697,18 +1688,26 @@ level_data      ; $9066; level data; byte = which 2*2-tile block;
                 hex 77 78 00 00 be 00 b0 00 ae bf 8d 00 00 21 1b 4e
                 hex bf 8d 00 af 00 00 00 00 00 00 00 00 00 00 b0 00
 
-dat14           hex 76 90 96 91 86 92 56 93  ; $9b26
-                hex a6 94 f6 96 96 99 26 9b
+level_data_ptrs ; $9b26; read by in_game, sub31
+                dw level_data1
+                dw level_data2
+                dw level_data3
+                dw level_data4
+                dw level_data5
+                dw level_data6
+                dw level_data7
+                dw level_data_ptrs
 
-sub30           lda ram22                    ; 9b36
-                beq sub31
+sub27           ; $9b36; called by sub39
+                lda ram22
+                beq sub28
                 lda ptr4+0
                 pha
                 lda ptr4+1
                 pha
                 copy #<level_data, ptr4+0
                 copy #>level_data, ptr4+1
-                jsr sub31
+                jsr sub28
                 dec ram22
                 bne +
                 lda ram24
@@ -1717,7 +1716,7 @@ sub30           lda ram22                    ; 9b36
                 lda #0
                 sta ram24
                 sta ram25
-                jsr sub41
+                jsr sub40
                 ldy stage
                 lda stages_hscroll,y
                 sta hscroll1
@@ -1728,26 +1727,28 @@ sub30           lda ram22                    ; 9b36
                 sta ram10
                 cpy #7
                 bne +
-
-                copy #1, task3               ; 9b73 (unaccessed)
+                copy #1, task3               ; $9b73 (unaccessed)
                 copy #4, task2               ; unaccessed
                 copy #0, ram8                ; unaccessed
                 jsr sndeng_entry3            ; unaccessed
-
-+               pla                          ; 9b82
++               pla                          ; $9b82
                 sta ptr4+1
                 pla
                 sta ptr4+0
                 rts
 
-sub31           inc ram20                    ; 9b89
-                bne sub32
+sub28           ; $9b89; called by sub27, sub35
+                inc ram20
+                bne sub29
                 inc ram21
-sub32           ldy #0                       ; 9b8f
-                jsr sub39
+                ;
+sub29           ; $9b8f; called by sub28, sub33, sub34
+                ldy #0
+                jsr sub38
                 copy arr1+0, ram16
                 copy arr1+1, ram17
                 copy #0,     ptr1+0
+                ;
 -               ldy #0
                 lda (ptr4),y
                 inc ptr4+0
@@ -1756,25 +1757,27 @@ sub32           ldy #0                       ; 9b8f
 +               tax
                 ldy ptr1+0
                 lda lvlblkdat_tl,x
-                ;hex a9 36 ea                 ; cheat!
+                ;hex a9 36 ea                 ; cheat
                 sta arr5,y
                 lda lvlblkdat_tr,x
                 sta arr5+1,y
                 lda lvlblkdat_bl,x
-                ;hex a9 36 ea                 ; cheat!
+                ;hex a9 36 ea                 ; cheat
                 sta arr6,y
                 lda lvlblkdat_br,x
                 sta arr6+1,y
                 iny
                 iny
                 sty ptr1+0
-                cpy #$20
+                cpy #32
                 bne -
+                ;
                 copy #1, ram15
                 sec
                 rts
 
-sub33           lda #0                       ; 9bd3
+sub30           ; $9bd3; called by title_fadein
+                lda #0
                 sta vscroll1
                 sta vscroll2
                 sta hscroll1
@@ -1784,7 +1787,10 @@ sub33           lda #0                       ; 9bd3
                 jsr print_str
                 rts
 
-sub34           jsr sndeng_entry4            ; 9be6
+; -----------------------------------------------------------------------------
+
+sub31           ; $9be6; called by sub21
+                jsr sndeng_entry4
                 ldy stage
                 lda stages_hscroll,y
                 sta hscroll1
@@ -1802,42 +1808,47 @@ sub34           jsr sndeng_entry4            ; 9be6
                 sta ram32
                 sta ram33
                 sta ram34
+                ;
+                ; set ptr4 to this stage's level data
                 lda stage
                 asl a
                 tay
-                lda dat14,y
+                lda level_data_ptrs,y
                 sta ptr4+0
-                lda dat14+1,y
+                lda level_data_ptrs+1,y
                 sta ptr4+1
+                ;
                 lda #$ff
                 sta ram20
                 sta ram21
-                jsr sub35
+                jsr sub32
                 copy #$0a, ram3
-                jsr sub36
+                jsr sub33
                 copy #5, ram3
-                jsr sub37
+                jsr sub34
                 copy #$6a, arr2+0
                 copy #$80, arr2+1
                 copy #$bf, arr2+2
                 copy #$80, arr2+3
-                jsr sub9
-                jsr sub11
+                jsr sub12
+                jsr sub14
                 rts
 
-sub35           copy #0, ram15               ; 9c49
+sub32           ; $9c49; called by sub31
+                copy #0, ram15
                 copy #>ppu_at0, arr1+0
                 copy #<ppu_at0, arr1+1
                 copy ram4, ppu_ctrl
                 rts
 
-sub36           lda ptr4+0                   ; 9c5b
+sub33           ; $9c5b; called by sub31
+                lda ptr4+0
                 pha
                 lda ptr4+1
                 pha
 -               copy #<level_data, ptr4+0
                 copy #>level_data, ptr4+1
-                jsr sub32
+                jsr sub29
                 jsr sub3
                 dec ram3
                 bne -
@@ -1847,19 +1858,24 @@ sub36           lda ptr4+0                   ; 9c5b
                 sta ptr4+0
                 rts
 
-sub37           jsr sub32                    ; 9c7a
+sub34           ; $9c7a; called by sub31
+                jsr sub29
                 jsr sub3
                 dec ram3
-                bne sub37
+                bne sub34
                 rts
 
-sub37b          jsr sub31                    ; 9c85 (unaccessed)
-                jsr sub3                     ; unaccessed
-                dec ram3                     ; unaccessed
-                bne sub37b                   ; unaccessed
-                rts                          ; 9c8f (unaccessed)
+; -----------------------------------------------------------------------------
 
-sub38           lda ram11                    ; 9c90
+sub35           ; $9c85; unaccessed; called by ??
+                jsr sub28
+                jsr sub3
+                dec ram3
+                bne sub35
+                rts
+
+sub36           ; $9c90; called by sub39
+                lda ram11
                 sec
                 sbc ram34
                 sta ram11
@@ -1874,20 +1890,21 @@ sub38           lda ram11                    ; 9c90
                 sta ppu_ctrl_copy
 +               rts
 
-                ; 9caa-9cbf: unaccessed code
-                lda vscroll1                 ; 9caa
+sub37           ; $9caa; unaccessed up to $9cbf; called by ??
+                lda vscroll1
                 add ram33
                 sta vscroll2
                 cmp #$f0
                 bcc +
-                adc #$0f                     ; 9cb5
+                adc #$0f
                 sta vscroll2
                 lda ram4
                 eor #%00000010
                 sta ppu_ctrl_copy
-+               rts                          ; 9cbf
++               rts
 
-sub39           lda arr1+1,y                 ; 9cc0
+sub38           ; $9cc0; called by sub29
+                lda arr1+1,y
                 sub #$40
                 sta arr1+1,y
                 lda arr1,y
@@ -1905,8 +1922,9 @@ sub39           lda arr1+1,y                 ; 9cc0
                 sta arr1+1,y
 +               rts
 
-sub40           copy ppu_ctrl_copy, ram2     ; 9ce8
-                jsr sub38
+sub39           ; $9ce8; called by in_game
+                copy ppu_ctrl_copy, ram2
+                jsr sub36
                 lda ram10
                 add ram32
                 sta ram10
@@ -1917,15 +1935,16 @@ sub40           copy ppu_ctrl_copy, ram2     ; 9ce8
                 eor vscroll1
                 cmp #$10
                 bcc +
-                jsr sub30
+                jsr sub27
 +               rts
 
-sub41           lda arr7+4                   ; 9d08
+sub40           ; $9d08; called by sub27
+                lda arr7+4
                 add #5
                 cmp #$0d
                 bcc +
-                sbc #$0c                     ; 9d12 (unaccessed)
-+               sta arr7+4                   ; 9d14
+                sbc #$0c                     ; $9d12 (unaccessed)
++               sta arr7+4
                 ora #%00010000
                 sta arr7+5
                 eor #%00110000
@@ -1933,7 +1952,8 @@ sub41           lda arr7+4                   ; 9d08
                 copy #6, ram18
                 rts
 
-sub42           lda #$ff                     ; 9d26
+sub41           ; $9d26; called by sub19
+                lda #$ff
                 sta ram_shared
                 sta ram49
                 jsr sndeng_entry3
@@ -1942,13 +1962,13 @@ sub42           lda #$ff                     ; 9d26
                 jsr sndeng_entry6
                 rts
 
-                ; Famitone2 sound engine
-sound_engine    incbin "prox-snd-eng.bin"    ; $9d37
+sound_engine    ; Famitone2 sound engine
+                incbin "prox-snd-eng.bin"    ; $9d37
                 if $ != $c629
                     error "sound engine binary size mismatch"
                 endif
 
-                pad $c700, $00               ; c629 (unaccessed)
+                pad $c700, $00               ; $c629 (unaccessed)
 
 reset           ; $c700; initialise the NES
 irq             sei
@@ -1997,7 +2017,7 @@ irq             sei
                 bit $00
                 lda #$7e
                 ldx #$20
-                jsr sub4
+                jsr sub6
                 ;
                 ; how many times does the loop run in one frame?
                 ldx #0
@@ -2022,12 +2042,12 @@ irq             sei
                 sta region
                 jmp to_main_loop
 
-region_loopcnts db 197, 182, 159, 79, 72, 60  ; $c78f
-regions         db 0, 2, 1, 0, 2, 1, 0        ; $c795
+region_loopcnts db 197, 182, 159, 79, 72, 60  ; $c78f; read by reset
+regions         db 0, 2, 1, 0, 2, 1, 0        ; $c795; read by reset
 
 ; -----------------------------------------------------------------------------
 
-read_joypad     ; $c79c; called by clear_oam_copy
+read_joypad     ; $c79c; called by main_loop
                 ;
                 ldx #1
                 stx buttons_changed
@@ -2059,9 +2079,8 @@ read_joypad     ; $c79c; called by clear_oam_copy
 
 ; -----------------------------------------------------------------------------
 
-clear_oam_copy  ; $c7c7; called by sub16, title_fadein, on_title, in_game,
-                ; explode, ingame_fadeout, sub25
-                ;
+clear_oam_copy  ; $c7c7; called by sub21, title_fadein, on_title, in_game,
+                ; explode, ingame_fadeout, sub22
                 lda #$ff
                 ldx #$3c
 -               sta oam_copy+$00,x
@@ -2098,8 +2117,7 @@ to_main_loop    ; $c7e9; called by reset
 
 ; -----------------------------------------------------------------------------
 
-nmi             ; $c809; NMI routine
-                ;
+nmi             ; $c809
                 pha
                 txa
                 pha
@@ -2132,8 +2150,8 @@ nmi             ; $c809; NMI routine
                 sty oam_copy+0*4+3
 +               lda ram13
                 beq +
-                jmp nmi_end                  ; c84e (unaccessed)
-+               lda ram45                    ; c851
+                jmp nmi_end                  ; $c84e (unaccessed)
++               lda ram45
                 beq +
                 ;
                 copy #$30, oam_copy+0*4+1
@@ -2152,11 +2170,11 @@ nmi             ; $c809; NMI routine
                 ;
                 copy ppu_mask_copy1, ppu_mask
                 ;
-                copy hscroll2, ppu_scroll    ; c87c
+                copy hscroll2, ppu_scroll
                 ldy vscroll2
                 sty ppu_scroll
                 ;
-                copy #0, oam_addr            ; c886
+                copy #0, oam_addr
                 copy #>oam_copy, oam_dma
                 ;
                 lda ppu_mask_copy2
@@ -2181,14 +2199,14 @@ nmi_end         jsr sndeng_entry1
 
 ; -----------------------------------------------------------------------------
 
-                lda ram13                    ; c8b1 (unaccessed)
+sub42           lda ram13                    ; $c8b1 (unaccessed)
 -               cmp ram13                    ; unaccessed
                 bne -                        ; unaccessed
                 rts                          ; unaccessed
 
-                pad $ffe0, $00               ; c8b8 (unaccessed)
+                pad $ffe0, $00               ; $c8b8 (unaccessed)
 
-                ; ffe0-fff9: unaccessed data
+                ; $ffe0: unaccessed up to $fff9
                 db " PROXIMITY SHIFT"
                 hex e7 b0 b4 aa 20 80 01 0e
                 hex 00 f3
