@@ -5,6 +5,23 @@
 ;     python3 nesdisasm.py
 ;     -c prox.cdl --no-access 0800-1fff,2008-3fff,4020-5fff,6000-7fff
 ;     --no-write 8000-ffff prox-prg.bin
+; Palettes:
+;     BG0: playfield; for the first few stages:
+;       1st stage: 0f 00 10 20
+;       2nd stage: 0f 05 15 25
+;       3rd stage: 0f 0a 1a 2a
+;       4th stage: 0f 03 13 23
+;     others: ??
+; There are likely 7 stages. Playfield color changes between them.
+; 4th stage scrolls sideways (or is the first to do so).
+;
+; task1, task2:
+;    1:          title screen fading in
+;    11:         on title screen
+;    4, 6, 2:    transition from title screen to in-game
+;    12:         in-game & transitioning between levels
+;    3, 5, 6, 2: exploding & respawning in-game
+; task1 & task2 seem to be the same in frame resolution (in FCEUX Hex Editor)
 
 ; --- Constants ---------------------------------------------------------------
 
@@ -24,7 +41,7 @@ task1           equ $15
 task2           equ $16
 ram7            equ $17
 ram8            equ $18
-ram9            equ $19
+task3           equ $19  ; often the next task
 hscroll1        equ $1a
 hscroll2        equ $1b
 ram10           equ $1c
@@ -47,14 +64,14 @@ ptr4            equ $30  ; 2 bytes
 ram20           equ $32
 ram21           equ $33
 ram22           equ $34
-ram23           equ $36
+stage           equ $36  ; starts from 0
 ram24           equ $37
 ram25           equ $38
 ram26           equ $39
 ram27           equ $3a
 ram28           equ $3c
 ram29           equ $3d
-ram30           equ $3e
+timer           equ $3e  ; fadein, fadeout, explosion
 ram31           equ $3f
 ram32           equ $40
 ram33           equ $41
@@ -140,8 +157,12 @@ ppu_nt2         equ $2800
 ppu_at2         equ $2bc0
 ppu_palette     equ $3f00
 
-; string ids
-STR_ID_TITLE    equ 4*2
+; PPU strings
+STR_ID_TITLE    equ 4*2  ; title screen
+STR_TERM        equ $ff  ; terminator
+
+; colours
+COL_BG          equ $0f  ; background (black)
 
 ; --- Macros ------------------------------------------------------------------
 
@@ -199,15 +220,14 @@ cod0            rept 16                      ; 8000
                 stx ram19
 rts1            rts
                 ;
-sub1            lda ram18                    ; 804f
+                ; $804f; called by nmi
+sub1            lda ram18
                 beq +
                 jsr print_str
 +               lda arr3+0
                 bmi rts1
-                lda #$80
-                sta ptr1+1
-                lda #$80
-                sta ptr2+1
+                copy #$80, ptr1+1
+                copy #$80, ptr2+1
                 tsx
                 txa
                 ldx #15
@@ -270,7 +290,8 @@ cod2            lsr a                        ; 809e
                 lda #0
                 jmp (ptr2)
 
-print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2
+print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2;
+                ; called by sub1, sub25, sub26, sub33
                 tay
                 lda str_ptrs-2,y
                 sta ptr1+0
@@ -312,8 +333,7 @@ print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2
                 sta ptr1+1
                 jmp --
                 ;
-++              lda #0                       ; 8140
-                sta ram18
+++              copy #0, ram18               ; 8140
                 rts
 cod3            lsr a                        ; 8145
                 and #%00111111
@@ -340,11 +360,13 @@ cod4            rept 32                      ; 8169
 
                 pad $8200, $00               ; 81ec (unaccessed)
 
-sub2            lda ram4                     ; 8200
-                sta ppu_ctrl
+sub2            ; $8200; called by nmi
+                copy ram4, ppu_ctrl
                 lda ram15
                 beq rts2
-sub3            tsx                          ; 8209
+                ;
+sub3            ; $8209; called by sub36, sub37, sub37b
+                tsx
                 stx ptr1+0
                 ldx #$4f
                 txs
@@ -352,33 +374,29 @@ sub3            tsx                          ; 8209
                 stx ppu_addr
                 ldy ram17
                 sty ppu_addr
-                lda #$20
-                sta ptr3+0
+                copy #$20, ptr3+0
                 jmp cod4
 
-                ; $8220: indirectly accessed
+sub3b           ; $8220; indirectly called by ??
                 stx ppu_addr
                 tya
                 ora #%00100000
                 sta ppu_addr
                 ldx #$6f
                 txs
-                lda #$33
-                sta ptr3+0
+                copy #$33, ptr3+0
                 jmp cod4
 
-                ; $8233: indirectly accessed
+sub3c           ; $8233: indirectly called by ??
                 ldx ptr1+0
                 txs
-                lda #0
-                sta ram15
+                copy #0, ram15
 rts2            rts
 
-clear_nt0       ; fill NT0 with a blank tile ($f8)
-                lda #>ppu_nt0                ; 823b
-                sta ppu_addr
-                lda #<ppu_nt0
-                sta ppu_addr
+clear_nt0       ; $823b; fill NT0 with a blank tile ($f8);
+                ; called by sub25, sub26, sub33
+                copy #>ppu_nt0, ppu_addr
+                copy #<ppu_nt0, ppu_addr
                 ldy #$f0
                 lda #$f8
 -               sta ppu_data
@@ -389,7 +407,7 @@ clear_nt0       ; fill NT0 with a blank tile ($f8)
                 bne -
                 rts
 
-str_ptrs        ; pointers to PPU strings ($8259)
+str_ptrs        ; $8259; pointers to PPU strings; called by print_str
                 dw str_blackpal              ;  0 (unaccessed)
                 dw str_palette               ;  1 (unaccessed)
                 dw arr7                      ;  2
@@ -417,31 +435,27 @@ str_ptrs        ; pointers to PPU strings ($8259)
                 dw str_pal                   ; 24 (unaccessed)
                 dw str_pal                   ; 25 (unaccessed)
 
-                ; PPU strings
+                ; $828d; PPU strings (partially unaccessed); tiles:
+                ;     $00-$09 = "0"-"9" (subtract 48 from ASCII digits)
+                ;     $0a-$23 = "A"-"Z" (subtract 55 from ASCII uppercase)
 
 macro ppustr _addr, _len
                 db >(_addr), <(_addr), _len
 endm
 
-                ; tiles $00-$09 = "0"-"9" (subtract 48 from ASCII digits)
-                ; tiles $0a-$23 = "A"-"Z" (subtract 55 from ASCII uppercase)
-
-                ; 828d-8291: unaccessed data
-str_blackpal    ppustr ppu_palette, $40|32   ; 828d
-                hex 0f
-                hex ff
-
-str_palette     ppustr ppu_palette, 32       ; 8292
-                hex 0f 00 10 20
-                hex 0f 00 10 20
-                hex 0f 00 10 20
-                hex 0f 00 10 20
-                hex 0f 00 10 20
-                hex 0f 17 27 37
-                hex 0f 01 11 21
-                hex 0f 00 10 20
-                hex ff
-str_title       ppustr ppu_at0, $40          ; 82b6
+str_blackpal    ppustr ppu_palette, $40|32
+                db $0f, STR_TERM
+str_palette     ppustr ppu_palette, 32
+                db COL_BG, $00, $10, $20
+                db COL_BG, $00, $10, $20
+                db COL_BG, $00, $10, $20
+                db COL_BG, $00, $10, $20
+                db COL_BG, $00, $10, $20
+                db COL_BG, $17, $27, $37
+                db COL_BG, $01, $11, $21
+                db COL_BG, $00, $10, $20
+                db STR_TERM
+str_title       ppustr ppu_at0, $40
                 hex 00
                 ; "PROXIMITY" (3 rows; tiles $f8-$ff = "@ABCDEFG" here)
                 ppustr ppu_nt0+6*32+1, 30
@@ -463,29 +477,21 @@ str_title       ppustr ppu_at0, $40          ; 82b6
                 db "GAME"-55, $f8, "BY"-55, $f8, "FISKBIT"-55
                 ppustr ppu_nt0+25*32+7, 18
                 db "SOUND"-55, $f8, "BY"-55, $f8, "TRIROSMOS"-55
-                hex ff
-
-                ; 8395-86c3: unaccessed data
-str_normal1     ppustr ppu_nt0+22*32+3, 10   ; 8395
-                db $24, $24, "NORMAL"-55, $24, $24
-                hex ff
-str_hard1       ppustr ppu_nt0+22*32+3, 10   ; 83a3
-                db $24, $24, $24, "HARD"-55, $24, $24, $24
-                hex ff
-str_expert1     ppustr ppu_nt0+22*32+3, 10   ; 83b1
-                db $24, $24, "EXPERT"-55, $24, $24
-                hex ff
-str_irritating1 ppustr ppu_nt0+22*32+3, 10   ; 83bf
-                db "IRRITATING"-55
-                hex ff
-str_off1        ppustr ppu_nt0+23*32+21, 3   ; 83cd
-                db "OFF"-55
-                hex ff
-str_on1         ppustr ppu_nt0+23*32+21, 3   ; 83d4
-                db $24, "ON"-55
-                hex ff
-str_congrats    ppustr ppu_at0, $40          ; 83db
-                hex ff
+                db STR_TERM
+str_normal1     ppustr ppu_nt0+22*32+3, 10
+                db $24, $24, "NORMAL"-55, $24, $24, STR_TERM
+str_hard1       ppustr ppu_nt0+22*32+3, 10
+                db $24, $24, $24, "HARD"-55, $24, $24, $24, STR_TERM
+str_expert1     ppustr ppu_nt0+22*32+3, 10
+                db $24, $24, "EXPERT"-55, $24, $24, STR_TERM
+str_irritating1 ppustr ppu_nt0+22*32+3, 10
+                db "IRRITATING"-55, STR_TERM
+str_off1        ppustr ppu_nt0+23*32+21, 3
+                db "OFF"-55, STR_TERM
+str_on1         ppustr ppu_nt0+23*32+21, 3
+                db $24, "ON"-55, STR_TERM
+str_congrats    ppustr ppu_at0, $40
+                db $ff
                 ppustr ppu_nt0+3*32+8, 16
                 db "CONGRATULATIONS"-55, $e0
                 ppustr ppu_nt0+5*32+3, 26
@@ -502,9 +508,9 @@ str_congrats    ppustr ppu_at0, $40          ; 83db
                 db $df, "T"-55
                 ppustr ppu_nt0+10*32+3, 18
                 db "ANY"-55, $24, "TRAFFIC"-55, $24, "TODAY"-55, $e0
-                hex ff
-str_gotlost     ppustr ppu_at0, $40          ; 8471
-                hex ff
+                db STR_TERM
+str_gotlost     ppustr ppu_at0, $40
+                db $ff
                 ppustr ppu_nt0+3*32+14, 4
                 db "HUH"-55, $de
                 ppustr ppu_nt0+5*32+3, 17
@@ -515,9 +521,9 @@ str_gotlost     ppustr ppu_at0, $40          ; 8471
                 ppustr ppu_nt0+8*32+3, 26
                 db "MAYBE"-55, $24, "THIS"-55, $24, "IS"-55, $24, "GOOD"-55
                 db $24, "ENOUGH"-55, $e1
-                hex ff
-str_master      ppustr ppu_at0, $40          ; 84c5
-                hex ff
+                db STR_TERM
+str_master      ppustr ppu_at0, $40
+                db $ff
                 ppustr ppu_nt0+3*32+11, 11
                 db "INCREDIBLE"-55, $e1
                 ppustr ppu_nt0+5*32+3, 13
@@ -525,9 +531,9 @@ str_master      ppustr ppu_at0, $40          ; 84c5
                 ppustr ppu_nt0+6*32+3, 26
                 db "AN"-55, $24, "IRRITATING"-55, $24, "SHIP"-55, $24
                 db "MASTER"-55, $e1
-                hex ff
-str_wow         ppustr ppu_at0, $40          ; 8505
-                hex ff
+                db STR_TERM
+str_wow         ppustr ppu_at0, $40
+                db $ff
                 ppustr ppu_nt0+3*32+14, 4
                 db "WOW"-55, $e0
                 ppustr ppu_nt0+5*32+3, 24
@@ -542,8 +548,8 @@ str_wow         ppustr ppu_at0, $40          ; 8505
                 db $24, "ON"-55
                 ppustr ppu_nt0+10*32+3, 17
                 db "THE"-55, $24, "TITLE"-55, $24, "SCREEN"-55, $e1
-                hex ff
-str_stats       ppustr ppu_nt0+14*32+2, 11   ; 857f
+                db STR_TERM
+str_stats       ppustr ppu_nt0+14*32+2, 11
                 db "DIFFICULTY"-55, $dc
                 ppustr ppu_nt0+16*32+2, 8
                 db "GRAVITY"-55, $dc
@@ -555,35 +561,26 @@ str_stats       ppustr ppu_nt0+14*32+2, 11   ; 857f
                 db "THRUST"-55, $24, "USED"-55, $dc
                 ppustr ppu_nt0+25*32+2, 14
                 db "SHIPS"-55, $24, "CRASHED"-55, $dc
-                hex ff
-str_normal2     ppustr ppu_nt0+14*32+24, 6   ; 85d7
-                db "NORMAL"-55
-                hex ff
-str_hard2       ppustr ppu_nt0+14*32+26, 4   ; 85e1
-                db "HARD"-55
-                hex ff
-str_expert2     ppustr ppu_nt0+14*32+24, 6   ; 85e9
-                db "EXPERT"-55
-                hex ff
-str_irritating2 ppustr ppu_nt0+14*32+20, 10  ; 85f3
-                db "IRRITATING"-55
-                hex ff
-str_secret      ppustr ppu_nt0+14*32+24, 6   ; 8601
-                db "SECRET"-55
-                hex ff
-str_off2        ppustr ppu_nt0+16*32+27, 3   ; 860b
-                db "OFF"-55
-                hex ff
-str_on2         ppustr ppu_nt0+16*32+28, 2   ; 8612
-                db "ON"-55
-                hex ff
-str_ntsc        ppustr ppu_nt0+18*32+26, 4   ; 8618
-                db "NTSC"-55
-                hex ff
-str_pal         ppustr ppu_nt0+18*32+27, 3   ; 8620
-                db "PAL"-55
-                hex ff
-str_credits     ppustr ppu_nt0+5*32+8, 15    ; 8627
+                db STR_TERM
+str_normal2     ppustr ppu_nt0+14*32+24, 6
+                db "NORMAL"-55, STR_TERM
+str_hard2       ppustr ppu_nt0+14*32+26, 4
+                db "HARD"-55, STR_TERM
+str_expert2     ppustr ppu_nt0+14*32+24, 6
+                db "EXPERT"-55, STR_TERM
+str_irritating2 ppustr ppu_nt0+14*32+20, 10
+                db "IRRITATING"-55, STR_TERM
+str_secret      ppustr ppu_nt0+14*32+24, 6
+                db "SECRET"-55, STR_TERM
+str_off2        ppustr ppu_nt0+16*32+27, 3
+                db "OFF"-55, STR_TERM
+str_on2         ppustr ppu_nt0+16*32+28, 2
+                db "ON"-55, STR_TERM
+str_ntsc        ppustr ppu_nt0+18*32+26, 4
+                db "NTSC"-55, STR_TERM
+str_pal         ppustr ppu_nt0+18*32+27, 3
+                db "PAL"-55, STR_TERM
+str_credits     ppustr ppu_nt0+5*32+8, 15
                 db "IRRITATING"-55, $24, "SHIP"-55
                 ppustr ppu_nt0+7*32+4, 23
                 db "2022"-48, $24, "NESDEV"-55, $24, "COMPETITION"-55
@@ -603,9 +600,9 @@ str_credits     ppustr ppu_nt0+5*32+8, 15    ; 8627
                 db "FAMITONE"-55, "2"-48
                 ppustr ppu_nt0+20*32+19, 11
                 db "FAMITRACKER"-55
-                hex ff
+                db STR_TERM
 
-                hex b4 b4 b5 b5              ; 86c4 (unaccessed)
+                hex b4 b4 b5 b5              ; $86c4 (unaccessed)
 
 sub4            sta ram38                    ; 86c8
                 stx ram39
@@ -664,8 +661,7 @@ sub7            bit buttons_changed          ; 871d
                 sta ram28
                 lda #1
                 jsr sndeng_entry5
-                lda #$10
-                sta ram35
+                copy #$10, ram35
 +               jsr sub8
                 lda buttons_held
                 and #%01000000
@@ -677,8 +673,7 @@ sub7            bit buttons_changed          ; 871d
                 jsr sub10
                 jmp sub9
 +               jsr sub9                     ; 8748 (unaccessed)
-                lda #$30                     ; unaccessed
-                sta oam_copy+0*4+1           ; unaccessed
+                copy #$30, oam_copy+0*4+1    ; unaccessed
                 rts                          ; unaccessed
 
 dat2            hex 00 00 ff 00              ; 8751 (last byte unaccessed)
@@ -716,16 +711,14 @@ sub8            lda buttons_held             ; 877d
                 sbc #$4f
                 add ram31
                 sta ram31
-                lda #$50
-                sta arr2+0
+                copy #$50, arr2+0
 +               lda arr2+0
                 cmp #$85
                 bcc +
                 sbc #$84
                 add ram31
                 sta ram31
-                lda #$84
-                sta arr2+0
+                copy #$84, arr2+0
 +               lda arr2+3
                 clc
                 adc dat5,x
@@ -787,20 +780,16 @@ sub10           lda ram29                    ; 882a
                 lda #$10
                 bcc +
                 lda #$20                     ; 8834
-+               lda #$10
-                sta oam_copy+1*4+1
-                lda #1
-                sta oam_copy+1*4+2
-                lda arr2+0
-                sta oam_copy+1*4+3
++               copy #$10,   oam_copy+1*4+1
+                copy #$01,   oam_copy+1*4+2
+                copy arr2+0, oam_copy+1*4+3
                 jsr arr2+2
                 add #6
                 sta oam_copy+1*4+0
 
 rts3            rts                          ; 884e
 
-sub11           lda #$10                     ; 884f
-                sta ptr1+0
+sub11           copy #$10, ptr1+0            ; 884f
                 ldx ram14
                 ldy ram37
                 beq rts4
@@ -1042,18 +1031,18 @@ sub13           lda #$ff                     ; 8a19
 
 task_jump_table ; $8a28 (partially unaccessed)
                 dw sub14                     ;  0
-                dw sub17                     ;  1
-                dw sub19                     ;  2
-                dw sub21                     ;  3
-                dw sub22                     ;  4
-                dw sub23                     ;  5
-                dw sub24                     ;  6
+                dw title_fadein              ;  1
+                dw ingame_fadein2            ;  2
+                dw explode                   ;  3
+                dw title_fadeout             ;  4
+                dw ingame_fadeout            ;  5
+                dw ingame_fadein1            ;  6
                 dw sub25                     ;  7
                 dw sub27                     ;  8
                 dw sub26                     ;  9
                 dw sub28                     ; 10
-                dw sub18                     ; 11
-                dw sub20                     ; 12
+                dw on_title                  ; 11
+                dw in_game                   ; 12
 
 ppu_fill        ; $8a42; write A to PPU Y*8 times
                 ; called by: sub16
@@ -1069,31 +1058,30 @@ ppu_fill        ; $8a42; write A to PPU Y*8 times
                 bne ppu_fill
                 rts
 
-sub14           lda #0                       ; 8a5e
-                sta ram23
+sub14           ; $8a5e
+                copy #0, stage
                 lda #1
                 sta task1
                 sta task2
                 jsr sub15
                 jsr sub42
-                jmp sub17
+                jmp title_fadein
 
-sub15           ldy #$23                     ; 8a71
+sub15           ; $8a71
+                ldy #$23
 -               lda str_palette,y
                 sta arr7,y
                 dey
                 bpl -
-                lda #0
-                sta ram50
+                copy #0, ram50
                 rts
 
-sub16           bit ppu_status               ; 8a82
+sub16           ; $8a82
+                bit ppu_status
                 ;
                 ; clear AT0
-                lda #>ppu_at0
-                sta ppu_addr
-                lda #<ppu_at0
-                sta ppu_addr
+                copy #>ppu_at0, ppu_addr
+                copy #<ppu_at0, ppu_addr
                 lda #0
                 ldy #8
                 jsr ppu_fill
@@ -1127,7 +1115,8 @@ sub16           bit ppu_status               ; 8a82
                 jsr sub34
                 rts
 
-sub17           jsr clear_oam_copy           ; 8aca
+title_fadein    ; $8aca
+                jsr clear_oam_copy
                 lda ram7
                 cmp #1
                 beq +
@@ -1137,50 +1126,42 @@ sub17           jsr clear_oam_copy           ; 8aca
                 sta ppu_mask
                 jsr sndeng_entry3
                 jsr sub33
-                lda #$0b
-                sta ram9
-                lda #1
-                sta ram8
-                lda #%00011110
-                sta ppu_mask_copy2
+                copy #11, task3
+                copy #1,  ram8
+                copy #%00011110, ppu_mask_copy2
                 lda #%10001000
                 sta ppu_ctrl_copy
                 sta ppu_ctrl
-+               jsr sub19
++               jsr ingame_fadein2
                 lda task1
                 cmp task2
                 beq +
-                lda #$80
-                sta ram8
+                copy #$80, ram8
 +               rts
 
-sub18           lda #0                       ; 8b03
-                sta ram33
+on_title        ; $8b03
+                copy #0, ram33
                 jsr clear_oam_copy
                 lda buttons_changed
                 and #%10010000
                 beq +
                 lda #0
                 jsr sndeng_entry2
-                lda #6
-                sta ram9
-                lda #4
-                sta task2
-                lda #0
-                sta ram8
-                lda #0
-                sta ram23
+                copy #6, task3
+                copy #4, task2
+                copy #0, ram8
+                copy #0, stage
 +               rts
 
-sub19           lda ram30                    ; 8b26
+ingame_fadein2  ; $8b26
+                lda timer
                 bne +
-                lda #9
-                sta ram30
-+               dec ram30
+                copy #9, timer
++               dec timer
                 bne ++
-                ldy ram9
+                ldy task3
                 sty task2
-                cpy #$0b
+                cpy #11
                 bcc +
                 lda buttons_held
                 and #%01111111
@@ -1189,14 +1170,15 @@ sub19           lda ram30                    ; 8b26
                 bne ++
                 jsr sndeng_entry4
                 ;
-++              lda ram30                    ; 8b47
+++              lda timer                    ; $8b47
                 add #3
                 and #%00001100
                 asl a
                 asl a
                 jmp sub29
 
-sub20           lda ppu_mask_copy1           ; 8b53
+in_game         ; $8b53
+                lda ppu_mask_copy1
                 ora #%00011110
                 sta ppu_mask_copy2
                 lda buttons_changed
@@ -1211,14 +1193,14 @@ sub20           lda ppu_mask_copy1           ; 8b53
                 and #%11100001
                 sta ppu_mask_copy2
                 rts
-+               ldy ram23
-                lda dat10,y
++               ldy stage
+                lda stages_dat2,y
                 sta ram32
-                lda dat9,y
+                lda stages_dat1,y
                 sta ram31
-                lda dat12,y
+                lda stages_dat4,y
                 sta ram34
-                lda dat11,y
+                lda stages_dat3,y
                 sta ram33
                 lda ram25
                 beq +
@@ -1240,7 +1222,7 @@ cod7            asl ram32                    ; 8b97
                 jsr sub40
                 lda ram24
                 bne +
-                lda ram23
+                lda stage
                 asl a
                 tay
                 iny
@@ -1269,8 +1251,7 @@ cod7            asl ram32                    ; 8b97
                 add #$10
                 cmp ram26
                 bcs +
-                lda #1
-                sta ram25
+                copy #1, ram25
 +               lda #0
                 sta ram31
                 sta ram32
@@ -1278,11 +1259,11 @@ cod7            asl ram32                    ; 8b97
                 sta ram34
                 rts
 
-sub21           jsr clear_oam_copy           ; 8bfb
-                lda ram30
+explode         ; $8bfb
+                jsr clear_oam_copy
+                lda timer
                 bne +
-                lda #$16
-                sta ram30
+                copy #22, timer
 +               lda oam_copy+0*4+1
                 cmp #$30
                 bcc +
@@ -1293,20 +1274,17 @@ sub21           jsr clear_oam_copy           ; 8bfb
                 jsr sub9
                 pla
                 sta oam_copy+0*4+1
-                lda #1
-                sta oam_copy+0*4+2
-+               dec ram30
+                copy #1, oam_copy+0*4+2
++               dec timer
                 bne +
                 lda #0
                 sta ram24
                 sta ram22
-                lda #1
-                sta ram8
+                copy #1, ram8
                 lda #6
                 ldy ram7
-                sta ram9
-                lda #5
-                sta task2
+                sta task3
+                copy #5, task2
 +               jsr sub12
                 jsr rts6
                 rts
@@ -1314,19 +1292,18 @@ sub21           jsr clear_oam_copy           ; 8bfb
                 ; $8c3f: unaccessed or maybe JMP ($5a5a)
                 hex 6c 5a 5a
 
-sub22           lda ram30                    ; 8c42
+title_fadeout   ; $8c42; or maybe a general fadeout
+                lda timer
                 bne +
-                lda #$0d
-                sta ram30
-+               dec ram30
+                copy #13, timer
++               dec timer
                 bne +
-                lda ram9
-                sta task2
-                lda #0
+                copy task3, task2
+                lda #%00000000
                 sta ppu_mask_copy2
                 sta ppu_ctrl_copy
-+               lda ram30
-                cmp #$0d
++               lda timer
+                cmp #13
                 bcs +
                 add #3
                 and #%00001100
@@ -1336,41 +1313,34 @@ sub22           lda ram30                    ; 8c42
                 jsr sub29
 +               rts
 
-sub23           jsr clear_oam_copy           ; 8c6b
-                jsr sub22
+ingame_fadeout  ; $8c6b
+                jsr clear_oam_copy
+                jsr title_fadeout
                 jsr sub12
                 jmp rts6
 
-sub24           jsr sub16                    ; 8c77
-                lda #$0c
-                sta ram9
-                lda #2
-                sta task2
-                lda #0
-                sta ram8
-                lda #%00011110
-                sta ppu_mask_copy2
+ingame_fadein1  ; $8c77
+                jsr sub16
+                copy #12, task3
+                copy #2,  task2
+                copy #0,  ram8
+                copy #%00011110, ppu_mask_copy2
                 lda ppu_ctrl_copy
                 ora #%10001000
                 sta ppu_ctrl_copy
                 sta ppu_ctrl
                 rts
 
-sub25           ; 8c94-8cba: unaccessed code
-                jsr clear_oam_copy           ; 8c94
-                lda #0
-                sta vscroll2
+sub25           ; $8c94; unaccessed up to $8cba
+                jsr clear_oam_copy
+                copy #0, vscroll2
                 jsr clear_nt0
                 lda #2*11
                 jsr print_str
-                lda #8
-                sta ram9
-                lda #2
-                sta task2
-                lda #0
-                sta ram8
-                lda #%00011110
-                sta ppu_mask_copy2
+                copy #8, task3
+                copy #2, task2
+                copy #0, ram8
+                copy #%00011110, ppu_mask_copy2
                 lda #%10001000
                 sta ppu_ctrl_copy
                 sta ppu_ctrl
@@ -1382,38 +1352,29 @@ sub25           ; 8c94-8cba: unaccessed code
                 ; 24 nn = BIT nn
                 hex e1 24                    ; 8cbd (unaccessed)
 
-                ; 8cbf-8cfb: unaccessed code
-sub26           jsr clear_nt0                ; 8cbf
+sub26           ; $8cbf; unaccessed up to $8cfb
+                jsr clear_nt0
                 lda #16*2
                 jsr print_str
-                lda #$0a
-                sta ram9
-                lda #2
-                sta task2
-                lda #0
-                sta ram8
-                lda #%00011110
-                sta ppu_mask_copy2
+                copy #10, task3
+                copy #2,  task2
+                copy #0,  ram8
+                copy #%00011110, ppu_mask_copy2
                 lda #%10001000
                 sta ppu_ctrl_copy
                 sta ppu_ctrl
 
 sub27           bit buttons_changed          ; 8cde
                 bvc sub28
-                lda #9                       ; 8ce2
-                sta ram9
-                lda #4
-                sta task2
+                copy #9, task3               ; 8ce2
+                copy #4, task2
                 rts
 
 sub28           bit buttons_changed          ; 8ceb
                 bpl +
-                lda #1                       ; 8cef
-                sta ram9
-                lda #4
-                sta task2
-                lda #0
-                sta ram8
+                copy #1, task3               ; 8cef
+                copy #4, task2
+                copy #0, ram8
 +               rts                          ; 8cfb
 
 sub29           sta ptr1+0                   ; 8cfc
@@ -1551,12 +1512,13 @@ lvlblkdat_br    ; $8f7c; bottom right tile of each 2*2-tile level block
                 hex f8 61 b5 41 61 f8 f8 50
                 hex 41 f8 30 50 f8 30 a2 31
 
-dat9            hex 00 00 00 ff 00 00 01     ; $903c
-dat10           hex 00 00 00 80 00 80 00     ; $9043
-dat11           hex 00 00 00 00 00 00 00     ; $904a
-dat12           hex 80 40 20 80 80 80 40     ; $9051
-hscroll_data    hex 04 00 00 00 04 00 34     ; $9058
-dat13           hex 00 00 00 00 00 80 00     ; $905f
+                ; stage-specific data
+stages_dat1     hex 00 00 00 ff 00 00 01     ; $903c
+stages_dat2     hex 00 00 00 80 00 80 00     ; $9043
+stages_dat3     hex 00 00 00 00 00 00 00     ; $904a
+stages_dat4     hex 80 40 20 80 80 80 40     ; $9051
+stages_hscroll  hex 04 00 00 00 04 00 34     ; $9058
+stages_dat5     hex 00 00 00 00 00 80 00     ; $905f
 
 level_data      ; $9066; level data; byte = which 2*2-tile block;
                 ; first left to right, then up (forward);
@@ -1744,37 +1706,32 @@ sub30           lda ram22                    ; 9b36
                 pha
                 lda ptr4+1
                 pha
-                lda #$66
-                sta ptr4+0
-                lda #$90
-                sta ptr4+1
+                copy #<level_data, ptr4+0
+                copy #>level_data, ptr4+1
                 jsr sub31
                 dec ram22
                 bne +
                 lda ram24
                 beq +
-                inc ram23
+                inc stage
                 lda #0
                 sta ram24
                 sta ram25
                 jsr sub41
-                ldy ram23
-                lda hscroll_data,y
+                ldy stage
+                lda stages_hscroll,y
                 sta hscroll1
                 sta hscroll2
                 lda ram11
                 sec
-                sbc dat13,y
+                sbc stages_dat5,y
                 sta ram10
                 cpy #7
                 bne +
 
-                lda #1                       ; 9b73 (unaccessed)
-                sta ram9                     ; unaccessed
-                lda #4                       ; unaccessed
-                sta task2                    ; unaccessed
-                lda #0                       ; unaccessed
-                sta ram8                     ; unaccessed
+                copy #1, task3               ; 9b73 (unaccessed)
+                copy #4, task2               ; unaccessed
+                copy #0, ram8                ; unaccessed
                 jsr sndeng_entry3            ; unaccessed
 
 +               pla                          ; 9b82
@@ -1788,12 +1745,9 @@ sub31           inc ram20                    ; 9b89
                 inc ram21
 sub32           ldy #0                       ; 9b8f
                 jsr sub39
-                lda arr1+0
-                sta ram16
-                lda arr1+1
-                sta ram17
-                lda #0
-                sta ptr1+0
+                copy arr1+0, ram16
+                copy arr1+1, ram17
+                copy #0,     ptr1+0
 -               ldy #0
                 lda (ptr4),y
                 inc ptr4+0
@@ -1802,10 +1756,12 @@ sub32           ldy #0                       ; 9b8f
 +               tax
                 ldy ptr1+0
                 lda lvlblkdat_tl,x
+                ;hex a9 36 ea                 ; cheat!
                 sta arr5,y
                 lda lvlblkdat_tr,x
                 sta arr5+1,y
                 lda lvlblkdat_bl,x
+                ;hex a9 36 ea                 ; cheat!
                 sta arr6,y
                 lda lvlblkdat_br,x
                 sta arr6+1,y
@@ -1814,10 +1770,10 @@ sub32           ldy #0                       ; 9b8f
                 sty ptr1+0
                 cpy #$20
                 bne -
-                lda #1
-                sta ram15
+                copy #1, ram15
                 sec
                 rts
+
 sub33           lda #0                       ; 9bd3
                 sta vscroll1
                 sta vscroll2
@@ -1827,12 +1783,13 @@ sub33           lda #0                       ; 9bd3
                 lda #STR_ID_TITLE            ; print title screen
                 jsr print_str
                 rts
+
 sub34           jsr sndeng_entry4            ; 9be6
-                ldy ram23
-                lda hscroll_data,y
+                ldy stage
+                lda stages_hscroll,y
                 sta hscroll1
                 sta hscroll2
-                lda dat13,y
+                lda stages_dat5,y
                 sta ram10
                 lda #0
                 sta vscroll1
@@ -1845,7 +1802,7 @@ sub34           jsr sndeng_entry4            ; 9be6
                 sta ram32
                 sta ram33
                 sta ram34
-                lda ram23
+                lda stage
                 asl a
                 tay
                 lda dat14,y
@@ -1856,40 +1813,30 @@ sub34           jsr sndeng_entry4            ; 9be6
                 sta ram20
                 sta ram21
                 jsr sub35
-                lda #$0a
-                sta ram3
+                copy #$0a, ram3
                 jsr sub36
-                lda #5
-                sta ram3
+                copy #5, ram3
                 jsr sub37
-                lda #$6a
-                sta arr2+0
-                lda #$80
-                sta arr2+1
-                lda #$bf
-                sta arr2+2
-                lda #$80
-                sta arr2+3
+                copy #$6a, arr2+0
+                copy #$80, arr2+1
+                copy #$bf, arr2+2
+                copy #$80, arr2+3
                 jsr sub9
                 jsr sub11
                 rts
-sub35           lda #0                       ; 9c49
-                sta ram15
-                lda #$23
-                sta arr1+0
-                lda #$c0
-                sta arr1+1
-                lda ram4
-                sta ppu_ctrl
+
+sub35           copy #0, ram15               ; 9c49
+                copy #>ppu_at0, arr1+0
+                copy #<ppu_at0, arr1+1
+                copy ram4, ppu_ctrl
                 rts
+
 sub36           lda ptr4+0                   ; 9c5b
                 pha
                 lda ptr4+1
                 pha
--               lda #<level_data
-                sta ptr4+0
-                lda #>level_data
-                sta ptr4+1
+-               copy #<level_data, ptr4+0
+                copy #>level_data, ptr4+1
                 jsr sub32
                 jsr sub3
                 dec ram3
@@ -1899,16 +1846,17 @@ sub36           lda ptr4+0                   ; 9c5b
                 pla
                 sta ptr4+0
                 rts
+
 sub37           jsr sub32                    ; 9c7a
                 jsr sub3
                 dec ram3
                 bne sub37
                 rts
 
--               jsr sub31                    ; 9c85 (unaccessed)
+sub37b          jsr sub31                    ; 9c85 (unaccessed)
                 jsr sub3                     ; unaccessed
                 dec ram3                     ; unaccessed
-                bne -                        ; unaccessed
+                bne sub37b                   ; unaccessed
                 rts                          ; 9c8f (unaccessed)
 
 sub38           lda ram11                    ; 9c90
@@ -1957,8 +1905,7 @@ sub39           lda arr1+1,y                 ; 9cc0
                 sta arr1+1,y
 +               rts
 
-sub40           lda ppu_ctrl_copy            ; 9ce8
-                sta ram2
+sub40           copy ppu_ctrl_copy, ram2     ; 9ce8
                 jsr sub38
                 lda ram10
                 add ram32
@@ -1983,8 +1930,7 @@ sub41           lda arr7+4                   ; 9d08
                 sta arr7+5
                 eor #%00110000
                 sta arr7+6
-                lda #6
-                sta ram18
+                copy #6, ram18
                 rts
 
 sub42           lda #$ff                     ; 9d26
@@ -2010,8 +1956,7 @@ irq             sei
                 stx ppu_ctrl
                 stx ppu_mask
                 sta snd_chn
-                lda #$40
-                sta joypad2
+                copy #$40, joypad2
                 bit ppu_status
 -               bit ppu_status
                 bpl -
@@ -2114,8 +2059,8 @@ read_joypad     ; $c79c; called by clear_oam_copy
 
 ; -----------------------------------------------------------------------------
 
-clear_oam_copy  ; $c7c7; called by sub16, sub17, sub18, sub20, sub21, sub23,
-                ; sub25
+clear_oam_copy  ; $c7c7; called by sub16, title_fadein, on_title, in_game,
+                ; explode, ingame_fadeout, sub25
                 ;
                 lda #$ff
                 ldx #$3c
@@ -2126,8 +2071,7 @@ clear_oam_copy  ; $c7c7; called by sub16, sub17, sub18, sub20, sub21, sub23,
                 axs_imm 4                    ; $c7d7: equiv. to 4*DEX
                 bpl -
                 ;
-                lda #$10
-                sta ram14
+                copy #$10, ram14
                 rts
 
 ; -----------------------------------------------------------------------------
@@ -2148,8 +2092,8 @@ to_main_loop    ; $c7e9; called by reset
                 jsr ram42
                 ;
                 copy task2, task1
-                copy ram8, ram7
-                copy #0, ram13
+                copy ram8,  ram7
+                copy #0,    ram13
                 jmp main_loop
 
 ; -----------------------------------------------------------------------------
@@ -2170,8 +2114,7 @@ nmi             ; $c809; NMI routine
                 ora ram45
                 sta ram45
                 beq +
-                lda #0
-                sta ram36
+                copy #0, ram36
                 lda ppu_mask_copy2
                 ora #%00011110
                 sta ppu_mask_copy2
@@ -2181,10 +2124,8 @@ nmi             ; $c809; NMI routine
                 lda ram28
                 eor #%00000001
                 sta ram28
-                lda #0
-                sta ram35
-                lda #$fe
-                sta oam_copy+2*4+0
+                copy #0, ram35
+                copy #$fe, oam_copy+2*4+0
                 lda oam_copy+0*4+3
                 ldy oam_copy+3*4+3
                 sta oam_copy+3*4+3
@@ -2195,35 +2136,28 @@ nmi             ; $c809; NMI routine
 +               lda ram45                    ; c851
                 beq +
                 ;
-                lda #$30
-                sta oam_copy+0*4+1
-                lda #$ff
-                sta oam_copy+0*4+4
+                copy #$30, oam_copy+0*4+1
+                copy #$ff, oam_copy+1*4+0
                 ;
                 lda #3
                 sta task1
                 sta task2
                 lda #2
                 jsr sndeng_entry5
-                lda #0
-                sta ram45
+                copy #0, ram45
                 ;
 +               bit ppu_status
                 jsr sub1
                 jsr sub2
                 ;
-                lda ppu_mask_copy1
-                sta ppu_mask
+                copy ppu_mask_copy1, ppu_mask
                 ;
-                lda hscroll2                 ; c87c
-                sta ppu_scroll
+                copy hscroll2, ppu_scroll    ; c87c
                 ldy vscroll2
                 sty ppu_scroll
                 ;
-                lda #0                       ; c886
-                sta oam_addr
-                lda #>oam_copy
-                sta oam_dma
+                copy #0, oam_addr            ; c886
+                copy #>oam_copy, oam_dma
                 ;
                 lda ppu_mask_copy2
                 sta ppu_mask
@@ -2233,10 +2167,8 @@ nmi             ; $c809; NMI routine
                 sta ppu_ctrl
                 sta ram4
                 ;
-                lda hscroll2
-                sta hscroll1
-                lda vscroll2
-                sta vscroll1
+                copy hscroll2, hscroll1
+                copy vscroll2, vscroll1
 nmi_end         jsr sndeng_entry1
                 inc ram13
                 ;

@@ -76,6 +76,11 @@ macro sub _operand
                 sec
                 sbc _operand
 endm
+macro copy _src, _dst
+                ; use this only if A is ignored later
+                lda _src
+                sta _dst
+endm
 
 ; -----------------------------------------------------------------------------
 
@@ -91,8 +96,7 @@ sndeng_entry1   ; $9d37; an entry point from main program
                 sta arr1+0
                 sta arr1+4
                 sta arr1+12
-                lda #0
-                sta arr1+8
+                copy #0, arr1+8
 ++              ldx #0
                 jsr sub3
                 ldx #$0f
@@ -101,44 +105,30 @@ sndeng_entry1   ; $9d37; an entry point from main program
                 jsr sub3
                 ldx #$2d
                 jsr sub3
-                lda arr1+0
-                sta sq1_vol
-                lda arr1+1
-                sta sq1_sweep
-                lda arr1+2
-                sta sq1_lo
+                copy arr1+0, sq1_vol
+                copy arr1+1, sq1_sweep
+                copy arr1+2, sq1_lo
                 lda arr1+3
                 cmp ram_shared
                 beq +
                 sta ram_shared
                 sta sq1_hi
-+               lda arr1+4
-                sta sq2_vol
-                lda arr1+5
-                sta sq2_sweep
-                lda arr1+6
-                sta sq2_lo
++               copy arr1+4, sq2_vol
+                copy arr1+5, sq2_sweep
+                copy arr1+6, sq2_lo
                 lda arr1+7
                 cmp ram5
                 beq +
                 sta ram5
                 sta sq2_hi
-+               lda arr1+8
-                sta tri_linear
-                lda arr1+9
-                sta misc1
-                lda arr1+10
-                sta tri_lo
-                lda arr1+11
-                sta tri_hi
-                lda arr1+12
-                sta noise_vol
-                lda arr1+13
-                sta misc2
-                lda arr1+14
-                sta noise_lo
-                lda arr1+15
-                sta noise_hi
++               copy arr1+8,  tri_linear
+                copy arr1+9,  misc1
+                copy arr1+10, tri_lo
+                copy arr1+11, tri_hi
+                copy arr1+12, noise_vol
+                copy arr1+13, misc2
+                copy arr1+14, noise_lo
+                copy arr1+15, noise_hi
                 rts
 
 sndeng_entry2   ; $9dbf; an entry point from main program
@@ -148,8 +138,7 @@ sndeng_entry2   ; $9dbf; an entry point from main program
                 stx ram4
                 ldx region
                 jsr sub4
-                lda #1
-                sta ram2
+                copy #1, ram2
                 rts
 
 sndeng_entry3   ; $9dd1; an entry point from main program
@@ -160,8 +149,7 @@ sndeng_entry3   ; $9dd1; an entry point from main program
                 lda #0
                 ldx region
                 jsr sub4
-                lda #0
-                sta ram2
+                copy #0, ram2
                 rts
 
                 ; $9de5: partially unaccessed
@@ -171,13 +159,11 @@ dat1            hex 0d 00 0d 00 0d 00 0d 00
                 hex 22 00 22 00 22 00 22 00
                 hex 22 00 00 3f
 
-                lda #0                       ; 9e09 (unaccessed)
-                sta ram2                     ; unaccessed
+                copy #0, ram2                ; 9e09 (unaccessed)
                 rts                          ; unaccessed
 
 sndeng_entry4   ; $9e0e; an entry point from main program
-                lda #1
-                sta ram2
+                copy #1, ram2
                 rts
 
                 lda ram2                     ; 9e13 (unaccessed)
@@ -876,10 +862,8 @@ sub1            lda #0                       ; b133
 sub2            asl a                        ; b14d
                 tay
                 jsr sub1
-                lda arr_shared1+1
-                sta ptr2+0
-                lda arr_shared1+2
-                sta ptr2+1
+                copy arr_shared1+1, ptr2+0
+                copy arr_shared1+2, ptr2+1
                 lda (ptr2),y
                 sta arr_shared1+4,x
                 iny
@@ -971,19 +955,14 @@ sub4            asl a                        ; b20a
                 inx
                 cpx #16
                 bne -
-                lda #$30
-                sta arr1+12
-                lda #$0f
-                sta snd_chn
+                copy #$30, arr1+12
+                copy #$0f, snd_chn
                 lda #8
                 sta arr1+1
                 sta arr1+5
-                lda #$c0
-                sta joypad2
-                lda #$40
-                sta joypad2
-                lda #$ff
-                sta arr2+5
+                copy #$c0, joypad2
+                copy #$40, joypad2
+                copy #$ff, arr2+5
                 lda #0
                 tax
 -               sta arr_shared2+33,x
@@ -1012,10 +991,8 @@ sub4            asl a                        ; b20a
                 rts
 
 sub5            pha                          ; b26c
-                lda ram3
-                sta ptr4+0
-                lda ram4
-                sta ptr4+1
+                copy ram3, ptr4+0
+                copy ram4, ptr4+1
                 ldy #0
 -               clc
                 lda (ptr4),y
@@ -1041,10 +1018,8 @@ sub5            pha                          ; b26c
                 lda (ptr4),y
                 iny
                 sta arr_shared2+0
-                lda #<note_freqs1
-                sta ptr6+0
-                lda #>note_freqs1
-                sta ptr6+1
+                copy #<note_freqs1, ptr6+0
+                copy #>note_freqs1, ptr6+1
                 jmp cod2
 
                 ; b2b1-b2c9: unaccessed code
@@ -1056,10 +1031,8 @@ sub5            pha                          ; b26c
                 lda (ptr4),y
                 iny
                 sta arr_shared2+0
-                lda #<note_freqs2
-                sta ptr6+0
-                lda #>note_freqs2
-                sta ptr6+1
+                copy #<note_freqs2, ptr6+0
+                copy #>note_freqs2, ptr6+1
                 jmp cod2
 
                 ; b2ca-b2df: unaccessed code
@@ -1071,10 +1044,8 @@ sub5            pha                          ; b26c
                 lda (ptr4),y
                 iny
                 sta arr_shared2+0
-                lda #<note_freqs1
-                sta ptr6+0
-                lda #>note_freqs1
-                sta ptr6+1
+                copy #<note_freqs1, ptr6+0
+                copy #>note_freqs1, ptr6+1
 
 cod2            pla                          ; b2e0
                 tay
@@ -1107,10 +1078,8 @@ cod2            pla                          ; b2e0
                 sta ram23
                 rts
 
-sub6            lda arr2+0                   ; b326
-                sta ptr3+0
-                lda arr2+1
-                sta ptr3+1
+sub6            copy arr2+0, ptr3+0          ; b326
+                copy arr2+1, ptr3+1
                 clc
                 lda (ptr3),y
                 adc ram3
@@ -1184,8 +1153,7 @@ sub7            asl a                        ; b35f
                 ; b3b3-b45f: unaccessed code
 +               sta ram19                    ; b3b3
                 ldx #0
---              lda ram19                    ; b3b8
-                sta ram8
+--              copy ram19, ram8             ; b3b8
                 lda #0
                 sta arr_shared2+48,x
 -               ldy #0                       ; b3c2
@@ -1224,8 +1192,7 @@ cod3            lda arr_shared2+48,x         ; b3ce
                 cpx #5
                 bne --
                 ;
-                lda #0                       ; b409
-                sta arr_shared2+5
+                copy #0, arr_shared2+5       ; b409
                 rts
 cod4            cmp #$80                     ; b40f
                 beq cod8
@@ -1295,8 +1262,7 @@ sub8            lda ram18                    ; b460
                 jmp cod11
 +               lda ram21
                 beq +
-                lda #0
-                sta ram21
+                copy #0, ram21
                 lda ram20
                 jsr sub7
 +               ldx #0
@@ -1317,8 +1283,7 @@ sub8            lda ram18                    ; b460
 
                 sub #1                       ; b4c6 (unaccessed)
                 sta ram20                    ; unaccessed
-                lda #1                       ; unaccessed
-                sta ram21                    ; unaccessed
+                copy #1, ram21               ; unaccessed
                 jmp cod10                    ; unaccessed
 
 +               lda arr_shared2+4            ; b4d4
@@ -1329,13 +1294,10 @@ sub8            lda ram18                    ; b460
                 lda ram20
                 cmp arr3+0
                 beq +
-                lda #1                       ; b4ea (unaccessed)
-                sta ram21                    ; unaccessed
+                copy #1, ram21               ; b4ea (unaccessed)
                 jmp cod10                    ; unaccessed
-+               lda #0                       ; b4f2
-                sta ram20
-                lda #1
-                sta ram21
++               copy #0, ram20               ; b4f2
+                copy #1, ram21
                 jmp cod10
 ++              inc ram19                    ; b4ff
                 lda ram19
@@ -1394,8 +1356,7 @@ sub9            ldy arr_shared2+48,x         ; b576
                 sta arr_shared2+48,x
                 rts
 +               sty arr_shared2+2
-                lda #$0f
-                sta arr_shared2+1
+                copy #$0f, arr_shared2+1
                 lda arr_shared2+8,x
                 sta ptr5+0
                 lda arr_shared2+13,x
@@ -1515,8 +1476,7 @@ cod18           clc                          ; b675
                 lda arr_shared2+2
                 beq +
                 sta arr_shared2+79,x         ; b689 (unaccessed)
-                lda #0                       ; unaccessed
-                sta arr_shared2+2            ; unaccessed
+                copy #0, arr_shared2+2       ; unaccessed
 +               rts                          ; b691
 
 sub10           lda (ptr5),y                 ; b692
@@ -1586,8 +1546,7 @@ jumptbl1g       jsr sub10                    ; b70d
                 jmp cod12
 
 jumptbl1h       jsr sub10                    ; b716 (unaccessed)
-                lda #0                       ; unaccessed
-                sta ram18                    ; unaccessed
+                copy #0, ram18               ; unaccessed
                 jmp cod12                    ; unaccessed
 
 jumptbl1i       jsr sub10                    ; b721 (unaccessed)
@@ -1789,17 +1748,14 @@ sub13           clc                          ; b8b4
 
 sub14           tya                          ; b8c8
                 pha
-                lda arr3+3
-                sta ram12
-                lda #0
-                sta ram13
+                copy arr3+3, ram12
+                copy #0,     ram13
                 ldy #3
 -               asl ram12
                 rol ram13
                 dey
                 bne -
-                lda ram12
-                sta ram10
+                copy ram12, ram10
                 lda ram13
                 tay
                 asl ram12
@@ -1811,15 +1767,11 @@ sub14           tya                          ; b8c8
                 tya
                 adc ram13
                 sta ram11
-                lda arr3+2
-                sta ram12
-                lda #0
-                sta ram13
+                copy arr3+2, ram12
+                copy #0,     ram13
                 jsr sub15
-                lda ram10
-                sta ram24
-                lda ram11
-                sta ram25
+                copy ram10, ram24
+                copy ram11, ram25
                 pla
                 tay
                 rts
@@ -1994,8 +1946,7 @@ cod29           lda arr_shared2+157,x        ; ba52
                 jmp rts1
 +               lda arr_shared2+157,x
                 sta ptr3+0
-                lda #0
-                sta ptr3+1
+                copy #0, ptr3+1
                 jsr sub19
                 cmp arr_shared2+161,x
                 bcc +
@@ -2007,8 +1958,7 @@ cod29           lda arr_shared2+157,x        ; ba52
                 jmp rts1
 ++              lda arr_shared2+157,x        ; ba96
                 sta ptr3+0
-                lda #0
-                sta ptr3+1
+                copy #0, ptr3+1
                 jsr sub18
                 lda arr_shared2+161,x
                 cmp arr_shared2+58,x
@@ -2026,16 +1976,14 @@ cod30           jmp rts1                     ; bac3
 
 cod31           lda arr_shared2+157,x        ; bac6 (unaccessed)
                 sta ptr3+0                   ; unaccessed
-                lda #0                       ; unaccessed
-                sta ptr3+1                   ; unaccessed
+                copy #0, ptr3+1              ; unaccessed
                 jsr sub19                    ; unaccessed
                 jsr sub27                    ; unaccessed
                 jmp rts1                     ; unaccessed
 
 cod32           lda arr_shared2+157,x        ; bad8
                 sta ptr3+0
-                lda #0
-                sta ptr3+1
+                copy #0, ptr3+1
                 jsr sub18
                 jsr sub27
                 jmp rts1
@@ -2165,8 +2113,7 @@ sub20           lda arr_shared2+181,x        ; bbd2
                 tay
                 lda dat8,y
                 sta ptr3+0
-                lda #0
-                sta ptr3+1
+                copy #0, ptr3+1
                 jmp +
 ++              sub #$10                     ; bc11
                 sta ram7
@@ -2177,8 +2124,7 @@ sub20           lda arr_shared2+181,x        ; bbd2
                 tay
                 lda dat8,y
                 sta ptr3+0
-                lda #0
-                sta ptr3+1
+                copy #0, ptr3+1
                 jmp +
 cod36           sub #$20                     ; bc2b
                 ora arr_shared2+177,x
@@ -2186,8 +2132,7 @@ cod36           sub #$20                     ; bc2b
                 lda dat8,y
 cod37           eor #%11111111               ; bc35
                 sta ptr3+0
-                lda #$ff
-                sta ptr3+1
+                copy #$ff, ptr3+1
                 clc
                 lda ptr3+0
                 adc #1
@@ -2376,8 +2321,7 @@ cod43           lda arr_shared2+109,x        ; bda4
                 sta ptr3+0
                 rol a
                 bcc +
-                lda #$ff                     ; bdc5
-                sta ptr3+1
+                copy #$ff, ptr3+1            ; bdc5
                 jmp ++
 +               lda #0                       ; bdcc
                 sta ptr3+1
@@ -2769,14 +2713,11 @@ jumptbl2c       lda arr_shared2+58,x         ; c0b3
 
 sub28           lda ram18                    ; c0d0
                 bne +
-                lda #0                       ; c0d5 (unaccessed)
-                sta snd_chn                  ; unaccessed
+                copy #0, snd_chn             ; c0d5 (unaccessed)
                 rts                          ; unaccessed
 
-sub29           lda #$c0                     ; c0db
-                sta joypad2
-                lda #$40
-                sta joypad2
+sub29           copy #$c0, joypad2           ; c0db
+                copy #$40, joypad2
                 rts
 +               lda arr2+5                   ; c0e6
                 and #%00000001
@@ -2812,10 +2753,8 @@ sub29           lda #$c0                     ; c0db
                 lda arr_shared2+70
                 and #%11111000
                 beq +
-                lda #7                       ; c131 (unaccessed)
-                sta arr_shared2+70           ; unaccessed
-                lda #$ff                     ; unaccessed
-                sta arr_shared2+66           ; unaccessed
+                copy #7,   arr_shared2+70    ; c131 (unaccessed)
+                copy #$ff, arr_shared2+66    ; unaccessed
 +               lda arr_shared2+79           ; c13b
                 beq +
 
@@ -2827,22 +2766,16 @@ sub29           lda #$c0                     ; c0db
                 and #%01111111
                 sta arr_shared2+79
                 jsr sub29
-                lda arr_shared2+66
-                sta arr1+2
-                lda arr_shared2+70
-                sta arr1+3
+                copy arr_shared2+66, arr1+2
+                copy arr_shared2+70, arr1+3
                 jmp cod52
 
-cod51           lda #$30                     ; c15e
-                sta arr1+0
+cod51           copy #$30, arr1+0            ; c15e
                 jmp cod52
-+               lda #8                       ; c165
-                sta arr1+1
++               copy #8, arr1+1              ; c165
                 jsr sub29
-                lda arr_shared2+66
-                sta arr1+2
-                lda arr_shared2+70
-                sta arr1+3
+                copy arr_shared2+66, arr1+2
+                copy arr_shared2+70, arr1+3
 cod52           lda arr2+5                   ; c176
                 and #%00000010
                 bne +
@@ -2877,10 +2810,8 @@ cod52           lda arr2+5                   ; c176
                 lda arr_shared2+71
                 and #%11111000
                 beq +
-                lda #7                       ; c1c1 (unaccessed)
-                sta arr_shared2+71           ; unaccessed
-                lda #$ff                     ; unaccessed
-                sta arr_shared2+67           ; unaccessed
+                copy #7,   arr_shared2+71    ; c1c1 (unaccessed)
+                copy #$ff, arr_shared2+67    ; unaccessed
 +               lda arr_shared2+80           ; c1cb
                 beq +
 
@@ -2892,22 +2823,16 @@ cod52           lda arr2+5                   ; c176
                 and #%01111111
                 sta arr_shared2+80
                 jsr sub29
-                lda arr_shared2+67
-                sta arr1+6
-                lda arr_shared2+71
-                sta arr1+7
+                copy arr_shared2+67, arr1+6
+                copy arr_shared2+71, arr1+7
                 jmp cod54
 
-cod53           lda #$30                     ; c1ee
-                sta arr1+4
+cod53           copy #$30, arr1+4            ; c1ee
                 jmp cod54
-+               lda #8                       ; c1f5
-                sta arr1+5
++               copy #8, arr1+5              ; c1f5
                 jsr sub29
-                lda arr_shared2+67
-                sta arr1+6
-                lda arr_shared2+71
-                sta arr1+7
+                copy arr_shared2+67, arr1+6
+                copy arr_shared2+71, arr1+7
 cod54           lda arr2+5                   ; c206
                 and #%00000100
                 beq cod55
@@ -2917,22 +2842,16 @@ cod54           lda arr2+5                   ; c206
                 beq ++
                 lda arr_shared2+20
                 beq ++
-                lda #$81
-                sta arr1+8
+                copy #$81, arr1+8
                 lda arr_shared2+72
                 and #%11111000
                 beq +
-                lda #7                       ; c227 (unaccessed)
-                sta arr_shared2+72           ; unaccessed
-                lda #$ff                     ; unaccessed
-                sta arr_shared2+68           ; unaccessed
-+               lda arr_shared2+68           ; c231
-                sta arr1+10
-                lda arr_shared2+72
-                sta arr1+11
+                copy #7,   arr_shared2+72    ; c227 (unaccessed)
+                copy #$ff, arr_shared2+68    ; unaccessed
++               copy arr_shared2+68, arr1+10 ; c231
+                copy arr_shared2+72, arr1+11
                 jmp cod55
-++              lda #0                       ; c23e
-                sta arr1+8
+++              copy #0, arr1+8              ; c23e
 cod55           lda arr2+5                   ; c242
                 and #%00001000
                 beq rts3
@@ -2957,8 +2876,7 @@ cod55           lda arr2+5                   ; c242
                 lda #1
 +               ora #%00110000               ; c274
                 sta arr1+12
-                lda #0
-                sta arr1+13
+                copy #0, arr1+13
                 lda arr_shared2+128
                 ror a
                 ror a
@@ -2971,9 +2889,8 @@ cod55           lda arr2+5                   ; c242
                 sta arr1+14
                 lda #0
                 sta arr1+15
-                beq rts3
-++              lda #$30                     ; c296
-                sta arr1+12
+                beq rts3                     ; always
+++              copy #$30, arr1+12           ; c296
 rts3            rts                          ; c29a
 
 dat5            hex 00 40 80 c0              ; c29b (partially unaccessed)
