@@ -22,6 +22,11 @@
 ;    12:         in-game & transitioning between levels
 ;    3, 5, 6, 2: exploding & respawning in-game
 ; task1 & task2 seem to be the same in frame resolution (in FCEUX Hex Editor)
+;
+; Sprite slots:
+;   ship: 0
+;   shadow ship: usually 3, but 2 when switching
+;   stars: 4-15 (tile $fe)
 
 ; --- Constants ---------------------------------------------------------------
 
@@ -688,9 +693,9 @@ sub10           ; $871d; called by in_game
                 beq +
                 jsr sub13
                 jmp sub12
-+               jsr sub12                    ; $8748 (unaccessed)
-                copy #$30, oam_copy+0*4+1    ; unaccessed
-                rts                          ; unaccessed
++               jsr sub12
+                copy #$30, oam_copy+0*4+1    ; ship tile
+                rts
 
                 ; $8751; read by move_player; index = d-pad %UDLR
 plr_x_chg_hi    db >0, >192, >(65536-192), >0  ; -, R,  L,  LR
@@ -756,15 +761,15 @@ plr_spr_x_add   ; $87cf; read by sub12
                 db 0, 36, 0
 
 sub12           ; $87d2; called by sub10, explode, sub31
-                lda plr_y_hi
+                lda plr_y_hi                 ; ship & shadow ship Y
                 sta oam_copy+0*4+0
                 sta oam_copy+3*4+0
                 ;
-                copy #0, oam_copy+0*4+2
-                copy #2, oam_copy+3*4+2
-                copy #4, oam_copy+0*4+1
+                copy #$00, oam_copy+0*4+2    ; ship attributes
+                copy #$02, oam_copy+3*4+2    ; shadow ship attributes
+                copy #$04, oam_copy+0*4+1    ; ship tile
                 ;
-                ; sprite #3 tile = $0e + ((ram12 >> 2) & 1)
+                ; shadow ship tile = $0e + ((ram12 >> 2) & 1)
                 lda ram12
                 lsr a
                 lsr a
@@ -773,21 +778,21 @@ sub12           ; $87d2; called by sub10, explode, sub31
                 adc #0
                 sta oam_copy+3*4+1
                 ;
-                ldy ram28
+                ldy ram28                    ; ship X pos
                 lda plr_x_hi
                 clc
                 adc plr_spr_x_add,y
                 sta oam_copy+0*4+3
                 ;
-                iny
+                iny                          ; shadow ship X pos
                 lda plr_x_hi
                 clc
                 adc plr_spr_x_add,y
                 sta oam_copy+3*4+3
                 sta oam_copy+2*4+3
                 ;
-                copy #$fe, oam_copy+2*4+0
-                ;
+                ; secondary sprite of shadow ship
+                copy #$fe, oam_copy+2*4+0      ; Y
                 ldy ram35
                 beq +
                 dey
@@ -795,14 +800,15 @@ sub12           ; $87d2; called by sub10, explode, sub31
                 tya
                 lsr a
                 lsr a
-                sta oam_copy+2*4+1
-                copy plr_y_hi, oam_copy+2*4+0
-                copy #0,       oam_copy+2*4+2
+                sta oam_copy+2*4+1             ; tile
+                copy plr_y_hi, oam_copy+2*4+0  ; Y
+                copy #$00,     oam_copy+2*4+2  ; attributes
 +               rts
 
 sub13           ; $882a; called by sub10
                 lda ram29
                 beq ++
+                ;
                 ; unaccessed up to $884d
                 cmp #$0b                     ; $882e
                 lda #$10
@@ -814,6 +820,7 @@ sub13           ; $882a; called by sub10
                 jsr plr_y_hi                 ; ???
                 add #6
                 sta oam_copy+1*4+0
+                ;
 ++              rts                          ; $884e
 
 sub14           ; $884f; called by sub31
@@ -859,6 +866,7 @@ loop1           lda ptr1+0
                 inx
                 inx
 +               stx ram14
+                ;
 ++              rts                          ; $889d
 
 sub15           ; $889e; called by sub21, in_game, explode, ingame_fadeout
@@ -872,9 +880,10 @@ sub15           ; $889e; called by sub21, in_game, explode, ingame_fadeout
                 lda ram33
                 adc #0
                 sta ptr2+1
-                ldy #$0b
+                ldy #11
                 sty ptr2+0
--               ldy ptr2+0
+                ;
+loop1b          ldy ptr2+0
                 lda ptr2+1
                 beq cod6
                 sta ptr1+1
@@ -906,18 +915,20 @@ sub15           ; $889e; called by sub21, in_game, explode, ingame_fadeout
                 lda ram40
                 and #%01111111
                 sta arr23,y
+                ;
 cod6            lda arr21,y
-                sta oam_copy,x
+                sta oam_copy+0,x
                 lda arr20,y
                 sta oam_copy+3,x
-                lda #$23
+                lda #%00100011
                 sta oam_copy+2,x
-                lda #$fe
+                lda #$fe                     ; star tile
                 sta oam_copy+1,x
                 axs_imm $fc                  ; $8912: equiv. to 4*INX
                 beq +
                 dec ptr2+0
-                bpl -
+                bpl loop1b
+                ;
 +               stx ram14
 rts3            rts
 
@@ -962,7 +973,7 @@ sub16           ; $8936; unaccessed up to $899d
                 sta plr_x_hi
                 ldy #7
                 ;
--               jsr sub7
+loop1c          jsr sub7
                 lsr a
                 lsr a
                 sub #$20
@@ -988,7 +999,7 @@ sub16           ; $8936; unaccessed up to $899d
                 sbc #0
                 sta arr17,y
                 dey
-                bpl -
+                bpl loop1c
                 ;
                 rts
 
@@ -998,7 +1009,7 @@ sub17           ; $899f; unaccessed up to $8a18
                 ldy ram14
                 ldx #7
                 ;
--               lda arr10,x
+loop1d          lda arr10,x
                 clc
                 adc arr16,x
                 sta arr10,x
@@ -1048,7 +1059,7 @@ sub17           ; $899f; unaccessed up to $8a18
                 iny
                 iny
 ++              dex
-                bpl -
+                bpl loop1d
                 ;
                 sty ram14
                 rts
@@ -1305,7 +1316,7 @@ explode         ; $8bfb; called by task_jump_table
                 lda timer
                 bne +
                 copy #22, timer
-+               lda oam_copy+0*4+1
++               lda oam_copy+0*4+1           ; ship tile
                 cmp #$30
                 bcc +
                 cmp #$3a
@@ -1315,7 +1326,7 @@ explode         ; $8bfb; called by task_jump_table
                 jsr sub12
                 pla
                 sta oam_copy+0*4+1
-                copy #1, oam_copy+0*4+2
+                copy #$01, oam_copy+0*4+2    ; ship attribute
                 ;
 +               dec timer
                 bne +
@@ -2166,19 +2177,20 @@ nmi             ; $c809
                 lda ram28
                 eor #%00000001
                 sta ram28
-                copy #0, ram35
-                copy #$fe, oam_copy+2*4+0
-                lda oam_copy+0*4+3
+                copy #0,   ram35
+                copy #$fe, oam_copy+2*4+0    ; hide 2ndary shadow ship sprite
+                lda oam_copy+0*4+3           ; swap X of ship and shadow ship
                 ldy oam_copy+3*4+3
                 sta oam_copy+3*4+3
                 sty oam_copy+0*4+3
+                ;
 +               lda ram13
                 beq +
                 jmp nmi_end                  ; $c84e (unaccessed)
 +               lda ram45
                 beq +
                 ;
-                copy #$30, oam_copy+0*4+1
+                copy #$30, oam_copy+0*4+1    ; ship tile
                 copy #$ff, oam_copy+1*4+0
                 ;
                 lda #3
@@ -2198,7 +2210,7 @@ nmi             ; $c809
                 ldy vscroll2
                 sty ppu_scroll
                 ;
-                copy #0, oam_addr
+                copy #0,         oam_addr
                 copy #>oam_copy, oam_dma
                 ;
                 lda ppu_mask_copy2
