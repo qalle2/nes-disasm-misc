@@ -33,6 +33,8 @@
 ; 'arr' = RAM array, 'ram' = RAM non-array, 'misc' = $2000-$7fff
 
 cod_dat_ptr     equ $00  ; 2 bytes; code & data pointer
+temp1           equ $00  ; overlaps
+temp2           equ $01  ; overlaps
 cod_ptr         equ $02  ; 2 bytes; some code pointer
 ram1            equ $04
 ram2            equ $0e
@@ -289,15 +291,15 @@ cod3            lsr a
                 lda ram1
                 sty ram1
                 bpl +
--               rept 16
+write16bytes    rept 16                      ; $80b3
                     sty ppu_data
                 endr
                 adc #16
-                bmi -
+                bmi write16bytes
                 bcc cod2
                 ;
-+               tay
-                lda dat1,y
++               tay                          ; jump to write 16-A bytes to PPU
+                lda addr_table,y
                 sta cod_ptr+0
                 ldy ram1
                 lda #0
@@ -364,9 +366,23 @@ print_str       ; $80f6: copy string to PPU buffer; A = string_id * 2;
                 bne -
                 jmp ---
 
-dat1            ; $8159; read by sub1
-                hex b3 b6 b9 bc bf c2 c5 c8
-                hex cb ce d1 d4 d7 da dd e0
+addr_table      ; $8159; read by sub1
+                db <(write16bytes+ 0*3)
+                db <(write16bytes+ 1*3)
+                db <(write16bytes+ 2*3)
+                db <(write16bytes+ 3*3)
+                db <(write16bytes+ 4*3)
+                db <(write16bytes+ 5*3)
+                db <(write16bytes+ 6*3)
+                db <(write16bytes+ 7*3)
+                db <(write16bytes+ 8*3)
+                db <(write16bytes+ 9*3)
+                db <(write16bytes+10*3)
+                db <(write16bytes+11*3)
+                db <(write16bytes+12*3)
+                db <(write16bytes+13*3)
+                db <(write16bytes+14*3)
+                db <(write16bytes+15*3)
 
 cod5            ; $8169; copy 32 bytes from stack to PPU; called by sub3, sub4
                 rept 32
@@ -648,16 +664,16 @@ prng_get        ; $86d0; pseudorandom number generator?; called by sub16, sub21
                 eor prng+1                   ; A ^= prng[1]
                 rts
 
-sub8            ; $86ed; called by sub15
+get_star_y_spd  ; $86ed; called by sub15;
                 lsr a
-                sta cod_dat_ptr+0
+                sta temp1
                 lda #0
                 ;
                 ldy #8
 -               bcc +
-                add cod_dat_ptr+1
+                add temp2
 +               ror a
-                ror cod_dat_ptr+0
+                ror temp1
                 dey
                 bne -
                 rts
@@ -839,10 +855,10 @@ sub14           ; $884f; called by sub31
                 bcc loop1
                 ldy #1
                 ;
-loop1           lda cod_dat_ptr+0
+loop1           lda temp1
                 sta oam_copy+3,x
                 add #8
-                sta cod_dat_ptr+0
+                sta temp1
                 lda #$12
                 sta oam_copy,x
                 lda #0
@@ -862,7 +878,7 @@ loop1           lda cod_dat_ptr+0
                 sta oam_copy+1,x
                 lda #$12
                 sta oam_copy,x
-                lda cod_dat_ptr+0
+                lda temp1
                 sta oam_copy+3,x
                 lda #0
                 sta oam_copy+2,x
@@ -891,22 +907,22 @@ sub15           ; $889e; called by sub21, in_game, explode, ingame_fadeout
 loop1b          ldy cod_ptr+0
                 lda cod_ptr+1
                 beq cod6
-                sta cod_dat_ptr+1
+                sta temp2
                 lda dat3,y
                 clc
                 adc arr23,y
-                jsr sub8
-                sta cod_dat_ptr+1
+                jsr get_star_y_spd
+                sta temp2
                 ;
                 ldy cod_ptr+0
-                lda cod_dat_ptr+0
+                lda temp1
                 clc
                 adc arr22,y
                 sta arr22,y
-                lda stars_y,y
-                adc cod_dat_ptr+1
+                lda stars_y,y                ; move star vertically
+                adc temp2
                 sta stars_y,y
-                bit cod_dat_ptr+1
+                bit temp2
                 bmi +
                 bcc cod6
                 ;
@@ -963,13 +979,13 @@ sub16           ; $8936; unaccessed up to $899d
                 ldy #0
                 ;
 --              lda arr2,y
-                sty cod_dat_ptr+0
+                sty temp1
                 ldy #8
 -               sta arr8,x
                 inx
                 dey
                 bne -
-                ldy cod_dat_ptr+0
+                ldy temp1
                 iny
                 cpy #8
                 bcc --
@@ -1460,7 +1476,7 @@ sub26           ; $8cfc; called by ingame_fadein2, title_fadeout
                 cmp #$0d
                 bcs +
                 lda ppu_buffer+3,x
-                sub cod_dat_ptr+0
+                sub temp1
                 bcs ++
 +               lda #$0f                     ; black
 ++              sta palette_copy+3,y
