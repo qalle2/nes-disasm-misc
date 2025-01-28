@@ -34,7 +34,7 @@ ppu_status      equ $2002
 ppu_addr        equ $2006
 ppu_data        equ $2007
 dmc_freq        equ $4010
-dmc_raw         equ $4011
+dmc_raw         equ $4011  ; output level (0-127, unsigned)
 joypad2         equ $4017
 bank_select     equ $8000  ; MMC3
 bank_data       equ $8001  ; MMC3
@@ -186,7 +186,9 @@ nt_nonzero_cnt  ; how many times to write an incrementing value to NT0
                 db 2
                 db 0                    ; terminator
 
-; note: the sum of the two previous arrays is 1024
+; notes:
+;   - the sum of the two previous arrays is 1024
+;   - see "fukkireta-nt0.dat" for the decompressed NT data
 
 palette         ; $fedd; read by init_program
                 hex 30 1d 2d 10         ; white, black, dark grey, light grey
@@ -258,10 +260,19 @@ reset           ; direct code ($ff3b)
 ; -----------------------------------------------------------------------------
 
 main_loop       ; read bytes starting from start of PRG ROM; for each byte,
-                ; write 4 bytes to dmc_raw
+                ; write 4 bytes to dmc_raw;
+                ; this sub is executed ~95 times/frame, so dmc_raw is written
+                ; ~380 times/frame (~23 kHz);
+                ; pointer starts from $a000; at the beginning, that bank
+                ; contains data from the start of the PRG ROM:
+                ;     55 55 55 55 55 55 55 55 55 55 55 51 56 55 55 55
+                ;     55 55 55 55 45 56 6c 55 6c 55 45 59 55 55 91 55 ...
+                ; first bytes written to dmc_raw:
+                ;   ~46*$40, $41,
+                ;   ~34*$40, $41, $41, $3f, 3*$40, $41
 
                 lda (pointer),y         ; $ff5b
-                sta audio_temp
+                sta audio_temp          ; $ff5d
                 ldy #4                  ; writeaudio_loop counter
 
                 inc pointer+0           ; increment pointer
