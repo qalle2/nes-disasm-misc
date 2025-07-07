@@ -1,4 +1,6 @@
 # nes-disasm-misc
+*Note: This project has been moved to [Codeberg](https://codeberg.org/qalle/nes-misc-disassembled). This version will no longer be updated.*
+
 Others' [NES](https://en.wikipedia.org/wiki/Nintendo_Entertainment_System) homebrew, disassembled by me.
 
 Table of contents:
